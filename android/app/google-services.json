@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "73497335498",
+    "project_id": "moja-project",
+    "storage_bucket": "moja-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73497335498:android:eb61cbcfcd5d43427a4633",
+        "android_client_info": {
+          "package_name": "com.moja.moja"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrVgU4jsdjly2_vN17-MLgZS3FpRq1Oao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73497335498:android:25fb78348a3302637a4633",
+        "android_client_info": {
+          "package_name": "com.moja.moja_pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrVgU4jsdjly2_vN17-MLgZS3FpRq1Oao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

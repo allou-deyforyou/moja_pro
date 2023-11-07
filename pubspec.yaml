@@ -1,0 +1,87 @@
+name: moja_pro
+description: A new Flutter project.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Assets
+  flutter_localizations:
+    sdk: flutter
+  pattern_formatter:
+  cupertino_icons:
+  equatable:
+  go_router:
+  intl:
+  # Widgets
+  reorderable_grid:
+  listenable_tools:
+  widget_tools:
+  maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: main
+  lottie:
+  # Services
+  permission_handler:
+  firebase_messaging:
+  web_socket_channel:
+  http_interceptor:
+  firebase_core:
+  service_tools:
+  firebase_auth:
+  surrealdb_dart:
+    path: ../surrealdb.dart
+  http:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints:
+
+flutter_gen:
+  output: lib/screen/widget/assets/
+  line_length: 80
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/files/
+    - assets/images/
+  fonts:
+    - family: Futura
+      fonts:
+        - asset: assets/fonts/Futura.ttc
+    - family: Optima
+      fonts:
+        - asset: assets/fonts/Optima.ttc
+    - family: Didot
+      fonts:
+        - asset: assets/fonts/Didot.ttc
+    - family: Georgia
+      fonts:
+        - asset: assets/fonts/Georgia.ttf
+    - family: Trebuchet MS
+      fonts:
+        - asset: assets/fonts/Trebuchet MS.ttf
+    - family: GillSans
+      fonts:
+        - asset: assets/fonts/GillSans.ttc
+    - family: AmericanTypewriter
+      fonts:
+        - asset: assets/fonts/AmericanTypewriter.ttc
+    - family: HelveticaNeue
+      fonts:
+        - asset: assets/fonts/HelveticaNeue.ttc
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-Bold.ttf
+        - asset: assets/fonts/Fredoka-Light.ttf
+        - asset: assets/fonts/Fredoka-Medium.ttf
+        - asset: assets/fonts/Fredoka-Regular.ttf
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
