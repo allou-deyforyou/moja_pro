@@ -1,3 +1,0 @@
-FROM surrealdb/surrealdb:nightly
-EXPOSE 8080
-CMD ["start", "--bind", "0.0.0.0:8080", "--log", "trace", "file://data/srdb.db", "--auth", "--allow-funcs", "--allow-scripting", "--allow-net", "--allow-guests"]

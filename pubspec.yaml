@@ -29,22 +29,23 @@ dependencies:
   # Services
   permission_handler:
   firebase_messaging:
-  web_socket_channel:
-  http_interceptor:
+  isar_flutter_libs:
+  surrealdb_dart:
   firebase_core:
   service_tools:
   firebase_auth:
-  surrealdb_dart:
-    path: ../surrealdb.dart
-  http:
+  isar:
+  dio:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  isar_generator:
   flutter_lints:
+  build_runner:
 
 flutter_gen:
-  output: lib/screen/widget/assets/
+  output: lib/screen/widget/service/schema/assets/
   line_length: 80
 
 flutter:

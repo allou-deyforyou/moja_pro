@@ -15,6 +15,7 @@ class MyService extends FlutterService {
   @override
   Future<void> developmentBinding() {
     return Future.wait([
+      RepositoryService.development(),
       FirebaseConfig.development(),
       SurrealConfig.development(),
     ]);
@@ -23,6 +24,7 @@ class MyService extends FlutterService {
   @override
   Future<void> productionBinding() {
     return Future.wait([
+      RepositoryService.production(),
       FirebaseConfig.production(),
       SurrealConfig.production(),
     ]);
@@ -147,6 +149,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       darkTheme: AppThemes.darkTheme,
+      themeMode: ThemeMode.system,
       theme: AppThemes.theme,
       routerConfig: _router,
     );

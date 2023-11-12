@@ -5,7 +5,6 @@ import '_assets.dart';
 
 class AppThemes {
   static const primaryColor = CupertinoColors.systemBlue;
-  // static const tertialColor = Color(0xFFFFC700);
   static const tertialColor = Color(0xFFFF0000);
   static const _appBarTheme = AppBarTheme(
     centerTitle: false,
@@ -95,14 +94,11 @@ class AppThemes {
         floatingActionButtonTheme: _floatingActionButtonTheme,
         appBarTheme: _appBarTheme.copyWith(backgroundColor: Colors.black),
         colorScheme: ColorScheme.fromSeed(
-          // tertiaryContainer: const Color(0xFF59533F),
           tertiaryContainer: const Color(0xFF593F3F),
           brightness: Brightness.dark,
           background: Colors.black,
           onPrimary: Colors.white,
-          // outline: Colors.white,
           seedColor: primaryColor,
-          // surface: Colors.black,
           tertiary: tertialColor,
           primary: primaryColor,
         ),

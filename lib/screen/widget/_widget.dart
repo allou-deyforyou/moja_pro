@@ -1,4 +1,4 @@
-export 'assets/_assets.dart';
+export 'service/schema/assets/_assets.dart';
 
 export 'shared_widgets.dart';
 

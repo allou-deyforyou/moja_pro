@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
@@ -15,7 +16,8 @@ class SearchCountry extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final data = await SurrealConfig.client.select(Country.schema).then(Country.fromListMap);
+      final source = await sql('SELECT * FROM ${Country.schema}');
+      final data = await compute(Country.fromListJson, source);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

@@ -1,8 +1,31 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
+
+class SelectRelay extends AsyncEvent<AsyncState> {
+  const SelectRelay({
+    required this.userId,
+  });
+  final String userId;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+      final filters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = $userId)';
+      final source = await sql('SELECT * FROM ${Relay.schema} $filters');
+      final data = await compute(Relay.fromListJson, source);
+      emit(SuccessState(data));
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}
 
 class SearchRelay extends AsyncEvent<AsyncState> {
   const SearchRelay({

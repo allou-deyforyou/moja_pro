@@ -1,4 +1,4 @@
-export 'service/_service.dart';
+export 'widget/service/_service.dart';
 export 'widget/_widget.dart';
 
 export 'screen_auth_signin.dart';

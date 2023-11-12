@@ -1,6 +1,7 @@
 export 'schema/_schema.dart';
 
 export 'config_firebase.dart';
+export 'config_repository.dart';
 export 'config_surreal.dart';
 
 export 'service_account.dart';

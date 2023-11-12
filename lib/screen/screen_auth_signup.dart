@@ -63,9 +63,9 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
 
   Future<void> _signupUser() {
     return _userController.run(SignupUserEvent(
-      country: _country,
-      relay: _fullname,
-      phone: _phone,
+      countryId: _country.id,
+      relayName: _fullname,
+      userPhone: _phone,
       uid: _uid,
     ));
   }
