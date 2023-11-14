@@ -27,22 +27,19 @@ dependencies:
       ref: main
   lottie:
   # Services
-  permission_handler:
   firebase_messaging:
-  isar_flutter_libs:
-  surrealdb_dart:
+  permission_handler:
   firebase_core:
   service_tools:
   firebase_auth:
-  isar:
+  hive_flutter:
+  hive:
   dio:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  isar_generator:
   flutter_lints:
-  build_runner:
 
 flutter_gen:
   output: lib/screen/widget/service/schema/assets/

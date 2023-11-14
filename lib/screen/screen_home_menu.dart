@@ -38,7 +38,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     super.initState();
 
     /// Assets
-    _currentUser = currentUserController.value!;
+    _currentUser = currentUser.value!;
   }
 
   @override

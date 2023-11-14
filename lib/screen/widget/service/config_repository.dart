@@ -2,11 +2,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-Dio get dio => RepositoryService._internalDio!;
+import '_service.dart';
 
-Future<String> sql(String query) async {
-  return dio.post<String>('/sql', data: query).then((value) => value.data!);
-}
+Dio get dio => RepositoryService._internalDio!;
 
 class RepositoryService {
   const RepositoryService._();
@@ -23,8 +21,8 @@ class RepositoryService {
   static String? _scope;
   static String get scope => _scope!;
 
-  static Dio _createDio() {
-    return _internalDio ??= Dio(BaseOptions(
+  static void _createDio() {
+    _internalDio ??= Dio(BaseOptions(
       baseUrl: _baseUrl,
       connectTimeout: _connectTimeout,
       receiveTimeout: _receiveTimeout,
@@ -35,6 +33,9 @@ class RepositoryService {
         'SC': scope,
       },
     ));
+    _internalDio?.interceptors.add(
+      const _AuthInterceptor(),
+    );
   }
 
   static Future<void> development() async {
@@ -42,12 +43,7 @@ class RepositoryService {
     _database = 'moja';
     _scope = 'agent';
 
-    _createDio()
-      ..interceptors.add(LogInterceptor(
-        responseBody: true,
-        requestBody: true,
-      ))
-      ..interceptors.add(const _AuthInterceptor());
+    _createDio();
   }
 
   static Future<void> production() async {
@@ -55,33 +51,32 @@ class RepositoryService {
     _database = 'moja';
     _scope = 'agent';
 
-    _createDio()
-      ..interceptors.add(LogInterceptor())
-      ..interceptors.add(const _AuthInterceptor());
+    _createDio();
   }
 }
 
 class _AuthInterceptor extends Interceptor {
   const _AuthInterceptor();
-
-  // static const _bearerKey = 'Bearer';
+  static const _bearerKey = 'Bearer';
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    // if (false) {
-    //   options.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
-    // }
+  void onRequest(options, handler) async {
+    final token = Database.token;
+    if (token != null) {
+      options.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
+    }
     return super.onRequest(options, handler);
   }
 
   @override
-  Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    // if (err.response?.statusCode == HttpStatus.unauthorized) {
-    //   const token = '';
-    //   // final token = await _refreshToken();
-    //   err.requestOptions.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
-    //   return handler.resolve(await dio.fetch(err.requestOptions));
-    // }
+  Future onError(err, handler) async {
+    if (err.response?.statusCode == HttpStatus.unauthorized) {
+      final token = await refreshToken();
+      if (token != null) {
+        err.requestOptions.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
+        return handler.resolve(await dio.fetch(err.requestOptions));
+      }
+    }
     return super.onError(err, handler);
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
@@ -15,44 +14,8 @@ class SelectRelay extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
       final filters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = $userId)';
-      final source = await sql('SELECT * FROM ${Relay.schema} $filters');
-      final data = await compute(Relay.fromListJson, source);
-      emit(SuccessState(data));
-    } catch (error) {
-      emit(FailureState(
-        code: error.toString(),
-        event: this,
-      ));
-    }
-  }
-}
-
-class SearchRelay extends AsyncEvent<AsyncState> {
-  const SearchRelay({
-    this.live = false,
-    required this.userId,
-    this.ids,
-  });
-  final bool live;
-  final String? userId;
-  final List<String>? ids;
-
-  String get _rawSQL => r'''
-SELECT
-  *,
-  (SELECT *, array::first(<-(has WHERE in = $parent.id).amount) as amount FROM account) as accounts 
-FROM relay WHERE <-works<-(user WHERE id = $userId) PARALLEL;
-''';
-  @override
-  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
-    try {
-      emit(const PendingState());
-      final data = await SurrealConfig.client
-          .query(_rawSQL, vars: {
-            'userId': userId,
-          })
-          .then((value) => value!.first)
-          .then(Relay.fromListMap);
+      final responses = await sql('SELECT * FROM ${Relay.schema} $filters');
+      final data = Relay.fromListMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
@@ -65,25 +28,16 @@ FROM relay WHERE <-works<-(user WHERE id = $userId) PARALLEL;
 
 class GetRelay extends AsyncEvent<AsyncState> {
   const GetRelay({
-    this.live = false,
     required this.id,
   });
-  final bool live;
   final String id;
-  String get _rawSQL => r'''
-SELECT
-    *,
-    (SELECT id, name, array::first(<-created.balance) as balance FROM account)
-  as accounts FROM ONLY $id;
-''';
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final data = await SurrealConfig.client.query(_rawSQL, vars: {
-        'id': id,
-      }).then(Relay.fromListMap);
-      emit(SuccessState(data.first));
+      final responses = await sql('SELECT * FROM ONLY $id');
+      final data = Relay.fromMap(responses.first);
+      emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
         code: error.toString(),
@@ -115,33 +69,16 @@ class SetRelay extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final data = await SurrealConfig.client.insert(relay?.name ?? Relay.schema, data: {
+      final id = relay?.id ?? Relay.schema;
+      final values = {
         Relay.nameKey: name,
         Relay.imageKey: image,
         Relay.contactsKey: contacts,
         Relay.availabilityKey: availability,
         Relay.locationKey: location?.toMap(),
-      }).then(Relay.fromMap);
-      emit(SuccessState(data));
-    } catch (error) {
-      emit(FailureState(
-        code: error.toString(),
-        event: this,
-      ));
-    }
-  }
-}
-
-class DeleteRelay extends AsyncEvent<AsyncState> {
-  const DeleteRelay({
-    required this.relay,
-  });
-  final Relay relay;
-  @override
-  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
-    try {
-      emit(const PendingState());
-      final data = await SurrealConfig.client.delete(relay.name).then(Relay.fromMap);
+      }..removeWhere((key, value) => value == null);
+      final responses = await sql('INSERT INTO ONLY $id $values');
+      final data = Relay.fromMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

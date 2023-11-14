@@ -2,6 +2,11 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
+typedef Point = ({
+  double latitude,
+  double longitude,
+});
+
 class Place extends Equatable {
   const Place({
     this.city,
@@ -26,7 +31,7 @@ class Place extends Equatable {
   final String? state;
   final String? name;
   final String? country;
-  final (double, double)? position;
+  final Point? position;
 
   String get title {
     if (city != null && locality != null) {
@@ -69,7 +74,7 @@ class Place extends Equatable {
     String? state,
     String? name,
     String? country,
-    (double, double)? position,
+    Point? position,
   }) {
     return Place(
       city: city ?? this.city,
@@ -93,13 +98,17 @@ class Place extends Equatable {
   }
 
   static Place fromMap(dynamic data) {
+    final position = data[positionKey];
     return Place(
       city: data[cityKey],
       name: data[nameKey],
       state: data[stateKey],
       country: data[countryKey],
       locality: data[localityKey],
-      position: (data[positionKey]['latitude'], data[positionKey]['longitude']),
+      position: (
+        latitude: position['latitude'],
+        longitude: position['longitude'],
+      ),
     );
   }
 
@@ -110,7 +119,10 @@ class Place extends Equatable {
       stateKey: state,
       countryKey: country,
       localityKey: locality,
-      positionKey: position,
+      positionKey: {
+        'latitude': position?.latitude,
+        'longitude': position?.longitude,
+      },
     }..removeWhere((key, value) => value == null);
   }
 

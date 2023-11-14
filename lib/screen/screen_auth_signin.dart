@@ -66,7 +66,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
 
   void _listenUserState(BuildContext context, AsyncState state) {
     if (state is SuccessState<User>) {
-      currentUserController.value = state.data;
+      currentUser.value = state.data;
       context.goNamed(HomeScreen.name);
     } else if (state is FailureState<SigninUserEvent>) {
       switch (state.code) {
@@ -97,7 +97,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
     _codeTextController = TextEditingController();
 
     /// AuthService
-    _authController = currentAuthController;
+    _authController = currentAuth;
 
     /// UserService
     _userController = AsyncController(const InitState());

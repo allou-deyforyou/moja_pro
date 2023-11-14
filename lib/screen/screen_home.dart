@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:listenable_tools/listenable_tools.dart';
@@ -12,7 +11,7 @@ class HomeScreen extends StatefulWidget {
   static const path = '/';
 
   static Future<String?> redirect(BuildContext context, GoRouterState state) async {
-    if (currentUserController.value != null) return null;
+    if (currentUser.value != null) return null;
     return AuthScreen.path;
   }
 
@@ -81,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     /// Assets
-    _currentUser = currentUserController.value!;
+    _currentUser = currentUser.value!;
     _currentRelay = _currentUser.relays!.first;
     _accountList = _currentRelay.accounts!;
     _availableController = ValueNotifier(false);
@@ -93,23 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 64.0,
-        foregroundColor: Colors.white,
-        titleTextStyle: context.theme.textTheme.bodyMedium!.copyWith(color: Colors.white),
-        title: const Text(
-          "Definissez la localité de votre point relais pour permettre aux clients de le retrouver facilement.",
-          softWrap: true,
-          maxLines: 2,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.pushNamed(ProfileLocationScreen.name),
-            icon: const Icon(CupertinoIcons.arrow_right),
-          )
-        ],
-        backgroundColor: CupertinoColors.systemRed.resolveFrom(context),
-      ),
       body: CustomScrollView(
         slivers: [
           HomeSliverAppBar(

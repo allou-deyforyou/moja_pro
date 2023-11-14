@@ -88,10 +88,10 @@ class _AuthScreenState extends State<AuthScreen> {
     _phoneTextController = TextEditingController();
 
     /// CountryService
-    _countryController = currentCountryController;
+    _countryController = currentCountry;
 
     /// AuthService
-    _authController = currentAuthController;
+    _authController = currentAuth;
     _timeout = Duration.zero;
   }
 

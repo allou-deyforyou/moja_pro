@@ -52,7 +52,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
 
   void _listenUserState(BuildContext context, AsyncState state) {
     if (state is SuccessState<User>) {
-      currentUserController.value = state.data;
+      currentUser.value = state.data;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignupUserEvent>(:final code)) {
       _showErrorSnackbar(switch (code) {

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:widget_tools/widget_tools.dart';
 import 'package:listenable_tools/listenable_tools.dart';
@@ -97,9 +96,9 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   }
 
   void _searchPlaceByPosition(LatLng center) {
-    _placeController.run(SearchPlaceByPosition(position: (
-      center.latitude,
-      center.longitude,
+    _placeController.run(SearchPlace(position: (
+      longitude: center.longitude,
+      latitude: center.latitude,
     )));
   }
 
@@ -121,7 +120,6 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   @override
   void dispose() {
     /// Assets
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _pinAnimationController.dispose();
     _myLocationController.dispose();
 

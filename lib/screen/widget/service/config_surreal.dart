@@ -1,45 +1,39 @@
-import 'package:surrealdb_dart/surrealdb_dart.dart';
+import 'dart:convert';
 
-class SurrealConfig {
-  const SurrealConfig._();
+import 'package:flutter/foundation.dart';
 
-  static String? _httpUrl;
-  static String get httpUrl => _httpUrl!;
+import 'config_repository.dart';
 
-  static String? _wsUrl;
-  static String get wsUrl => _wsUrl!;
+Future<Iterable<Object>> sql(String query) async {
+  final response = await dio.post<String>('/sql', data: query);
+  final data = await compute(_Response.fromListJson, response.data!);
+  return data.map((res) => res.result!);
+}
 
-  static String? _namespace;
-  static String get namespace => _namespace!;
-  static String? _database;
-  static String get database => _database!;
-  static String? _scope;
-  static String get scope => _scope!;
+class _Response {
+  const _Response({
+    required this.id,
+    required this.error,
+    required this.result,
+  });
 
-  static SurrealDB? _client;
-  static SurrealDB get client {
-    return _client ??= SurrealDB.connect(
-      Uri.parse(wsUrl),
-      onConnected: (db) async {
-        return db.use(
-          namespace: namespace,
-          database: database,
-        );
-      },
+  static const String idKey = 'id';
+  static const String errorKey = 'error';
+  static const String resultKey = 'result';
+
+  final String? id;
+  final Object? error;
+  final Object? result;
+
+  static _Response fromMap(dynamic data) {
+    return _Response(
+      id: data[idKey],
+      error: data[errorKey],
+      result: data[resultKey],
     );
   }
 
-  static Future<void> development() async {
-    _wsUrl = 'wss://dei-surrealdb.fly.dev/rpc';
-    _namespace = 'development';
-    _database = 'moja';
-    _scope = 'agent';
-  }
-
-  static Future<void> production() async {
-    _wsUrl = 'wss://dei-surrealdb.fly.dev/rpc';
-    _namespace = 'production';
-    _database = 'moja';
-    _scope = 'agent';
+  static Iterable<_Response> fromListJson(String source) {
+    return (jsonDecode(source) as List).map(fromMap);
   }
 }

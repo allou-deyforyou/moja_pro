@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '_service.dart';
 
-AsyncController<AsyncState> get currentAuthController => Singleton.instance(() => AsyncController(const InitState()), 'auth');
+AsyncController<AsyncState> get currentAuth => singleton(AsyncController(const InitState()));
 
 class AuthStateSmsCodeSent extends AsyncState {
   const AuthStateSmsCodeSent({

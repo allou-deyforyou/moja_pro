@@ -17,7 +17,7 @@ class MyService extends FlutterService {
     return Future.wait([
       RepositoryService.development(),
       FirebaseConfig.development(),
-      SurrealConfig.development(),
+      Database.development(),
     ]);
   }
 
@@ -26,7 +26,7 @@ class MyService extends FlutterService {
     return Future.wait([
       RepositoryService.production(),
       FirebaseConfig.production(),
-      SurrealConfig.production(),
+      Database.production(),
     ]);
   }
 }
@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
 
     /// Assets
     _router = GoRouter(
-      refreshListenable: currentUserController,
+      refreshListenable: currentUser,
       routes: [
         GoRoute(
           name: HomeScreen.name,
