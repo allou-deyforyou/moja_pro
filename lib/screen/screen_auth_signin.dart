@@ -16,6 +16,15 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
   /// Assets
   late TextEditingController _codeTextController;
 
+  Future<void> _onSubmitPressed() {
+    if (_userId != null) {
+      return _getUser();
+    } else if (_uid != null) {
+      return _signinUser();
+    }
+    return _signin();
+  }
+
   /// AuthService
   late final AsyncController<AsyncState> _authController;
   late Country _currentCountry;
@@ -45,7 +54,6 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
   }
 
   Future<void> _signin() {
-    if (_uid != null) return _signinUser();
     return _authController.run(SignInEvent(
       smsCode: _codeTextController.text,
       verificationId: _verificationId,
@@ -63,13 +71,17 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
 
   /// UserService
   late final AsyncController<AsyncState> _userController;
+  String? _userId;
 
   void _listenUserState(BuildContext context, AsyncState state) {
-    if (state is SuccessState<User>) {
-      currentUser.value = state.data;
+    if (state case SuccessState<String>(:final data)) {
+      _userId = data;
+      _getUser();
+    } else if (state case SuccessState<User>(:final data)) {
+      currentUser.value = data;
       context.goNamed(HomeScreen.name);
-    } else if (state is FailureState<SigninUserEvent>) {
-      switch (state.code) {
+    } else if (state case FailureState<SigninUserEvent>(:final code)) {
+      switch (code) {
         case 'no-record':
           context.pushNamed(AuthSignupScreen.name, extra: {
             AuthSignupScreen.countryKey: _currentCountry,
@@ -80,6 +92,12 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
         default:
       }
     }
+  }
+
+  Future<void> _getUser() {
+    return _userController.run(GetUserEvent(
+      id: _userId!,
+    ));
   }
 
   Future<void> _signinUser() {
@@ -138,7 +156,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
                     listener: _listenUserState,
                     controller: _userController,
                     builder: (context, userState, child) {
-                      VoidCallback? onPressed = _signin;
+                      VoidCallback? onPressed = _onSubmitPressed;
                       if (authState is PendingState || userState is PendingState) onPressed = null;
                       return AuthSigninSubmittedButton(
                         onPressed: onPressed,

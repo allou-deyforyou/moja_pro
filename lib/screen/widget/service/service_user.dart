@@ -9,21 +9,16 @@ import '_service.dart';
 
 AsyncController<User?> get currentUser => singleton(AsyncController<User?>(null), User.schema);
 
-Future<String?> refreshToken({
-  String? uid,
-  String? idToken,
-}) async {
+Future<String?> refreshToken({String? uid, String? idToken}) async {
   final user = FirebaseConfig.firebaseAuth.currentUser;
-  if (user == null) return null;
-
-  uid ??= user.uid;
-  idToken ??= await user.getIdToken();
+  uid ??= user?.uid;
+  idToken ??= await user?.getIdToken();
 
   final userId = '${User.schema}:$uid';
   final data = await compute(jsonEncode, {
-    'ns': RepositoryService.namespace,
-    'db': RepositoryService.database,
-    'sc': RepositoryService.scope,
+    'ns': RepositoryConfig.namespace,
+    'db': RepositoryConfig.database,
+    'sc': RepositoryConfig.scope,
     '${User.schema}_${User.idKey}': userId,
     'id_token': idToken,
   });
@@ -32,8 +27,8 @@ Future<String?> refreshToken({
     '/signin',
   );
   final result = await compute(jsonDecode, response.data!);
-  Database.token = result['token'];
-  return Database.token;
+  DatabaseConfig.token = result['token'];
+  return DatabaseConfig.token;
 }
 
 class SigninUserEvent extends AsyncEvent<AsyncState> {
@@ -47,23 +42,16 @@ class SigninUserEvent extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final userId = '${User.schema}:$uid';
       await refreshToken(uid: uid, idToken: idToken);
-      return GetUserEvent(id: userId).handle(emit);
+      emit(SuccessState('${User.schema}:$uid'));
     } on DioException catch (error) {
-      switch (error.type) {
-        case DioExceptionType.badResponse:
-          emit(FailureState(
-            code: 'no-record',
-            event: this,
-          ));
-          break;
-        default:
-          emit(FailureState(
-            code: 'internal-error',
-            event: this,
-          ));
-      }
+      emit(FailureState(
+        code: switch (error.type) {
+          DioExceptionType.badResponse => 'no-record',
+          _ => 'no-internet',
+        },
+        event: this,
+      ));
     } catch (error) {
       emit(FailureState(
         code: 'internal-error',
@@ -90,9 +78,9 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
       emit(const PendingState());
       final userId = '${User.schema}:$uid';
       final data = await compute(jsonEncode, {
-        'ns': RepositoryService.namespace,
-        'db': RepositoryService.database,
-        'sc': RepositoryService.scope,
+        'ns': RepositoryConfig.namespace,
+        'db': RepositoryConfig.database,
+        'sc': RepositoryConfig.scope,
         '${Country.schema}_${Country.idKey}': countryId,
         '${Relay.schema}_${Relay.nameKey}': relayName,
         '${User.schema}_${User.phoneKey}': userPhone,
@@ -103,11 +91,19 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
         '/signup',
       );
       final result = await compute(jsonDecode, response.data!);
-      Database.token = result['token'];
-      return GetUserEvent(id: userId).handle(emit);
+      DatabaseConfig.token = result['token'];
+      emit(SuccessState(userId));
+    } on DioException catch (error) {
+      emit(FailureState(
+        code: switch (error.type) {
+          DioExceptionType.badResponse => 'already-exists',
+          _ => 'no-internet',
+        },
+        event: this,
+      ));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        code: 'internal-error',
         event: this,
       ));
     }
@@ -123,7 +119,12 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final responses = await sql('SELECT * FROM ONLY $id');
+
+      const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      const relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
+      const relayQuery = '(SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters) AS relays';
+      final responses = await sql('SELECT *, $relayQuery FROM ONLY $id');
+
       final data = User.fromMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {

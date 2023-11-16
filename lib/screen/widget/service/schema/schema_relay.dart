@@ -40,6 +40,8 @@ class Relay extends Equatable {
 
   final DateTime? createdAt;
 
+  bool get isActive => availability ?? false;
+
   @override
   List<Object?> get props {
     return [
@@ -138,7 +140,7 @@ class Relay extends Equatable {
   }
 
   static List<Relay> fromListJson(String source) {
-    return List.of((jsonDecode(source) as List).map((value) => fromMap(value)));
+    return List.of((jsonDecode(source) as List).map(fromMap));
   }
 
   static String toListJson(List<Relay> values) {

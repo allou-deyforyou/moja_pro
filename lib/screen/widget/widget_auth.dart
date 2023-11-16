@@ -13,7 +13,12 @@ class AuthAppBar extends StatelessWidget {
       toolbarHeight: 64.0,
       leading: const Center(child: CustomBackButton()),
       title: DefaultTextStyle.merge(
-        style: const TextStyle(letterSpacing: 1.0),
+        style: const TextStyle(
+          fontFamily: FontFamily.comfortaa,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+          fontSize: 28.0,
+        ),
         child: const Text("S'authentifier"),
       ),
     );
@@ -29,7 +34,11 @@ class AuthEditPhoneAppBar extends StatelessWidget {
       centerTitle: false,
       leading: const Center(child: CustomBackButton()),
       title: DefaultTextStyle.merge(
-        style: const TextStyle(letterSpacing: 1.0),
+        style: const TextStyle(
+          fontFamily: FontFamily.comfortaa,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+        ),
         child: const Text("Changer de numéro"),
       ),
     );
@@ -107,7 +116,7 @@ class AuthSubmittedButton extends StatelessWidget {
             CustomSubmittedButton(
               timeout: timeout,
               onPressed: onPressed,
-              child: const Text("Continuer"),
+              child: Text("Continuer".toUpperCase()),
             ),
           ],
         ),

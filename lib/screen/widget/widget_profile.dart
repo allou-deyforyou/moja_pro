@@ -7,11 +7,19 @@ class ProfileAppBar extends StatelessWidget {
   const ProfileAppBar({super.key});
   @override
   Widget build(BuildContext context) {
-    return const SliverAppBar(
+    return SliverAppBar(
       pinned: true,
       centerTitle: false,
-      leading: Center(child: CustomBackButton()),
-      title: Text("Profil"),
+      leading: const Center(child: CustomBackButton()),
+      title: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: FontFamily.comfortaa,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+          fontSize: 28.0,
+        ),
+        child: const Text("Profil"),
+      ),
     );
   }
 }

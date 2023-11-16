@@ -1,30 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
-
-class SelectRelay extends AsyncEvent<AsyncState> {
-  const SelectRelay({
-    required this.userId,
-  });
-  final String userId;
-  @override
-  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
-    try {
-      emit(const PendingState());
-      final filters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = $userId)';
-      final responses = await sql('SELECT * FROM ${Relay.schema} $filters');
-      final data = Relay.fromListMap(responses.first);
-      emit(SuccessState(data));
-    } catch (error) {
-      emit(FailureState(
-        code: error.toString(),
-        event: this,
-      ));
-    }
-  }
-}
 
 class GetRelay extends AsyncEvent<AsyncState> {
   const GetRelay({
@@ -35,7 +14,8 @@ class GetRelay extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final responses = await sql('SELECT * FROM ONLY $id');
+      const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      final responses = await sql('SELECT *, $accountQuery FROM ONLY $id');
       final data = Relay.fromMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {
@@ -76,8 +56,11 @@ class SetRelay extends AsyncEvent<AsyncState> {
         Relay.contactsKey: contacts,
         Relay.availabilityKey: availability,
         Relay.locationKey: location?.toMap(),
-      }..removeWhere((key, value) => value == null);
-      final responses = await sql('INSERT INTO ONLY $id $values');
+      }
+        ..removeWhere((key, value) => value == null)
+        ..updateAll((key, value) => jsonEncode(value));
+
+      final responses = await sql('UPDATE $id CONTENT $values;');
       final data = Relay.fromMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {

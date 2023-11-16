@@ -1,30 +1,27 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+List<double> generateSuggestions(double amount) {
+  double generateAmount(int amount) {
+    Random random = Random();
+    double result = (random.nextInt(max(1000, amount)) / 1000).round() * 1000.0;
+    return result.clamp(1000.0, 2000000.0);
+  }
 
-import 'package:moja_pro/main.dart';
+  List<double> result = [];
+  for (int i = 0; i < 10; i++) {
+    double amount1 = generateAmount(amount.toInt() + 100000);
+    double amount2 = generateAmount(amount.toInt() - 100000);
+    result.addAll([amount1, amount2]);
+  }
+  result.sort();
+
+  return Set.of(result).toList();
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  double amount = 0;
+  List<double> suggestions = generateSuggestions(amount);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  print("Montant de la transaction : $amount");
+  print("Suggestions de soldes : $suggestions");
 }

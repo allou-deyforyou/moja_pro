@@ -45,16 +45,24 @@ class CustomSubmittedButton extends StatelessWidget {
         return FilledButton(
           onPressed: done ? onPressed : null,
           style: FilledButton.styleFrom(
-            textStyle: theme.textTheme.titleMedium,
+            textStyle: theme.textTheme.labelMedium!.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.0,
+              height: 1.0,
+            ),
             padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
           ),
-          child: Visibility(
-            visible: onPressed != null,
-            replacement: const CustomProgressIndicator(),
+          child: Container(
+            height: 24.0,
+            alignment: Alignment.center,
             child: Visibility(
-              visible: done,
-              replacement: Text('$duration'.substring(0, 7)),
-              child: child!,
+              visible: onPressed != null,
+              replacement: const CustomProgressIndicator(),
+              child: Visibility(
+                visible: done,
+                replacement: Text('$duration'.substring(0, 7)),
+                child: child!,
+              ),
             ),
           ),
         );
@@ -73,9 +81,13 @@ class CustomProgressIndicator extends StatelessWidget {
   final double strokeWidth;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     return SizedBox.fromSize(
       size: Size.fromRadius(radius),
-      child: CircularProgressIndicator(strokeWidth: strokeWidth),
+      child: CircularProgressIndicator(
+        backgroundColor: theme.colorScheme.surface,
+        strokeWidth: strokeWidth,
+      ),
     );
   }
 }
@@ -140,22 +152,16 @@ class CustomListTile extends StatelessWidget {
     this.leading,
     this.subtitle,
     this.trailing,
-    this.contentPadding,
   });
   final VoidCallback? onTap;
-  final EdgeInsetsGeometry? contentPadding;
   final Widget? leading;
   final Widget? title;
   final Widget? subtitle;
   final Widget? trailing;
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     return ListTile(
-      contentPadding: contentPadding,
-      tileColor: theme.colorScheme.secondaryContainer,
-      textColor: theme.colorScheme.onSecondaryContainer,
-      splashColor: theme.colorScheme.onSecondaryContainer.withOpacity(0.12),
+      contentPadding: kTabLabelPadding.copyWith(top: 8.0, bottom: 8.0),
       onTap: onTap,
       title: title,
       leading: leading,

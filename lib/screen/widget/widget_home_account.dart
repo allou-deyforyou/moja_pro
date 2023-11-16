@@ -18,7 +18,15 @@ class HomeAccountAppBar extends StatelessWidget {
       centerTitle: true,
       leadingWidth: 64.0,
       leading: Center(child: leading),
-      title: title,
+      title: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: FontFamily.comfortaa,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+          fontSize: 28.0,
+        ),
+        child: title,
+      ),
       actions: const [CustomCloseButton()],
     );
   }
@@ -37,7 +45,9 @@ class HomeAccountBalanceTextField extends StatelessWidget {
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           style: const TextStyle(
-            fontWeight: FontWeight.w300,
+            fontWeight: FontWeight.w100,
+            letterSpacing: -0.8,
+            wordSpacing: 4.0,
             fontSize: 34.0,
           ),
           inputFormatters: [
@@ -76,7 +86,7 @@ class HomeAccountSuggestionListView extends StatelessWidget {
         itemCount: itemCount,
         itemBuilder: itemBuilder,
         separatorBuilder: (context, index) {
-          return const SizedBox(width: 4.0);
+          return const SizedBox(width: 14.0);
         },
       ),
     );
@@ -87,21 +97,17 @@ class HomeAccountSuggestionItemWidget extends StatelessWidget {
   const HomeAccountSuggestionItemWidget({
     super.key,
     required this.amount,
-    this.selected = false,
-    required this.onSelected,
+    required this.onPressed,
   });
 
   final double amount;
-  final bool selected;
-  final ValueChanged<bool>? onSelected;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      selected: selected,
-      showCheckmark: false,
-      onSelected: onSelected,
-      label: Text("${amount.toInt()} f"),
+    return ActionChip(
+      onPressed: onPressed,
+      label: Text("${amount.formatted} f"),
     );
   }
 }
@@ -122,7 +128,7 @@ class HomeAccountSubmittedButton extends StatelessWidget {
           padding: kTabLabelPadding.copyWith(top: 26.0, bottom: 26.0),
           child: CustomSubmittedButton(
             onPressed: onPressed,
-            child: const Text("Modifier"),
+            child: Text("Modifier".toUpperCase()),
           ),
         ),
       ],

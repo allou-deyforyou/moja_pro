@@ -23,19 +23,18 @@ class HomeAccountScreen extends StatefulWidget {
 class _HomeAccountScreenState extends State<HomeAccountScreen> {
   /// Assets
   late TextEditingController _balanceTextController;
-  late List<(double, bool)> _balanceSuggestions;
   late Account _currentAccount;
   late Relay _currentRelay;
 
   double get _balance {
-    return double.parse(_balanceTextController.text.trimSpace());
+    return double.tryParse(_balanceTextController.text.trimSpace()) ?? 0;
   }
 
   void _setupData() {
     _currentRelay = widget.relay;
     _currentAccount = widget.account;
-    _balanceSuggestions = _currentAccount.balanceSuggestions.map((e) => (e, false)).toList();
-    _balanceTextController = TextEditingController(text: _currentAccount.balance?.formatted);
+    final balance = _currentAccount.balance;
+    _balanceTextController = TextEditingController(text: balance?.formatted);
   }
 
   /// AccountService
@@ -51,8 +50,8 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
 
   Future<void> _setAccount() {
     return _accountController.run(SetAccount(
-      relayId: _currentRelay.id,
       account: _currentAccount,
+      relay: _currentRelay,
       balance: _balance,
     ));
   }
@@ -85,32 +84,46 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
         slivers: [
           HomeAccountAppBar(
             leading: const CircleAvatar(),
-            title: Text("Solde ${_currentAccount.name}"),
+            title: Text("Solde ${_currentAccount.name.toUpperCase()}"),
           ),
+          const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
             child: HomeAccountBalanceTextField(
               controller: _balanceTextController,
             ),
           ),
+          const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                return HomeAccountSuggestionListView(
-                  itemCount: _balanceSuggestions.length,
-                  itemBuilder: (context, index) {
-                    final (amount, selected) = _balanceSuggestions[index];
-                    return HomeAccountSuggestionItemWidget(
-                      onSelected: (selected) => setState(
-                        () => _balanceSuggestions[index] = (amount, selected),
-                      ),
-                      selected: selected,
-                      amount: amount,
-                    );
-                  },
-                );
-              },
-            ),
+            child: ValueListenableBuilder(
+                valueListenable: _balanceTextController,
+                builder: (context, textValue, child) {
+                  return FutureBuilder<List<double>>(
+                    future: generateSuggestions(_balance),
+                    builder: (context, snapshot) {
+                      final suggestions = snapshot.data ?? [];
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return HomeAccountSuggestionListView(
+                            itemCount: suggestions.length,
+                            itemBuilder: (context, index) {
+                              final amount = suggestions[index];
+                              void onPressed() {
+                                _balanceTextController.text = amount.formatted;
+                              }
+
+                              return HomeAccountSuggestionItemWidget(
+                                onPressed: onPressed,
+                                amount: amount,
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                }),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: kMinInteractiveDimension * 2)),
           SliverFillRemaining(
             hasScrollBody: false,
             child: ControllerConsumer(

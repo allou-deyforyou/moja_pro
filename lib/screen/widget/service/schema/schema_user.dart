@@ -8,10 +8,9 @@ class User extends Equatable {
   const User({
     required this.id,
     required this.phone,
+    required this.relay,
     this.lastSign,
     this.createdAt,
-    this.token,
-    this.relays,
   });
 
   static const String schema = 'user';
@@ -20,14 +19,14 @@ class User extends Equatable {
   static const String phoneKey = 'phone';
   static const String lastSignKey = 'last_sign';
   static const String createdAtKey = 'created_at';
-  static const String relaysKey = 'relays';
+  static const String relayKey = 'relays';
 
   final String id;
   final String phone;
   final DateTime? lastSign;
   final DateTime? createdAt;
-  final String? token;
-  final List<Relay>? relays;
+
+  final Relay relay;
 
   @override
   List<Object?> get props {
@@ -36,8 +35,7 @@ class User extends Equatable {
       phone,
       lastSign,
       createdAt,
-      token,
-      relays,
+      relay,
     ];
   }
 
@@ -46,16 +44,14 @@ class User extends Equatable {
     String? phone,
     DateTime? lastSign,
     DateTime? createdAt,
-    String? token,
-    List<Relay>? relays,
+    Relay? relay,
   }) {
     return User(
       id: id ?? this.id,
       phone: phone ?? this.phone,
       lastSign: lastSign ?? this.lastSign,
       createdAt: createdAt ?? this.createdAt,
-      token: token ?? this.token,
-      relays: relays ?? this.relays,
+      relay: relay ?? this.relay,
     );
   }
 
@@ -65,8 +61,7 @@ class User extends Equatable {
       phone: phone,
       lastSign: lastSign,
       createdAt: createdAt,
-      token: token,
-      relays: relays,
+      relay: relay,
     );
   }
 
@@ -74,9 +69,9 @@ class User extends Equatable {
     return User(
       id: data[idKey],
       phone: data[phoneKey],
-      relays: Relay.fromListMap(data[relaysKey] ?? []),
-      lastSign: DateTime.tryParse(data[lastSignKey].toString()),
-      createdAt: DateTime.tryParse(data[createdAtKey].toString()),
+      relay: Relay.fromListMap(data[relayKey]).first,
+      lastSign: DateTime.tryParse(data[lastSignKey]),
+      createdAt: DateTime.tryParse(data[createdAtKey]),
     );
   }
 
@@ -84,14 +79,14 @@ class User extends Equatable {
     return {
       idKey: id,
       phoneKey: phone,
-      lastSignKey: lastSign?.toString(),
-      createdAtKey: createdAt?.toString(),
-      relaysKey: relays?.map((item) => item.toMap()),
+      lastSignKey: lastSign,
+      createdAtKey: createdAt,
+      relayKey: [relay.toMap()],
     }..removeWhere((key, value) => value == null);
   }
 
   static List<User> fromListMap(dynamic data) {
-    return List.of((data as List).map((value) => fromMap(value)));
+    return List.of((data as List).map(fromMap));
   }
 
   static List<Map<String, dynamic>> toListMap(List<User> values) {
@@ -107,7 +102,7 @@ class User extends Equatable {
   }
 
   static List<User> fromListJson(String source) {
-    return List.of((jsonDecode(source) as List).map((value) => fromMap(value)));
+    return List.of((jsonDecode(source) as List).map(fromMap));
   }
 
   static String toListJson(List<User> values) {

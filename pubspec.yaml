@@ -22,9 +22,6 @@ dependencies:
   listenable_tools:
   widget_tools:
   maplibre_gl:
-    git:
-      url: https://github.com/maplibre/flutter-maplibre-gl.git
-      ref: main
   lottie:
   # Services
   firebase_messaging:
@@ -55,31 +52,6 @@ flutter:
     - family: Futura
       fonts:
         - asset: assets/fonts/Futura.ttc
-    - family: Optima
+    - family: Comfortaa
       fonts:
-        - asset: assets/fonts/Optima.ttc
-    - family: Didot
-      fonts:
-        - asset: assets/fonts/Didot.ttc
-    - family: Georgia
-      fonts:
-        - asset: assets/fonts/Georgia.ttf
-    - family: Trebuchet MS
-      fonts:
-        - asset: assets/fonts/Trebuchet MS.ttf
-    - family: GillSans
-      fonts:
-        - asset: assets/fonts/GillSans.ttc
-    - family: AmericanTypewriter
-      fonts:
-        - asset: assets/fonts/AmericanTypewriter.ttc
-    - family: HelveticaNeue
-      fonts:
-        - asset: assets/fonts/HelveticaNeue.ttc
-    - family: Fredoka
-      fonts:
-        - asset: assets/fonts/Fredoka-Bold.ttf
-        - asset: assets/fonts/Fredoka-Light.ttf
-        - asset: assets/fonts/Fredoka-Medium.ttf
-        - asset: assets/fonts/Fredoka-Regular.ttf
-        - asset: assets/fonts/Fredoka-SemiBold.ttf
+        - asset: assets/fonts/Comfortaa.ttf

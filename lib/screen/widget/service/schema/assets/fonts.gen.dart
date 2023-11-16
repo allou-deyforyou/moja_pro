@@ -10,30 +10,9 @@
 class FontFamily {
   FontFamily._();
 
-  /// Font family: AmericanTypewriter
-  static const String americanTypewriter = 'AmericanTypewriter';
-
-  /// Font family: Didot
-  static const String didot = 'Didot';
-
-  /// Font family: Fredoka
-  static const String fredoka = 'Fredoka';
+  /// Font family: Comfortaa
+  static const String comfortaa = 'Comfortaa';
 
   /// Font family: Futura
   static const String futura = 'Futura';
-
-  /// Font family: Georgia
-  static const String georgia = 'Georgia';
-
-  /// Font family: GillSans
-  static const String gillSans = 'GillSans';
-
-  /// Font family: HelveticaNeue
-  static const String helveticaNeue = 'HelveticaNeue';
-
-  /// Font family: Optima
-  static const String optima = 'Optima';
-
-  /// Font family: Trebuchet MS
-  static const String trebuchetMS = 'Trebuchet MS';
 }

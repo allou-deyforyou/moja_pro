@@ -39,6 +39,13 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
     return _fullnameTextController.text.trim();
   }
 
+  Future<void> _onSubmitPressed() {
+    if (_userId != null) {
+      return _getUser();
+    }
+    return _signupUser();
+  }
+
   void _showErrorSnackbar(String text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       behavior: SnackBarBehavior.floating,
@@ -49,16 +56,26 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
 
   /// UserService
   late AsyncController<AsyncState> _userController;
+  String? _userId;
 
   void _listenUserState(BuildContext context, AsyncState state) {
-    if (state is SuccessState<User>) {
-      currentUser.value = state.data;
+    if (state case SuccessState<String>(:final data)) {
+      _userId = data;
+      _getUser();
+    } else if (state case SuccessState<User>(:final data)) {
+      currentUser.value = data;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignupUserEvent>(:final code)) {
       _showErrorSnackbar(switch (code) {
         _ => "Une erreur s'est produite",
       });
     }
+  }
+
+  Future<void> _getUser() {
+    return _userController.run(GetUserEvent(
+      id: _userId!,
+    ));
   }
 
   Future<void> _signupUser() {
@@ -114,7 +131,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
               listener: _listenUserState,
               controller: _userController,
               builder: (context, state, child) {
-                VoidCallback? onPressed = _signupUser;
+                VoidCallback? onPressed = _onSubmitPressed;
                 if (state is PendingState) onPressed = null;
                 return AuthSignupContinueButton(
                   onPressed: onPressed,

@@ -15,18 +15,18 @@ class MyService extends FlutterService {
   @override
   Future<void> developmentBinding() {
     return Future.wait([
-      RepositoryService.development(),
+      RepositoryConfig.development(),
       FirebaseConfig.development(),
-      Database.development(),
+      DatabaseConfig.development(),
     ]);
   }
 
   @override
   Future<void> productionBinding() {
     return Future.wait([
-      RepositoryService.production(),
+      RepositoryConfig.production(),
       FirebaseConfig.production(),
-      Database.production(),
+      DatabaseConfig.production(),
     ]);
   }
 }

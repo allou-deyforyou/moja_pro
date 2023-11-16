@@ -7,11 +7,19 @@ class AuthSigninAppBar extends StatelessWidget {
   const AuthSigninAppBar({super.key});
   @override
   Widget build(BuildContext context) {
-    return const SliverAppBar.medium(
+    return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
-      leading: Center(child: CustomBackButton()),
-      title: Text("Confirmer"),
+      leading: const Center(child: CustomBackButton()),
+      title: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: FontFamily.comfortaa,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+          fontSize: 28.0,
+        ),
+        child: const Text("Confirmer"),
+      ),
     );
   }
 }
@@ -97,7 +105,7 @@ class AuthSigninSubmittedButton extends StatelessWidget {
           children: [
             CustomSubmittedButton(
               onPressed: onPressed,
-              child: const Text("Terminé"),
+              child: Text("Terminé".toUpperCase()),
             ),
           ],
         ),

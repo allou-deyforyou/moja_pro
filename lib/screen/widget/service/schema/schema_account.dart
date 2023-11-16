@@ -19,10 +19,6 @@ class Account extends Equatable {
   final String name;
   final double? balance;
 
-  List<double> get balanceSuggestions {
-    return [];
-  }
-
   @override
   String toString() {
     return toMap().toString();

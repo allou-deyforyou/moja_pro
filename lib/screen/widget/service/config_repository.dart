@@ -4,10 +4,10 @@ import 'package:dio/dio.dart';
 
 import '_service.dart';
 
-Dio get dio => RepositoryService._internalDio!;
+Dio get dio => RepositoryConfig._internalDio!;
 
-class RepositoryService {
-  const RepositoryService._();
+class RepositoryConfig {
+  const RepositoryConfig._();
 
   static Dio? _internalDio;
   static const _connectTimeout = Duration(seconds: 5);
@@ -60,8 +60,8 @@ class _AuthInterceptor extends Interceptor {
   static const _bearerKey = 'Bearer';
 
   @override
-  void onRequest(options, handler) async {
-    final token = Database.token;
+  void onRequest(options, handler) {
+    final token = DatabaseConfig.token;
     if (token != null) {
       options.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
     }
@@ -69,7 +69,7 @@ class _AuthInterceptor extends Interceptor {
   }
 
   @override
-  Future onError(err, handler) async {
+  void onError(err, handler) async {
     if (err.response?.statusCode == HttpStatus.unauthorized) {
       final token = await refreshToken();
       if (token != null) {

@@ -43,8 +43,7 @@ class AppThemes {
     isDense: true,
     labelStyle: TextStyle(fontSize: 18.0),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(18.0)),
-      borderSide: BorderSide(width: 2.0),
+      borderRadius: BorderRadius.all(Radius.circular(8.0)),
     ),
     contentPadding: EdgeInsets.all(12.0),
     floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -71,10 +70,8 @@ class AppThemes {
         inputDecorationTheme: _inputDecorationTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
         colorScheme: ColorScheme.fromSeed(
-          // tertiaryContainer: const Color(0xFFF1EEE4),
           tertiaryContainer: const Color(0xFFF1E4E4),
           brightness: Brightness.light,
-          // outline: Colors.black,
           seedColor: primaryColor,
           tertiary: tertialColor,
           primary: primaryColor,

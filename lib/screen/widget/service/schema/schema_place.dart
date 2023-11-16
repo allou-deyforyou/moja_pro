@@ -119,10 +119,7 @@ class Place extends Equatable {
       stateKey: state,
       countryKey: country,
       localityKey: locality,
-      positionKey: {
-        'latitude': position?.latitude,
-        'longitude': position?.longitude,
-      },
+      positionKey: position,
     }..removeWhere((key, value) => value == null);
   }
 

@@ -43,7 +43,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const largeSpace = SliverToBoxAdapter(child: Divider(height: 26.0));
+    const divider = SliverToBoxAdapter(child: Divider());
 
     return Scaffold(
       body: CustomScrollView(
@@ -53,42 +53,42 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
           SliverMainAxisGroup(
             slivers: [
               SliverToBoxAdapter(
-                child: HomeMenuProfileListTile(
+                child: HomeMenuProfile(
                   onTap: _openProfileScreen,
                 ),
               ),
               SliverToBoxAdapter(
-                child: HomeMenuEditPhoneListTile(
+                child: HomeMenuEditPhone(
                   onTap: _openAuthScreen,
                 ),
               ),
-              largeSpace,
+              divider,
               SliverToBoxAdapter(
-                child: HomeMenuNotifsListTile(
+                child: HomeMenuNotifs(
                   onChanged: _onNotifsTaped,
                   value: true,
                 ),
               ),
               SliverToBoxAdapter(
-                child: HomeMenuThemeListTile(
+                child: HomeMenuTheme(
                   onTap: _openThemeModal,
                   trailing: const Text("Systeme"),
                 ),
               ),
-              largeSpace,
+              divider,
               SliverToBoxAdapter(
-                child: HomeMenuSupportListTile(
+                child: HomeMenuSupport(
                   onTap: _openSupportScreen,
                 ),
               ),
               SliverToBoxAdapter(
-                child: HomeMenuShareListTile(
+                child: HomeMenuShare(
                   onTap: _openShareScreen,
                 ),
               ),
-              largeSpace,
+              divider,
               SliverToBoxAdapter(
-                child: HomeMenuLogoutListTile(
+                child: HomeMenuLogout(
                   onTap: () {},
                 ),
               ),

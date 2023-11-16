@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:listenable_tools/async.dart';
 
@@ -28,30 +27,27 @@ class GetAccount extends AsyncEvent<AsyncState> {
 
 class SetAccount extends AsyncEvent<AsyncState> {
   const SetAccount({
-    this.account,
-    this.relayId,
-    this.name,
-    this.balance,
+    required this.account,
+    required this.balance,
+    required this.relay,
   });
-  final Account? account;
+  final Account account;
+  final Relay relay;
 
-  final String? relayId;
+  final double balance;
 
-  final String? name;
-  final double? balance;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final id = account?.id ?? Account.schema;
-      final values = {
-        Account.nameKey: name,
-        Account.balanceKey: balance,
-      }
-        ..removeWhere((key, value) => value == null)
-        ..updateAll((key, value) => {key: jsonEncode(value)});
-      final responses = await sql('INSERT INTO ONLY $id $values');
-      final data = Relay.fromMap(responses.first);
+      final relayId = relay.id;
+      final accountId = account.id;
+
+      final accountQuery = 'LET \$created_id = SELECT VALUE id FROM ONLY created WHERE (in = $relayId and out=$accountId);';
+      final accountUpdate = 'RETURN UPDATE ONLY \$created_id SET balance=$balance;';
+      final accountCreate = 'RETURN RELATE ONLY $relayId->created->$accountId SET balance=$balance;';
+      await sql('$accountQuery RETURN IF (\$created_id != NONE) {$accountUpdate} ELSE {$accountCreate};');
+      final data = account.copyWith(balance: balance);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
