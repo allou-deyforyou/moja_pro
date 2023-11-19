@@ -168,6 +168,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
         body: CustomScrollView(
           slivers: [
             const AuthSigninAppBar(),
+            const SliverPadding(padding: kMaterialListPadding),
             SliverToBoxAdapter(
               child: AuthSignupCodePinTextField(
                 controller: _codeTextController,

@@ -111,6 +111,7 @@ class _AuthScreenState extends State<AuthScreen> {
             sliver: const AuthEditPhoneAppBar(),
             replacementSliver: const AuthAppBar(),
           ),
+          const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
             child: AuthPhoneTextField(
               autofocus: _currentUser != null,

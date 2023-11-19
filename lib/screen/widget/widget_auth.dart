@@ -40,6 +40,7 @@ class AuthEditPhoneAppBar extends StatelessWidget {
           fontFamily: FontFamily.comfortaa,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.0,
+          fontSize: 28.0,
         ),
         child: Text(localizations.changephonenumber.capitalize()),
       ),

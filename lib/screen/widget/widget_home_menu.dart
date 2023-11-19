@@ -13,6 +13,7 @@ class HomeMenuAppBar extends StatelessWidget {
     return SliverAppBar(
       pinned: true,
       centerTitle: false,
+      toolbarHeight: 64.0,
       automaticallyImplyLeading: false,
       backgroundColor: theme.colorScheme.surface,
       shape: Border(
