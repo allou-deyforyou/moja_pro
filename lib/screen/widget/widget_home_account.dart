@@ -3,29 +3,30 @@ import 'package:pattern_formatter/pattern_formatter.dart';
 
 import '_widget.dart';
 
-class HomeAccountAppBar extends StatelessWidget {
-  const HomeAccountAppBar({
+class HomeAccountSliverAppBar extends StatelessWidget {
+  const HomeAccountSliverAppBar({
     super.key,
-    required this.title,
-    required this.leading,
+    required this.name,
   });
-  final Widget title;
-  final Widget leading;
+  final String name;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     return SliverAppBar(
       pinned: true,
       centerTitle: true,
       leadingWidth: 64.0,
-      leading: Center(child: leading),
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: title,
+      toolbarHeight: 64.0,
+      backgroundColor: theme.colorScheme.surface,
+      leading: const Center(child: CircleAvatar()),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontWeight: FontWeight.bold,
+        letterSpacing: 2.0,
+        height: 1.0,
+      ),
+      title: Text(
+        textAlign: TextAlign.center,
+        name.toUpperCase(),
       ),
       actions: const [CustomCloseButton()],
     );
@@ -37,7 +38,13 @@ class HomeAccountBalanceTextField extends StatelessWidget {
   final TextEditingController controller;
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final localizations = context.localizations;
+    return Container(
+      alignment: Alignment.center,
+      padding: kTabLabelPadding.copyWith(
+        bottom: kMinInteractiveDimension,
+        top: kMinInteractiveDimension,
+      ),
       child: IntrinsicWidth(
         child: TextField(
           autofocus: true,
@@ -45,9 +52,9 @@ class HomeAccountBalanceTextField extends StatelessWidget {
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           style: const TextStyle(
-            fontWeight: FontWeight.w100,
-            letterSpacing: -0.8,
-            wordSpacing: 4.0,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 1.0,
+            wordSpacing: 0.0,
             fontSize: 34.0,
           ),
           inputFormatters: [
@@ -55,10 +62,10 @@ class HomeAccountBalanceTextField extends StatelessWidget {
               formatter: defaultNumberFormat,
             ),
           ],
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             filled: false,
-            suffixIcon: Text("francs"),
-            hintText: "Montant",
+            suffixIcon: const Text("francs"),
+            hintText: localizations.balance,
             border: InputBorder.none,
             focusedBorder: InputBorder.none,
           ),
@@ -107,7 +114,10 @@ class HomeAccountSuggestionItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ActionChip(
       onPressed: onPressed,
-      label: Text("${amount.formatted} f"),
+      label: DefaultTextStyle.merge(
+        style: const TextStyle(height: 1.0),
+        child: Text("${amount.formatted} f"),
+      ),
     );
   }
 }
@@ -120,6 +130,7 @@ class HomeAccountSubmittedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,7 +139,7 @@ class HomeAccountSubmittedButton extends StatelessWidget {
           padding: kTabLabelPadding.copyWith(top: 26.0, bottom: 26.0),
           child: CustomSubmittedButton(
             onPressed: onPressed,
-            child: Text("Modifier".toUpperCase()),
+            child: Text(localizations.edit.toUpperCase()),
           ),
         ),
       ],

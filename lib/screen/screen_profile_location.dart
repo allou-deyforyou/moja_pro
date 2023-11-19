@@ -8,7 +8,12 @@ import 'package:listenable_tools/listenable_tools.dart';
 import '_screen.dart';
 
 class ProfileLocationScreen extends StatefulWidget {
-  const ProfileLocationScreen({super.key});
+  const ProfileLocationScreen({
+    super.key,
+    required this.relay,
+  });
+  final Relay relay;
+  static const relayKey = 'relay';
   static const name = 'profile-location';
   static const path = 'location';
   @override

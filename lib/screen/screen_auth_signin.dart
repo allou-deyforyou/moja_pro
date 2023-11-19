@@ -5,7 +5,12 @@ import 'package:listenable_tools/listenable_tools.dart';
 import '_screen.dart';
 
 class AuthSigninScreen extends StatefulWidget {
-  const AuthSigninScreen({super.key});
+  const AuthSigninScreen({
+    super.key,
+    this.currentUser,
+  });
+  final User? currentUser;
+  static const currentUserKey = 'current_user';
   static const name = 'auth-signin';
   static const path = 'signin';
   @override
@@ -14,15 +19,16 @@ class AuthSigninScreen extends StatefulWidget {
 
 class _AuthSigninScreenState extends State<AuthSigninScreen> {
   /// Assets
+  User? _currentUser;
   late TextEditingController _codeTextController;
 
   Future<void> _onSubmitPressed() {
     if (_userId != null) {
       return _getUser();
     } else if (_uid != null) {
-      return _signinUser();
+      return _signinOrSetUser();
     }
-    return _signin();
+    return _signinOrUpdatePhoneNumber();
   }
 
   /// AuthService
@@ -47,14 +53,28 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
     } else if (state is AuthStateUserSigned) {
       _uid = state.userId;
       _idToken = state.idToken;
-      _signinUser();
+      _signinOrSetUser();
     } else if (state is FailureState) {
       switch (state.code) {}
     }
   }
 
+  Future<void> _signinOrUpdatePhoneNumber() {
+    if (_currentUser != null) {
+      return _updatePhoneNumber();
+    }
+    return _signin();
+  }
+
   Future<void> _signin() {
     return _authController.run(SignInEvent(
+      smsCode: _codeTextController.text,
+      verificationId: _verificationId,
+    ));
+  }
+
+  Future<void> _updatePhoneNumber() {
+    return _authController.run(UpdatePhoneNumber(
       smsCode: _codeTextController.text,
       verificationId: _verificationId,
     ));
@@ -78,7 +98,8 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
       _userId = data;
       _getUser();
     } else if (state case SuccessState<User>(:final data)) {
-      currentUser.value = data;
+      currentUser.value = _currentUser?.copyWith(phone: data.phone) ?? data;
+      DatabaseConfig.currentUser = currentUser.value;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SigninUserEvent>(:final code)) {
       switch (code) {
@@ -94,10 +115,12 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
     }
   }
 
-  Future<void> _getUser() {
-    return _userController.run(GetUserEvent(
-      id: _userId!,
-    ));
+  Future<void> _signinOrSetUser() {
+    if (_currentUser != null) {
+      return _setUser();
+    } else {
+      return _signinUser();
+    }
   }
 
   Future<void> _signinUser() {
@@ -107,11 +130,25 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
     ));
   }
 
+  Future<void> _setUser() {
+    return _userController.run(SetUserEvent(
+      user: _currentUser!,
+      phone: _phoneNumber,
+    ));
+  }
+
+  Future<void> _getUser() {
+    return _userController.run(GetUserEvent(
+      id: _userId!,
+    ));
+  }
+
   @override
   void initState() {
     super.initState();
 
     /// Assets
+    _currentUser = widget.currentUser;
     _codeTextController = TextEditingController();
 
     /// AuthService

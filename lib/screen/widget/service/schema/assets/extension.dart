@@ -1,15 +1,16 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-final defaultNumberFormat = NumberFormat.currency(
-  decimalDigits: 0,
-  locale: "fr_CI",
-  name: '',
-);
+NumberFormat get defaultNumberFormat => NumberFormat.currency(
+      decimalDigits: 0,
+      locale: "vi_VM",
+      name: '',
+    );
 
 extension CustomBuildContext on BuildContext {
   MediaQueryData get mediaQuery {
@@ -22,6 +23,10 @@ extension CustomBuildContext on BuildContext {
 
   CupertinoThemeData get cupertinoTheme {
     return CupertinoTheme.of(this);
+  }
+
+  AppLocalizations get localizations {
+    return AppLocalizations.of(this)!;
   }
 }
 
@@ -70,4 +75,26 @@ List<double> _generateSuggestions(double amount) {
   result.sort();
 
   return Set.of(result).toList();
+}
+
+extension CustomLocale on Locale {
+  String format(BuildContext context) {
+    final localizations = context.localizations;
+    return switch (languageCode) {
+      'system' => localizations.system,
+      'fr' => 'français',
+      _ => 'english',
+    };
+  }
+}
+
+extension CustomThemeMode on ThemeMode {
+  String format(BuildContext context) {
+    final localizations = context.localizations;
+    return switch (this) {
+      ThemeMode.system => localizations.system,
+      ThemeMode.light => localizations.light,
+      ThemeMode.dark => localizations.dark,
+    };
+  }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:listenable_tools/listenable_tools.dart';
@@ -22,7 +21,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   /// Assets
-  late User _currentUser;
   late Relay _currentRelay;
   late List<Account> _relayAccounts;
 
@@ -45,18 +43,18 @@ class _HomeScreenState extends State<HomeScreen> {
   late final AsyncController<AsyncState> _relayController;
 
   bool _canRebuildRelay(AsyncState previousState, AsyncState currentState) {
-    if (previousState is SuccessState<Relay> && currentState is PendingState) {
-      return false;
-    }
-    return true;
+    if (currentState is FailureState) return true;
+    return previousState is SuccessState<Relay> && currentState is SuccessState<Relay>;
   }
 
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state is InitState) {
-      // _getRelay();
+      _getRelay();
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
-      _relayAccounts = _currentRelay.accounts!;
+      _relayAccounts = _currentRelay.accounts ?? _relayAccounts;
+      currentUser.value = currentUser.value?.copyWith(relays: [_currentRelay]);
+      DatabaseConfig.currentUser = currentUser.value;
     } else if (state case FailureState<GetRelay>(:final code)) {
       switch (code) {}
     } else if (state case FailureState<SetRelay>(:final code)) {
@@ -73,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _setRelay({required bool availability}) {
     return _relayController.run(SetRelay(
       availability: availability,
+      relay: _currentRelay,
     ));
   }
 
@@ -81,11 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     /// Assets
-    _currentUser = currentUser.value!;
-    _currentRelay = _currentUser.relay;
+    _currentRelay = currentUser.value!.relays!.first;
     _relayAccounts = _currentRelay.accounts ?? const [];
 
-    /// UserService
+    /// RelayService
     _relayController = AsyncController(SuccessState(_currentRelay));
   }
 
@@ -96,38 +94,32 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: _getRelay,
         child: CustomScrollView(
           slivers: [
-            ControllerConsumer(
-              autoListen: true,
-              listener: _listenRelayState,
-              controller: _relayController,
-              builder: (context, state, child) {
-                bool active = _currentRelay.isActive;
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    void onChanged(bool value) {
-                      setState(() => active = value);
-                      _onAvailableChanged(value);
-                    }
+            HomeSliverAppBar(
+              leading: HomeBarsButton(
+                onPressed: _openMenu,
+              ),
+              trailing: ControllerConsumer(
+                autoListen: true,
+                listener: _listenRelayState,
+                controller: _relayController,
+                canRebuild: _canRebuildRelay,
+                builder: (context, state, child) {
+                  bool active = _currentRelay.availability != null;
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      void onChanged(bool value) {
+                        setState(() => active = value);
+                        _onAvailableChanged(value);
+                      }
 
-                    return SliverAppBar.medium(
-                      pinned: true,
-                      leading: HomeBarsButton(
-                        onPressed: _openMenu,
-                      ),
-                      title: HomeListTile(
-                        title: Text(_currentRelay.name.toUpperCase()),
-                        subtitle: const Text("EN LIGNE"),
-                      ),
-                      actions: [
-                        HomeAvailableSwitch(
-                          onChanged: onChanged,
-                          value: active,
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+                      return HomeAvailableSwitch(
+                        onChanged: onChanged,
+                        value: active,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
             ControllerBuilder(
               canRebuild: _canRebuildRelay,

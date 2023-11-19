@@ -15,4 +15,7 @@ class FontFamily {
 
   /// Font family: Futura
   static const String futura = 'Futura';
+
+  /// Font family: Gilroy
+  static const String gilroy = 'Gilroy';
 }

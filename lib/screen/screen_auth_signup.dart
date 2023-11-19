@@ -64,6 +64,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
       _getUser();
     } else if (state case SuccessState<User>(:final data)) {
       currentUser.value = data;
+      DatabaseConfig.currentUser = currentUser.value;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignupUserEvent>(:final code)) {
       _showErrorSnackbar(switch (code) {

@@ -14,7 +14,7 @@ class GetRelay extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema} PARALLEL) AS accounts';
       final responses = await sql('SELECT *, $accountQuery FROM ONLY $id');
       final data = Relay.fromMap(responses.first);
       emit(SuccessState(data));
@@ -29,27 +29,25 @@ class GetRelay extends AsyncEvent<AsyncState> {
 
 class SetRelay extends AsyncEvent<AsyncState> {
   const SetRelay({
-    this.relay,
+    required this.relay,
     this.name,
     this.image,
     this.location,
     this.availability,
     this.contacts,
-    this.workdays,
   });
-  final Relay? relay;
+  final Relay relay;
 
   final String? name;
   final String? image;
   final Place? location;
   final bool? availability;
   final List<String>? contacts;
-  final List<Weekday>? workdays;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final id = relay?.id ?? Relay.schema;
+      final id = relay.id;
       final values = {
         Relay.nameKey: name,
         Relay.imageKey: image,
@@ -60,7 +58,7 @@ class SetRelay extends AsyncEvent<AsyncState> {
         ..removeWhere((key, value) => value == null)
         ..updateAll((key, value) => jsonEncode(value));
 
-      final responses = await sql('UPDATE $id CONTENT $values;');
+      final responses = await sql('UPDATE ONLY $id MERGE $values;');
       final data = Relay.fromMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {

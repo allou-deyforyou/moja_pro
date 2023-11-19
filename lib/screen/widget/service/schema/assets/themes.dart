@@ -23,20 +23,20 @@ class AppThemes {
   );
   static final _filledButtonTheme = FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
     ),
   );
   static final _textButtonTheme = TextButtonThemeData(
     style: TextButton.styleFrom(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
     ),
   );
   static final _outlineButtonTheme = OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
     ),
   );
   static const _inputDecorationTheme = InputDecorationTheme(
@@ -62,13 +62,16 @@ class AppThemes {
         appBarTheme: _appBarTheme,
         dividerTheme: _dividerTheme,
         listTileTheme: _listTileTheme,
-        fontFamily: FontFamily.futura,
+        fontFamily: FontFamily.gilroy,
         textButtonTheme: _textButtonTheme,
         bottomSheetTheme: _bottomSheetTheme,
         filledButtonTheme: _filledButtonTheme,
         outlinedButtonTheme: _outlineButtonTheme,
         inputDecorationTheme: _inputDecorationTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
+        textSelectionTheme: const TextSelectionThemeData(
+          selectionColor: CupertinoColors.placeholderText,
+        ),
         colorScheme: ColorScheme.fromSeed(
           tertiaryContainer: const Color(0xFFF1E4E4),
           brightness: Brightness.light,
@@ -76,13 +79,17 @@ class AppThemes {
           tertiary: tertialColor,
           primary: primaryColor,
         ),
+        fontFamilyFallback: const [
+          FontFamily.comfortaa,
+          FontFamily.futura,
+        ],
       );
 
   static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
         dividerTheme: _dividerTheme,
         listTileTheme: _listTileTheme,
-        fontFamily: FontFamily.futura,
+        fontFamily: FontFamily.gilroy,
         textButtonTheme: _textButtonTheme,
         bottomSheetTheme: _bottomSheetTheme,
         filledButtonTheme: _filledButtonTheme,
@@ -90,6 +97,9 @@ class AppThemes {
         inputDecorationTheme: _inputDecorationTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
         appBarTheme: _appBarTheme.copyWith(backgroundColor: Colors.black),
+        textSelectionTheme: const TextSelectionThemeData(
+          selectionColor: CupertinoColors.systemGrey,
+        ),
         colorScheme: ColorScheme.fromSeed(
           tertiaryContainer: const Color(0xFF593F3F),
           brightness: Brightness.dark,
@@ -99,5 +109,9 @@ class AppThemes {
           tertiary: tertialColor,
           primary: primaryColor,
         ),
+        fontFamilyFallback: const [
+          FontFamily.comfortaa,
+          FontFamily.futura,
+        ],
       );
 }

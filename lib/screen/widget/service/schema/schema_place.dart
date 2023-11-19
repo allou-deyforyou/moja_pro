@@ -123,24 +123,8 @@ class Place extends Equatable {
     }..removeWhere((key, value) => value == null);
   }
 
-  static List<Place> fromListMap(dynamic data) {
-    return List.of((data as List).map((data) => fromMap(data)));
-  }
-
-  static List<Map<String, dynamic>> toListMap(List<Place> values) {
-    return List.of(values.map((value) => value.toMap()));
-  }
-
   static Place fromJson(String source) {
     return fromMap(jsonDecode(source));
-  }
-
-  static List<Place> fromListJson(String source) {
-    return List.of((jsonDecode(source) as List).map((data) => fromMap(data)));
-  }
-
-  static String toListJson(List<Place> values) {
-    return jsonEncode(List.of(values.map((value) => value.toMap())));
   }
 
   String toJson() {

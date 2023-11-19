@@ -6,14 +6,15 @@ import '_service.dart';
 
 AsyncController<AsyncState> get currentCountry => singleton(AsyncController<AsyncState>(const InitState()), Country.schema);
 
-class SearchCountry extends AsyncEvent<AsyncState> {
-  const SearchCountry();
+class SelectCountry extends AsyncEvent<AsyncState> {
+  const SelectCountry();
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final response = await sql('SELECT * FROM ${Country.schema}');
-      final data = Country.fromListMap(response.first);
+      final responses = await sql('SELECT * FROM ${Country.schema}');
+      final List response = responses.first;
+      final data = List.of(response.map((data) => Country.fromMap(data)));
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

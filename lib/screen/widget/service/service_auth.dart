@@ -126,13 +126,20 @@ class VerifyPhoneNumberEvent extends AsyncEvent<AsyncState> {
   }
 }
 
-class AuthEventUpdatePhoneNumber extends AsyncEvent<AsyncState> {
-  const AuthEventUpdatePhoneNumber({required this.credential});
-  final PhoneAuthCredential credential;
+class UpdatePhoneNumber extends AsyncEvent<AsyncState> {
+  const UpdatePhoneNumber({
+    required this.verificationId,
+    required this.smsCode,
+    this.credential,
+  });
+  final PhoneAuthCredential? credential;
+  final String verificationId;
+  final String smsCode;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
+      final credential = this.credential ?? PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
       await FirebaseConfig.firebaseAuth.currentUser!.updatePhoneNumber(credential);
       final userId = FirebaseConfig.firebaseAuth.currentUser!.uid;
       final idToken = await FirebaseConfig.firebaseAuth.currentUser!.getIdToken();

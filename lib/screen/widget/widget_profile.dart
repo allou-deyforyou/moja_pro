@@ -7,6 +7,7 @@ class ProfileAppBar extends StatelessWidget {
   const ProfileAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SliverAppBar(
       pinned: true,
       centerTitle: false,
@@ -18,143 +19,59 @@ class ProfileAppBar extends StatelessWidget {
           letterSpacing: 1.0,
           fontSize: 28.0,
         ),
-        child: const Text("Profil"),
+        child: Text(localizations.relaypointprofile.capitalize()),
       ),
     );
   }
 }
 
-class ProfileFullnameTextField extends StatelessWidget {
-  const ProfileFullnameTextField({
-    super.key,
-    required this.controller,
-  });
-  final TextEditingController? controller;
+class ProfileAvatarWidget extends StatelessWidget {
+  const ProfileAvatarWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: const Text("Nom complet"),
-      textColor: context.theme.colorScheme.onSurfaceVariant,
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
-        child: TextFormField(
-          autofocus: false,
-          controller: controller,
-          keyboardType: TextInputType.name,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: "Nom complet",
-          ),
-        ),
+    return const Center(
+      child: CircleAvatar(
+        radius: 50.0,
       ),
     );
   }
 }
 
-class ProfileLocationTextField extends StatelessWidget {
-  const ProfileLocationTextField({
-    super.key,
-    required this.onTap,
-    required this.controller,
-  });
-  final VoidCallback? onTap;
-  final TextEditingController? controller;
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: const Text("Emplacement"),
-      textColor: context.theme.colorScheme.onSurfaceVariant,
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
-        child: TextFormField(
-          onTap: onTap,
-          readOnly: true,
-          autofocus: false,
-          controller: controller,
-          keyboardType: TextInputType.name,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: "Emplacement",
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileAvailabilityListView extends StatelessWidget {
-  const ProfileAvailabilityListView({
-    super.key,
-    required this.children,
-  });
-  final List<Widget> children;
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: const Text("Disponibilité"),
-      textColor: context.theme.colorScheme.onSurfaceVariant,
-      subtitle: Wrap(spacing: 10.0, children: children),
-    );
-  }
-}
-
-class ProfileAvailabilityChip extends StatelessWidget {
-  const ProfileAvailabilityChip({
+class ProfileItemWidget extends StatelessWidget {
+  const ProfileItemWidget({
     super.key,
     required this.label,
-    this.selected = false,
-    required this.onPressed,
+    required this.value,
+    required this.onTap,
   });
-
-  final Widget label;
-  final bool selected;
-  final VoidCallback? onPressed;
-
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: InputChip(
-        selected: selected,
-        showCheckmark: false,
-        onPressed: onPressed,
-        label: label,
+    final theme = context.theme;
+    return ListTile(
+      contentPadding: kTabLabelPadding.copyWith(right: 2.0, top: 8.0),
+      titleTextStyle: theme.textTheme.labelLarge!.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
       ),
-    );
-  }
-}
-
-class ProfileAvailabilityBottomSheet extends StatelessWidget {
-  const ProfileAvailabilityBottomSheet({
-    super.key,
-    required this.title,
-    required this.actions,
-    required this.content,
-  });
-
-  final Widget title;
-  final List<Widget> actions;
-
-  final Widget content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        controller: PrimaryScrollController.maybeOf(context),
-        slivers: [
-          SliverAppBar.medium(
-            pinned: true,
-            centerTitle: false,
-            toolbarHeight: 64.0,
-            automaticallyImplyLeading: false,
-            titleTextStyle: context.theme.textTheme.headlineLarge,
-            title: title,
-            actions: actions,
+      subtitleTextStyle: theme.textTheme.titleLarge!.copyWith(
+        fontWeight: FontWeight.w500,
+      ),
+      title: Text(label),
+      subtitle: Row(
+        children: [
+          Expanded(
+            child: Text(value),
           ),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: content,
+          IconButton(
+            onPressed: onTap,
+            icon: Visibility(
+              visible: onTap != null,
+              replacement: const CustomProgressIndicator(),
+              child: const Icon(CupertinoIcons.pen, size: 20.0),
+            ),
           ),
         ],
       ),
@@ -162,160 +79,196 @@ class ProfileAvailabilityBottomSheet extends StatelessWidget {
   }
 }
 
-class ProfileAvailableActiveBotton extends StatelessWidget {
-  const ProfileAvailableActiveBotton({
+class ProfileNameWidget extends StatelessWidget {
+  const ProfileNameWidget({
     super.key,
-    this.onPressed,
+    required this.name,
+    required this.onTap,
   });
-  final VoidCallback? onPressed;
-
+  final String name;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: kTabLabelPadding,
-      alignment: Alignment.center,
-      child: FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(padding: kTabLabelPadding),
-        child: const Text("Activer"),
-      ),
+    final localizations = context.localizations;
+    return ProfileItemWidget(
+      onTap: onTap,
+      label: localizations.name.capitalize(),
+      value: name,
     );
   }
 }
 
-class ProfileAvailableTimeListTile extends StatefulWidget {
-  const ProfileAvailableTimeListTile({
+class ProfileContactWidget extends StatelessWidget {
+  const ProfileContactWidget({
     super.key,
-    required this.title,
-    required this.onChanged,
-    required this.dateTime,
+    required this.phone,
+    required this.onTap,
   });
-  final Widget title;
-  final DateTime dateTime;
-  final ValueChanged<DateTime?> onChanged;
-
+  final String phone;
+  final VoidCallback? onTap;
   @override
-  State<ProfileAvailableTimeListTile> createState() => _ProfileAvailableTimeListTileState();
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return ProfileItemWidget(
+      onTap: onTap,
+      label: localizations.contact.capitalize(),
+      value: phone,
+    );
+  }
 }
 
-class _ProfileAvailableTimeListTileState extends State<ProfileAvailableTimeListTile> {
-  late DateTime _dateTime;
-  late bool _isOpened;
+class ProfileLocationWidget extends StatelessWidget {
+  const ProfileLocationWidget({
+    super.key,
+    required this.location,
+    required this.onTap,
+  });
+  final String location;
+  final VoidCallback? onTap;
   @override
-  void initState() {
-    super.initState();
-    _dateTime = widget.dateTime;
-    _isOpened = false;
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return ProfileItemWidget(
+      onTap: onTap,
+      label: localizations.location.capitalize(),
+      value: location,
+    );
+  }
+}
+
+class ProfileEditModal extends StatefulWidget {
+  const ProfileEditModal({
+    super.key,
+    required this.hint,
+    required this.label,
+    required this.value,
+    required this.keyboardType,
+  });
+
+  final String hint;
+  final String label;
+  final String value;
+
+  final TextInputType keyboardType;
+
+  @override
+  State<ProfileEditModal> createState() => _ProfileEditModalState();
+}
+
+class _ProfileEditModalState extends State<ProfileEditModal> {
+  late FocusNode _focusNode;
+  late TextEditingController _textEditingController;
+
+  void _setupData() {
+    _focusNode = FocusNode();
+    _textEditingController = TextEditingController(text: widget.value);
+    _textEditingController.selection = TextSelection(
+      extentOffset: widget.value.length,
+      baseOffset: 0,
+    );
   }
 
   @override
-  void didUpdateWidget(covariant ProfileAvailableTimeListTile oldWidget) {
+  void initState() {
+    super.initState();
+    _setupData();
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileEditModal oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.dateTime != widget.dateTime) {
-      _dateTime = widget.dateTime;
+    if (oldWidget.value != widget.value) {
+      _setupData();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    void onPressed() => setState(() => _isOpened = !_isOpened);
-    return TapRegion(
-      onTapOutside: (event) => setState(() => _isOpened = false),
-      child: CupertinoListSection.insetGrouped(
-        dividerMargin: 0.0,
-        margin: kTabLabelPadding,
-        additionalDividerMargin: 0.0,
-        separatorColor: Colors.transparent,
-        backgroundColor: Colors.transparent,
-        decoration: BoxDecoration(color: theme.colorScheme.secondaryContainer),
-        children: [
-          ListTile(
-            onTap: onPressed,
-            title: widget.title,
-            textColor: theme.colorScheme.onSecondaryContainer,
-            trailing: Chip(
-              label: Text(TimeOfDay.fromDateTime(_dateTime).format(context)),
-            ),
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            transitionBuilder: (child, animation) {
-              return SizeTransition(
-                sizeFactor: animation,
-                child: child,
-              );
-            },
-            child: Visibility(
-              visible: _isOpened,
-              key: ValueKey(_isOpened),
-              child: SizedBox(
-                height: 130.0,
-                child: CupertinoTimerPicker(
-                  mode: CupertinoTimerPickerMode.hm,
-                  initialTimerDuration: Duration(hours: _dateTime.hour, minutes: _dateTime.minute),
-                  onTimerDurationChanged: (duration) {
-                    widget.onChanged(DateTime.fromMillisecondsSinceEpoch(duration.inMilliseconds));
-                  },
-                ),
-              ),
-            ),
-          ),
-        ],
+    final localizations = context.localizations;
+    return AlertDialog(
+      elevation: 0.0,
+      alignment: Alignment.bottomCenter,
+      backgroundColor: theme.colorScheme.surface,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      insetPadding: kTabLabelPadding.copyWith(bottom: 16.0),
+      titlePadding: const EdgeInsets.only(
+        bottom: 16.0,
+        right: 24.0,
+        left: 24.0,
+        top: 24.0,
       ),
-    );
-  }
-}
-
-class ProfileAvailableStartTimeListTile extends StatelessWidget {
-  const ProfileAvailableStartTimeListTile({
-    super.key,
-    required this.onTap,
-    required this.dateTime,
-  });
-  final DateTime dateTime;
-  final ValueChanged<DateTime?> onTap;
-  @override
-  Widget build(BuildContext context) {
-    return ProfileAvailableTimeListTile(
-      title: const Text("Début du service"),
-      dateTime: dateTime,
-      onChanged: onTap,
-    );
-  }
-}
-
-class ProfileAvailableEndTimeListTile extends StatelessWidget {
-  const ProfileAvailableEndTimeListTile({
-    super.key,
-    required this.onTap,
-    required this.dateTime,
-  });
-  final DateTime dateTime;
-  final ValueChanged<DateTime?> onTap;
-  @override
-  Widget build(BuildContext context) {
-    return ProfileAvailableTimeListTile(
-      title: const Text("Fin du service"),
-      dateTime: dateTime,
-      onChanged: onTap,
-    );
-  }
-}
-
-class ProfileSubmittedButton extends StatelessWidget {
-  const ProfileSubmittedButton({
-    super.key,
-    required this.onPressed,
-  });
-  final VoidCallback? onPressed;
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: CustomSubmittedButton(
-        onPressed: onPressed,
-        child: const Text("Modifier"),
+      title: SizedBox(
+        width: double.maxFinite,
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontFamily: FontFamily.comfortaa,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            fontSize: 24.0,
+          ),
+          child: Text(widget.label),
+        ),
       ),
+      content: TextFormField(
+        autofocus: true,
+        focusNode: _focusNode,
+        keyboardType: widget.keyboardType,
+        controller: _textEditingController,
+        style: const TextStyle(fontSize: 18.0),
+        decoration: InputDecoration(hintText: widget.hint),
+        onFieldSubmitted: (value) => Navigator.pop(context, value),
+      ),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
+          onPressed: Navigator.of(context).pop,
+          child: Text(localizations.cancel.toUpperCase()),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, _textEditingController.text),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            child: Text(localizations.edit.toUpperCase()),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ProfileEditNameModal extends StatelessWidget {
+  const ProfileEditNameModal({
+    super.key,
+    required this.name,
+  });
+  final String name;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return ProfileEditModal(
+      keyboardType: TextInputType.name,
+      label: localizations.editname.capitalize(),
+      hint: localizations.relaypointname,
+      value: name,
+    );
+  }
+}
+
+class ProfileEditContactModal extends StatelessWidget {
+  const ProfileEditContactModal({
+    super.key,
+    required this.contact,
+  });
+  final String contact;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return ProfileEditModal(
+      keyboardType: TextInputType.phone,
+      label: localizations.editcontact.capitalize(),
+      hint: localizations.relaypointcontact,
+      value: contact,
     );
   }
 }

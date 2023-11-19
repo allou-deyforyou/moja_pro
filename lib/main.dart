@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:service_tools/service_tools.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'screen/_screen.dart';
 
@@ -73,8 +74,11 @@ class _MyAppState extends State<MyApp> {
                   name: ProfileLocationScreen.name,
                   path: ProfileLocationScreen.path,
                   pageBuilder: (context, state) {
-                    return const CupertinoPage(
-                      child: ProfileLocationScreen(),
+                    final data = state.extra as Map<String, dynamic>;
+                    return CupertinoPage(
+                      child: ProfileLocationScreen(
+                        relay: data[ProfileLocationScreen.relayKey],
+                      ),
                     );
                   },
                 ),
@@ -120,8 +124,11 @@ class _MyAppState extends State<MyApp> {
               path: AuthSigninScreen.path,
               name: AuthSigninScreen.name,
               pageBuilder: (context, state) {
-                return const CupertinoPage(
-                  child: AuthSigninScreen(),
+                final data = state.extra as Map<String, dynamic>?;
+                return CupertinoPage(
+                  child: AuthSigninScreen(
+                    currentUser: data?[AuthScreen.currentUserKey],
+                  ),
                 );
               },
             ),
@@ -147,11 +154,26 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      darkTheme: AppThemes.darkTheme,
-      themeMode: ThemeMode.system,
-      theme: AppThemes.theme,
-      routerConfig: _router,
+    return StreamBuilder(
+      initialData: DatabaseConfig.locale,
+      stream: DatabaseConfig.localeStream,
+      builder: (context, localeSnapshot) {
+        return StreamBuilder<ThemeMode>(
+          initialData: DatabaseConfig.themeMode,
+          stream: DatabaseConfig.themeModeStream,
+          builder: (context, themeModeSnapshot) {
+            return MaterialApp.router(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              themeMode: themeModeSnapshot.data,
+              darkTheme: AppThemes.darkTheme,
+              locale: localeSnapshot.data,
+              theme: AppThemes.theme,
+              routerConfig: _router,
+            );
+          },
+        );
+      },
     );
   }
 }

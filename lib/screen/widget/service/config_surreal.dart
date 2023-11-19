@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 
 import 'config_repository.dart';
 
-Future<Iterable<Object>> sql(String query) async {
+Future<Iterable<dynamic>> sql(String query) async {
   final response = await dio.post<String>('/sql', data: query);
   final data = await compute(_Response.fromListJson, response.data!);
-  return data.map((res) => res.result!);
+  return data.map((res) => res.result);
 }
 
 class _Response {
@@ -22,8 +22,8 @@ class _Response {
   static const String resultKey = 'result';
 
   final String? id;
-  final Object? error;
-  final Object? result;
+  final dynamic error;
+  final dynamic result;
 
   static _Response fromMap(dynamic data) {
     return _Response(

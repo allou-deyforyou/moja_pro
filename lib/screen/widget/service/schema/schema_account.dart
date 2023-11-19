@@ -69,27 +69,11 @@ class Account extends Equatable {
     }..removeWhere((key, value) => value == null);
   }
 
-  static List<Account> fromListMap(dynamic data) {
-    return List.of((data as List).map((value) => fromMap(value)));
-  }
-
-  static List<Map<String, dynamic>> toListMap(List<Account> values) {
-    return List.of(values.map((value) => value.toMap()));
-  }
-
   static Account fromJson(String source) {
     return fromMap(jsonDecode(source));
   }
 
   String toJson() {
     return jsonEncode(toMap());
-  }
-
-  static List<Account> fromListJson(String source) {
-    return List.of((jsonDecode(source) as List).map((value) => fromMap(value)));
-  }
-
-  static String toListJson(List<Account> values) {
-    return jsonEncode(values.map((value) => value.toMap()));
   }
 }

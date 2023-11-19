@@ -45,9 +45,9 @@ class CustomSubmittedButton extends StatelessWidget {
         return FilledButton(
           onPressed: done ? onPressed : null,
           style: FilledButton.styleFrom(
-            textStyle: theme.textTheme.labelMedium!.copyWith(
+            textStyle: theme.textTheme.labelLarge!.copyWith(
               fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
+              letterSpacing: 0.5,
               height: 1.0,
             ),
             padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
@@ -85,7 +85,7 @@ class CustomProgressIndicator extends StatelessWidget {
     return SizedBox.fromSize(
       size: Size.fromRadius(radius),
       child: CircularProgressIndicator(
-        backgroundColor: theme.colorScheme.surface,
+        backgroundColor: theme.colorScheme.onInverseSurface,
         strokeWidth: strokeWidth,
       ),
     );

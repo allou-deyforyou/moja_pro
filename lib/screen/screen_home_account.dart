@@ -27,7 +27,7 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   late Relay _currentRelay;
 
   double get _balance {
-    return double.tryParse(_balanceTextController.text.trimSpace()) ?? 0;
+    return double.tryParse(_balanceTextController.text.replaceAll('.', '').trimSpace()) ?? 0;
   }
 
   void _setupData() {
@@ -35,6 +35,10 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
     _currentAccount = widget.account;
     final balance = _currentAccount.balance;
     _balanceTextController = TextEditingController(text: balance?.formatted);
+    _balanceTextController.selection = TextSelection(
+      extentOffset: balance?.formatted.length ?? 0,
+      baseOffset: 0,
+    );
   }
 
   /// AccountService
@@ -43,7 +47,7 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   void _listenAccountState(BuildContext context, AsyncState state) {
     if (state case SuccessState<Account>(:final data)) {
       context.pop(data);
-    } else if (state case FailureState(:final code)) {
+    } else if (state case FailureState<SetAccount>(:final code)) {
       switch (code) {}
     }
   }
@@ -79,51 +83,18 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.theme.colorScheme.surface,
       body: CustomScrollView(
         controller: PrimaryScrollController.maybeOf(context),
         slivers: [
-          HomeAccountAppBar(
-            leading: const CircleAvatar(),
-            title: Text("Solde ${_currentAccount.name.toUpperCase()}"),
+          HomeAccountSliverAppBar(
+            name: _currentAccount.name,
           ),
-          const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
             child: HomeAccountBalanceTextField(
               controller: _balanceTextController,
             ),
           ),
-          const SliverPadding(padding: kMaterialListPadding),
-          SliverToBoxAdapter(
-            child: ValueListenableBuilder(
-                valueListenable: _balanceTextController,
-                builder: (context, textValue, child) {
-                  return FutureBuilder<List<double>>(
-                    future: generateSuggestions(_balance),
-                    builder: (context, snapshot) {
-                      final suggestions = snapshot.data ?? [];
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return HomeAccountSuggestionListView(
-                            itemCount: suggestions.length,
-                            itemBuilder: (context, index) {
-                              final amount = suggestions[index];
-                              void onPressed() {
-                                _balanceTextController.text = amount.formatted;
-                              }
-
-                              return HomeAccountSuggestionItemWidget(
-                                onPressed: onPressed,
-                                amount: amount,
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  );
-                }),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: kMinInteractiveDimension * 2)),
           SliverFillRemaining(
             hasScrollBody: false,
             child: ControllerConsumer(

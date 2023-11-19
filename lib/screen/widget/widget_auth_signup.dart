@@ -7,6 +7,7 @@ class AuthSignupAppBar extends StatelessWidget {
   const AuthSignupAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
@@ -19,7 +20,7 @@ class AuthSignupAppBar extends StatelessWidget {
           letterSpacing: 1.0,
           fontSize: 28.0,
         ),
-        child: const Text("Créer un point relais"),
+        child: Text(localizations.createrelaypoint.capitalize()),
       ),
     );
   }
@@ -33,15 +34,17 @@ class AuthSignupFullnameTextField extends StatelessWidget {
   final TextEditingController? controller;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Padding(
       padding: kTabLabelPadding,
       child: TextFormField(
         autofocus: false,
         controller: controller,
         keyboardType: TextInputType.name,
+        style: const TextStyle(fontSize: 18.0),
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(
-          hintText: "Nom du point relais",
+        decoration: InputDecoration(
+          hintText: localizations.relaypointname,
         ),
       ),
     );
@@ -67,6 +70,33 @@ class AuthSignupWeekdayListView extends StatelessWidget {
         return const SizedBox(height: 8.0);
       },
       itemBuilder: itemBuilder,
+    );
+  }
+}
+
+class AuthSignupContinueButton extends StatelessWidget {
+  const AuthSignupContinueButton({
+    super.key,
+    required this.onPressed,
+  });
+  final VoidCallback? onPressed;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return SafeArea(
+      child: Padding(
+        padding: kTabLabelPadding.copyWith(top: 16.0, bottom: 16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CustomSubmittedButton(
+              onPressed: onPressed,
+              child: Text(localizations.completed.toUpperCase()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -182,32 +212,6 @@ class _AuthSignupWeekdayListTileState extends State<AuthSignupWeekdayListTile> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class AuthSignupContinueButton extends StatelessWidget {
-  const AuthSignupContinueButton({
-    super.key,
-    required this.onPressed,
-  });
-  final VoidCallback? onPressed;
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: kTabLabelPadding.copyWith(top: 16.0, bottom: 16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            CustomSubmittedButton(
-              onPressed: onPressed,
-              child: Text("Terminé".toUpperCase()),
-            ),
-          ],
-        ),
       ),
     );
   }

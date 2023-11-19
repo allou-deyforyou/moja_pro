@@ -7,7 +7,7 @@ import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
-AsyncController<User?> get currentUser => singleton(AsyncController<User?>(null), User.schema);
+AsyncController<User?> get currentUser => singleton(AsyncController<User?>(DatabaseConfig.currentUser), User.schema);
 
 Future<String?> refreshToken({String? uid, String? idToken}) async {
   final user = FirebaseConfig.firebaseAuth.currentUser;
@@ -125,6 +125,37 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
       const relayQuery = '(SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters) AS relays';
       final responses = await sql('SELECT *, $relayQuery FROM ONLY $id');
 
+      final data = User.fromMap(responses.first);
+      emit(SuccessState(data));
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}
+
+class SetUserEvent extends AsyncEvent<AsyncState> {
+  const SetUserEvent({
+    required this.user,
+    this.phone,
+  });
+  final User user;
+
+  final String? phone;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+      final id = user.id;
+      final values = {
+        User.phoneKey: phone,
+      }
+        ..removeWhere((key, value) => value == null)
+        ..updateAll((key, value) => jsonEncode(value));
+
+      final responses = await sql('UPDATE ONLY $id MERGE $values;');
       final data = User.fromMap(responses.first);
       emit(SuccessState(data));
     } catch (error) {

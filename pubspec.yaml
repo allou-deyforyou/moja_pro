@@ -55,3 +55,6 @@ flutter:
     - family: Comfortaa
       fonts:
         - asset: assets/fonts/Comfortaa.ttf
+    - family: Gilroy
+      fonts:
+        - asset: assets/fonts/Gilroy.ttf

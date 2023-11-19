@@ -7,6 +7,7 @@ class AuthSigninAppBar extends StatelessWidget {
   const AuthSigninAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
@@ -18,7 +19,7 @@ class AuthSigninAppBar extends StatelessWidget {
           letterSpacing: 1.0,
           fontSize: 28.0,
         ),
-        child: const Text("Confirmer"),
+        child: Text(localizations.confirm.capitalize()),
       ),
     );
   }
@@ -32,6 +33,7 @@ class AuthSignupCodePinTextField extends StatelessWidget {
   final TextEditingController controller;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Padding(
       padding: kTabLabelPadding,
       child: TextFormField(
@@ -39,8 +41,9 @@ class AuthSignupCodePinTextField extends StatelessWidget {
         controller: controller,
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
-          hintText: "Code",
+        style: const TextStyle(fontSize: 18.0),
+        decoration: InputDecoration(
+          hintText: localizations.code,
           floatingLabelAlignment: FloatingLabelAlignment.center,
         ),
       ),
@@ -58,17 +61,20 @@ class AuthSigninResendButton extends StatelessWidget {
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
     return Container(
       padding: kTabLabelPadding,
       alignment: Alignment.centerRight,
       child: CounterBuilder(
         reverse: true,
         timeout: timeout,
-        child: const Text("Renvoyer le code"),
+        child: Text(localizations.resendcode.toUpperCase()),
         builder: (context, duration, child) {
           final done = duration == Duration.zero;
           return TextButton(
             style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.onSurface,
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
             ),
             onPressed: done ? onPressed : null,
@@ -96,6 +102,7 @@ class AuthSigninSubmittedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SafeArea(
       child: Padding(
         padding: kTabLabelPadding.copyWith(top: 16.0, bottom: 16.0),
@@ -105,7 +112,7 @@ class AuthSigninSubmittedButton extends StatelessWidget {
           children: [
             CustomSubmittedButton(
               onPressed: onPressed,
-              child: Text("Terminé".toUpperCase()),
+              child: Text(localizations.completed.toUpperCase()),
             ),
           ],
         ),

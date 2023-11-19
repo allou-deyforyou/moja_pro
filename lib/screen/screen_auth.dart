@@ -55,7 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _searchCountry() {
-    _countryController.run(const SearchCountry());
+    _countryController.run(const SelectCountry());
   }
 
   /// AuthService
@@ -65,7 +65,9 @@ class _AuthScreenState extends State<AuthScreen> {
   void _listenAuthState(BuildContext context, AsyncState state) {
     if (state is AuthStateSmsCodeSent) {
       _timeout = state.timeout;
-      context.pushNamed(AuthSigninScreen.name);
+      context.pushNamed(AuthSigninScreen.name, extra: {
+        AuthSigninScreen.currentUserKey: _currentUser,
+      });
     } else if (state is FailureState) {
       switch (state.code) {}
     }
@@ -85,7 +87,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
     /// Assets
     _currentUser = widget.currentUser;
-    _phoneTextController = TextEditingController();
+    _phoneTextController = TextEditingController(text: _currentUser?.phone);
+    _phoneTextController.selection = TextSelection(
+      extentOffset: _currentUser?.phone.length ?? 0,
+      baseOffset: 0,
+    );
 
     /// CountryService
     _countryController = currentCountry;
@@ -107,6 +113,7 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           SliverToBoxAdapter(
             child: AuthPhoneTextField(
+              autofocus: _currentUser != null,
               controller: _phoneTextController,
               prefixIcon: ControllerConsumer(
                 autoListen: true,

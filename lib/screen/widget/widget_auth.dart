@@ -7,6 +7,7 @@ class AuthAppBar extends StatelessWidget {
   const AuthAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
@@ -19,7 +20,7 @@ class AuthAppBar extends StatelessWidget {
           letterSpacing: 1.0,
           fontSize: 28.0,
         ),
-        child: const Text("S'authentifier"),
+        child: Text(localizations.login.capitalize()),
       ),
     );
   }
@@ -29,6 +30,7 @@ class AuthEditPhoneAppBar extends StatelessWidget {
   const AuthEditPhoneAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
@@ -39,7 +41,7 @@ class AuthEditPhoneAppBar extends StatelessWidget {
           fontWeight: FontWeight.bold,
           letterSpacing: 1.0,
         ),
-        child: const Text("Changer de numéro"),
+        child: Text(localizations.changephonenumber.capitalize()),
       ),
     );
   }
@@ -61,7 +63,9 @@ class AuthDialCodeButton extends StatelessWidget {
     return TextButton.icon(
       style: TextButton.styleFrom(
         visualDensity: VisualDensity.compact,
-        textStyle: theme.textTheme.titleMedium,
+        textStyle: theme.textTheme.titleLarge!.copyWith(
+          fontSize: 18.0,
+        ),
         foregroundColor: theme.colorScheme.onSurface,
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
       ),
@@ -75,20 +79,25 @@ class AuthDialCodeButton extends StatelessWidget {
 class AuthPhoneTextField extends StatelessWidget {
   const AuthPhoneTextField({
     super.key,
+    this.autofocus = false,
     required this.controller,
     required this.prefixIcon,
   });
+  final bool autofocus;
   final Widget prefixIcon;
   final TextEditingController? controller;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return Padding(
       padding: kTabLabelPadding,
       child: TextFormField(
+        autofocus: autofocus,
         controller: controller,
         keyboardType: TextInputType.phone,
+        style: const TextStyle(fontSize: 18.0),
         decoration: InputDecoration(
-          hintText: "numéro de téléphone",
+          hintText: localizations.phonenumber,
           prefixIcon: prefixIcon,
         ),
       ),
@@ -106,6 +115,7 @@ class AuthSubmittedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return SafeArea(
       child: Padding(
         padding: kTabLabelPadding.copyWith(top: 16.0, bottom: 16.0),
@@ -116,7 +126,7 @@ class AuthSubmittedButton extends StatelessWidget {
             CustomSubmittedButton(
               timeout: timeout,
               onPressed: onPressed,
-              child: Text("Continuer".toUpperCase()),
+              child: Text(localizations.next.toUpperCase()),
             ),
           ],
         ),
@@ -183,24 +193,33 @@ class _AuthCountryModalState<T> extends State<AuthCountryModal<T>> {
     }
   }
 
-  Widget _buildConfirmButton() {
-    return TextButton(
-      style: TextButton.styleFrom(padding: kTabLabelPadding),
-      onPressed: _onConfirm,
-      child: const Text("Ok"),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.colorScheme.surface,
         automaticallyImplyLeading: false,
-        title: const Text("Pays"),
-        actions: [_buildConfirmButton()],
+        title: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontFamily: FontFamily.comfortaa,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            fontSize: 24.0,
+          ),
+          child: Text(localizations.country.capitalize()),
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(padding: kTabLabelPadding),
+            onPressed: _onConfirm,
+            child: Text(localizations.ok.toUpperCase()),
+          ),
+        ],
       ),
       body: CupertinoPicker.builder(
         itemExtent: kToolbarHeight,
@@ -209,7 +228,16 @@ class _AuthCountryModalState<T> extends State<AuthCountryModal<T>> {
         onSelectedItemChanged: _onSelectedItemChanged,
         itemBuilder: (context, index) {
           final item = _values[index];
-          return Center(child: Text(_defaultValueFormatted(item)));
+          return Center(
+            child: DefaultTextStyle(
+              style: theme.textTheme.titleMedium!.copyWith(
+                fontSize: 18.0,
+              ),
+              child: Text(
+                _defaultValueFormatted(item),
+              ),
+            ),
+          );
         },
       ),
     );

@@ -3,6 +3,33 @@ import 'package:flutter/cupertino.dart';
 
 import '_widget.dart';
 
+class HomeSliverAppBar extends StatelessWidget {
+  const HomeSliverAppBar({
+    super.key,
+    required this.leading,
+    required this.trailing,
+  });
+  final Widget leading;
+  final Widget trailing;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return SliverAppBar.medium(
+      leading: leading,
+      title: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: FontFamily.comfortaa,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+          fontSize: 28.0,
+        ),
+        child: Text(localizations.mybalances.capitalize()),
+      ),
+      actions: [trailing],
+    );
+  }
+}
+
 class HomeBarsButton extends StatelessWidget {
   const HomeBarsButton({
     super.key,
@@ -21,28 +48,6 @@ class HomeBarsButton extends StatelessWidget {
   }
 }
 
-class HomeListTile extends StatelessWidget {
-  const HomeListTile({
-    super.key,
-    required this.title,
-    required this.subtitle,
-  });
-  final Widget title;
-  final Widget subtitle;
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTextStyle.merge(
-      style: const TextStyle(
-        fontFamily: FontFamily.comfortaa,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.0,
-        fontSize: 28.0,
-      ),
-      child: const Text("Mes Soldes"),
-    );
-  }
-}
-
 class HomeAvailableSwitch extends StatelessWidget {
   const HomeAvailableSwitch({
     super.key,
@@ -53,13 +58,41 @@ class HomeAvailableSwitch extends StatelessWidget {
   final ValueChanged<bool>? onChanged;
   @override
   Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: 0.85,
-      alignment: Alignment.centerLeft,
-      child: Switch(
-        value: value,
-        onChanged: onChanged,
-      ),
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return Row(
+      children: [
+        DefaultTextStyle.merge(
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontSize: 12.0,
+          ),
+          child: Visibility(
+            visible: value,
+            replacement: Text(localizations.offline.toUpperCase()),
+            child: Text(localizations.online.toUpperCase()),
+          ),
+        ),
+        const SizedBox(width: 6.0),
+        Transform.scale(
+          scale: 0.85,
+          alignment: Alignment.centerLeft,
+          child: Switch(
+            activeTrackColor: CupertinoColors.activeGreen.resolveFrom(context),
+            trackOutlineColor: MaterialStateProperty.resolveWith((states) {
+              if (states.isEmpty) return theme.colorScheme.onSurface;
+              return null;
+            }),
+            thumbColor: MaterialStateProperty.resolveWith((states) {
+              if (states.isEmpty) return theme.colorScheme.onSurface;
+              return null;
+            }),
+            activeColor: CupertinoColors.white,
+            onChanged: onChanged,
+            value: value,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -107,18 +140,21 @@ class HomeAccountCard extends StatelessWidget {
     return ListTile(
       tileColor: theme.colorScheme.surfaceVariant,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-      titleTextStyle: theme.textTheme.titleSmall!.copyWith(
+      titleTextStyle: theme.textTheme.titleMedium!.copyWith(
         color: theme.colorScheme.onBackground,
-        fontFamily: FontFamily.comfortaa,
         fontWeight: FontWeight.bold,
-        letterSpacing: 1.0,
+        letterSpacing: 2.0,
         wordSpacing: 1.0,
       ),
       subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
         color: theme.colorScheme.primary,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 1.0,
+        wordSpacing: 0.0,
+        fontSize: 18.0,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(14.0),
       ),
       onTap: onPressed,
       title: Text(name.toUpperCase()),

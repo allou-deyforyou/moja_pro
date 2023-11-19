@@ -25,9 +25,45 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     });
   }
 
-  void _onNotifsTaped(bool active) {}
+  void _onNotifsTaped(bool active) {
+    DatabaseConfig.notifications = active;
+  }
 
-  void _openThemeModal() {}
+  VoidCallback _openThemeModal(ThemeMode themeMode) {
+    return () async {
+      final data = await showDialog<ThemeMode>(
+        context: context,
+        builder: (context) {
+          return HomeMenuThemeModal<ThemeMode>(
+            selected: themeMode,
+          );
+        },
+      );
+      if (data != null) {
+        DatabaseConfig.themeMode = data;
+      }
+    };
+  }
+
+  VoidCallback _openLanguageModal(Locale? locale) {
+    return () async {
+      final data = await showDialog<Locale>(
+        context: context,
+        builder: (context) {
+          return HomeMenuLanguageModal<Locale>(
+            selected: locale,
+          );
+        },
+      );
+      if (data != null) {
+        if (data.languageCode == 'system') {
+          DatabaseConfig.locale = null;
+        } else {
+          DatabaseConfig.locale = data;
+        }
+      }
+    };
+  }
 
   void _openSupportScreen() {}
 
@@ -46,6 +82,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     const divider = SliverToBoxAdapter(child: Divider());
 
     return Scaffold(
+      backgroundColor: context.theme.colorScheme.surface,
       body: CustomScrollView(
         controller: PrimaryScrollController.maybeOf(context),
         slivers: [
@@ -64,15 +101,39 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               ),
               divider,
               SliverToBoxAdapter(
-                child: HomeMenuNotifs(
-                  onChanged: _onNotifsTaped,
-                  value: true,
+                child: StreamBuilder(
+                  initialData: DatabaseConfig.notifications,
+                  stream: DatabaseConfig.notificationsStream,
+                  builder: (context, snapshot) {
+                    return HomeMenuNotifs(
+                      onChanged: _onNotifsTaped,
+                      value: snapshot.data!,
+                    );
+                  },
                 ),
               ),
               SliverToBoxAdapter(
-                child: HomeMenuTheme(
-                  onTap: _openThemeModal,
-                  trailing: const Text("Systeme"),
+                child: StreamBuilder(
+                  stream: DatabaseConfig.themeModeStream,
+                  initialData: DatabaseConfig.themeMode,
+                  builder: (context, snapshot) {
+                    return HomeMenuTheme(
+                      onTap: _openThemeModal(snapshot.data!),
+                      value: snapshot.data!.format(context).capitalize(),
+                    );
+                  },
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: StreamBuilder(
+                  initialData: DatabaseConfig.locale,
+                  stream: DatabaseConfig.localeStream,
+                  builder: (context, snapshot) {
+                    return HomeLanguageTheme(
+                      onTap: _openLanguageModal(snapshot.data),
+                      value: snapshot.data?.format(context).capitalize(),
+                    );
+                  },
                 ),
               ),
               divider,
