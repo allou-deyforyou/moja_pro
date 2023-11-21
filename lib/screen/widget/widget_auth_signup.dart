@@ -7,21 +7,15 @@ class AuthSignupAppBar extends StatelessWidget {
   const AuthSignupAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
       leading: const Center(child: CustomBackButton()),
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: Text(localizations.createrelaypoint.capitalize()),
-      ),
+      title: Text(localizations.createrelaypoint.capitalize()),
     );
   }
 }

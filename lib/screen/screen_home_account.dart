@@ -48,7 +48,12 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
     if (state case SuccessState<Account>(:final data)) {
       context.pop(data);
     } else if (state case FailureState<SetAccount>(:final code)) {
-      switch (code) {}
+     showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 

@@ -9,6 +9,6 @@ export 'screen_home_menu.dart';
 export 'screen_home_account.dart';
 export 'screen_home.dart';
 
-export 'screen_profile_avatar.dart';
+export 'screen_profile_photo.dart';
 export 'screen_profile_location.dart';
 export 'screen_profile.dart';

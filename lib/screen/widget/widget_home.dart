@@ -13,18 +13,12 @@ class HomeSliverAppBar extends StatelessWidget {
   final Widget trailing;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return SliverAppBar.medium(
       leading: leading,
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: Text(localizations.mybalances.capitalize()),
-      ),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      title: Text(localizations.mybalances.capitalize()),
       actions: [trailing],
     );
   }
@@ -143,26 +137,22 @@ class HomeAccountCard extends StatelessWidget {
     final theme = context.theme;
     return ListTile(
       tileColor: theme.colorScheme.surfaceVariant,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       titleTextStyle: theme.textTheme.titleMedium!.copyWith(
-        color: theme.colorScheme.onBackground,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2.0,
-        wordSpacing: 1.0,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.0,
+        fontSize: 18.0,
       ),
       subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
         color: theme.colorScheme.primary,
         fontWeight: FontWeight.w500,
         letterSpacing: 1.0,
-        wordSpacing: 0.0,
         fontSize: 18.0,
         height: 1.8,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       onTap: onPressed,
-      title: Text(name.toUpperCase()),
+      title: Text(name.toUpperCase(), softWrap: false),
       subtitle: Text("${defaultNumberFormat.format(amount ?? 0)} f"),
     );
   }

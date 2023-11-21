@@ -7,21 +7,15 @@ class ProfileAppBar extends StatelessWidget {
   const ProfileAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return SliverAppBar(
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
       leading: const Center(child: CustomBackButton()),
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: Text(localizations.relaypointprofile.capitalize()),
-      ),
+      title: Text(localizations.relaypointprofile.capitalize()),
     );
   }
 }
@@ -85,6 +79,7 @@ class ProfileItemWidget extends StatelessWidget {
       contentPadding: kTabLabelPadding.copyWith(right: 2.0, top: 8.0),
       titleTextStyle: theme.textTheme.labelLarge!.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
+        height: 1.0,
       ),
       subtitleTextStyle: theme.textTheme.titleLarge!.copyWith(
         fontWeight: FontWeight.w500,
@@ -92,9 +87,7 @@ class ProfileItemWidget extends StatelessWidget {
       title: Text(label),
       subtitle: Row(
         children: [
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
           IconButton(
             onPressed: onTap,
             icon: Visibility(
@@ -217,28 +210,16 @@ class _ProfileEditModalState extends State<ProfileEditModal> {
     final theme = context.theme;
     final localizations = context.localizations;
     return AlertDialog(
-      elevation: 0.0,
+      elevation: 1.0,
       alignment: Alignment.bottomCenter,
       backgroundColor: theme.colorScheme.surface,
       actionsAlignment: MainAxisAlignment.spaceBetween,
       insetPadding: kTabLabelPadding.copyWith(bottom: 16.0),
-      titlePadding: const EdgeInsets.only(
-        bottom: 16.0,
-        right: 24.0,
-        left: 24.0,
-        top: 24.0,
-      ),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titlePadding: const EdgeInsets.only(bottom: 16.0, right: 24.0, left: 24.0, top: 24.0),
       title: SizedBox(
         width: double.maxFinite,
-        child: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontFamily: FontFamily.comfortaa,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-            fontSize: 24.0,
-          ),
-          child: Text(widget.label),
-        ),
+        child: Text(widget.label),
       ),
       content: TextFormField(
         autofocus: true,
@@ -317,18 +298,11 @@ class ProfileAvatarModal extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: theme.colorScheme.surface,
+        centerTitle: false,
         automaticallyImplyLeading: false,
-        title: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontFamily: FontFamily.comfortaa,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-            fontSize: 24.0,
-          ),
-          child: Text(localizations.editavatar.capitalize()),
-        ),
+        backgroundColor: theme.colorScheme.surface,
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+        title: Text(localizations.editavatar.capitalize()),
         actions: const [CustomCloseButton()],
       ),
       body: CustomScrollView(

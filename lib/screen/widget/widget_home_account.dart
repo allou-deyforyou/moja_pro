@@ -19,15 +19,11 @@ class HomeAccountSliverAppBar extends StatelessWidget {
       toolbarHeight: 64.0,
       backgroundColor: theme.colorScheme.surface,
       leading: const Center(child: CircleAvatar()),
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2.0,
-        height: 1.0,
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.0,
       ),
-      title: Text(
-        textAlign: TextAlign.center,
-        name.toUpperCase(),
-      ),
+      title: Text(name.toUpperCase()),
       actions: const [CustomCloseButton()],
     );
   }
@@ -38,6 +34,7 @@ class HomeAccountBalanceTextField extends StatelessWidget {
   final TextEditingController controller;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return Container(
       alignment: Alignment.center,
@@ -51,11 +48,8 @@ class HomeAccountBalanceTextField extends StatelessWidget {
           controller: controller,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
-          style: const TextStyle(
-            fontWeight: FontWeight.w400,
+          style: theme.textTheme.headlineLarge!.copyWith(
             letterSpacing: 1.0,
-            wordSpacing: 0.0,
-            fontSize: 34.0,
           ),
           inputFormatters: [
             ThousandsFormatter(

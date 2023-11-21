@@ -16,18 +16,8 @@ class HomeMenuAppBar extends StatelessWidget {
       toolbarHeight: 64.0,
       automaticallyImplyLeading: false,
       backgroundColor: theme.colorScheme.surface,
-      shape: Border(
-        bottom: BorderSide(color: theme.colorScheme.outline),
-      ),
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: Text(localizations.menu.capitalize()),
-      ),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      title: Text(localizations.menu.capitalize()),
       actions: const [CustomCloseButton()],
     );
   }
@@ -175,11 +165,10 @@ class HomeMenuLogout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = context.localizations;
-    return ListTile(
+    return CustomListTile(
       onTap: onTap,
       textColor: CupertinoColors.destructiveRed,
       splashColor: CupertinoColors.destructiveRed.withOpacity(0.12),
-      contentPadding: kTabLabelPadding.copyWith(top: 8.0, bottom: 8.0),
       title: Text(localizations.logout.capitalize()),
       trailing: Visibility(
         visible: onTap == null,
@@ -237,27 +226,14 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
     final theme = context.theme;
     final localizations = context.localizations;
     return AlertDialog(
-      elevation: 0.0,
+      elevation: 1.0,
       insetPadding: kTabLabelPadding,
       backgroundColor: theme.colorScheme.surface,
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      titlePadding: const EdgeInsets.only(
-        bottom: 16.0,
-        right: 24.0,
-        left: 24.0,
-        top: 24.0,
-      ),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
       title: SizedBox(
         width: double.maxFinite,
-        child: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontFamily: FontFamily.comfortaa,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-            fontSize: 24.0,
-          ),
-          child: Text(widget.title),
-        ),
+        child: Text(widget.title),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -287,7 +263,7 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
         TextButton(
           onPressed: () => Navigator.pop(context, _selected),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.0),
             child: Text(localizations.apply.toUpperCase()),
           ),
         ),
@@ -355,18 +331,11 @@ class HomeMenuSupportModal extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: theme.colorScheme.surface,
+        centerTitle: false,
         automaticallyImplyLeading: false,
-        title: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontFamily: FontFamily.comfortaa,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-            fontSize: 24.0,
-          ),
-          child: Text(localizations.helporsuggestions.capitalize()),
-        ),
+        backgroundColor: theme.colorScheme.surface,
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+        title: Text(localizations.helporsuggestions.capitalize()),
         actions: const [CustomCloseButton()],
       ),
       body: CustomScrollView(
@@ -395,19 +364,11 @@ class HomeMenuSupportEmailWidget extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    return ListTile(
-      subtitleTextStyle: theme.textTheme.labelLarge!.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
-      titleTextStyle: theme.textTheme.titleLarge!.copyWith(
-        fontWeight: FontWeight.w500,
-      ),
+    return CustomListTile(
       onTap: onTap,
-      leading: const Icon(Icons.email),
-      subtitle: const Text("allou.deyforyou@gmail.com"),
+      leading: const Icon(Icons.email, size: 20.0),
       title: const Text("Email"),
-      trailing: const Icon(CupertinoIcons.right_chevron, size: 14.0),
+      trailing: const Text("support@moja.com"),
     );
   }
 }
@@ -420,19 +381,11 @@ class HomeMenuSupportWhatsappWidget extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    return ListTile(
-      subtitleTextStyle: theme.textTheme.labelLarge!.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
-      titleTextStyle: theme.textTheme.titleLarge!.copyWith(
-        fontWeight: FontWeight.w500,
-      ),
+    return CustomListTile(
       onTap: onTap,
-      leading: const Icon(Icons.wechat_rounded, size: 26.0),
-      subtitle: const Text("+225 0749414602"),
+      leading: const Icon(Icons.wechat),
       title: const Text("Whatsapp"),
-      trailing: const Icon(CupertinoIcons.right_chevron, size: 14.0),
+      trailing: const Text("+225 0749414602"),
     );
   }
 }
@@ -445,10 +398,11 @@ class HomeMenuLogoutModal extends StatelessWidget {
     final theme = context.theme;
     final localizations = context.localizations;
     return AlertDialog(
-      elevation: 0.0,
+      elevation: 1.0,
       insetPadding: kTabLabelPadding,
       backgroundColor: theme.colorScheme.surface,
       actionsAlignment: MainAxisAlignment.spaceBetween,
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
       titlePadding: const EdgeInsets.only(
         bottom: 16.0,
         right: 24.0,
@@ -457,15 +411,7 @@ class HomeMenuLogoutModal extends StatelessWidget {
       ),
       title: SizedBox(
         width: double.maxFinite,
-        child: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontFamily: FontFamily.comfortaa,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-            fontSize: 24.0,
-          ),
-          child: Text(localizations.logout.capitalize()),
-        ),
+        child: Text(localizations.logout.capitalize()),
       ),
       actions: [
         TextButton(
@@ -476,7 +422,10 @@ class HomeMenuLogoutModal extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.pop(context, true),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: CupertinoColors.destructiveRed,
+              fontWeight: FontWeight.w600,
+            ),
             child: Text(localizations.logout.toUpperCase()),
           ),
         ),

@@ -7,21 +7,15 @@ class AuthAppBar extends StatelessWidget {
   const AuthAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
       leading: const Center(child: CustomBackButton()),
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: Text(localizations.login.capitalize()),
-      ),
+      title: Text(localizations.login.capitalize()),
     );
   }
 }
@@ -30,20 +24,14 @@ class AuthEditPhoneAppBar extends StatelessWidget {
   const AuthEditPhoneAppBar({super.key});
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
       leading: const Center(child: CustomBackButton()),
-      title: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: FontFamily.comfortaa,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.0,
-          fontSize: 28.0,
-        ),
-        child: Text(localizations.changephonenumber.capitalize()),
-      ),
+      title: Text(localizations.changephonenumber.capitalize()),
     );
   }
 }
@@ -61,18 +49,39 @@ class AuthDialCodeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return TextButton.icon(
-      style: TextButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        textStyle: theme.textTheme.titleLarge!.copyWith(
-          fontSize: 18.0,
+    return SizedBox(
+      width: 110.0,
+      child: Visibility(
+        visible: onPressed != null,
+        replacement: const TextButton(
+          onPressed: null,
+          child: CustomProgressIndicator(),
         ),
-        foregroundColor: theme.colorScheme.onSurface,
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: Visibility(
+          visible: dialCode != null && countryCode != null,
+          replacement: TextButton(
+            onPressed: onPressed,
+            child: const Icon(CupertinoIcons.refresh),
+          ),
+          child: Builder(
+            builder: (context) {
+              return TextButton.icon(
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  textStyle: theme.textTheme.titleLarge!.copyWith(
+                    fontSize: 18.0,
+                  ),
+                  foregroundColor: theme.colorScheme.onSurface,
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                ),
+                onPressed: onPressed,
+                icon: Text("${CustomString.toFlag(countryCode ?? '--')} ${dialCode ?? '--'}"),
+                label: const Icon(CupertinoIcons.chevron_down, size: 18.0),
+              );
+            },
+          ),
+        ),
       ),
-      onPressed: onPressed,
-      icon: Text("${CustomString.toFlag(countryCode ?? '--')} ${dialCode ?? '--'}"),
-      label: const Icon(CupertinoIcons.chevron_down, size: 18.0),
     );
   }
 }
@@ -132,6 +141,36 @@ class AuthSubmittedButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class AuthConfirmPhoneModal extends StatelessWidget {
+  const AuthConfirmPhoneModal({
+    super.key,
+    required this.phone,
+  });
+  final String phone;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return AlertDialog(
+      insetPadding: EdgeInsets.zero,
+      shadowColor: theme.colorScheme.surface,
+      backgroundColor: theme.colorScheme.surface,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      title: Text(phone),
+      content: const Text("Est-ce le bon numéro ?"),
+      actions: [
+        TextButton(
+          onPressed: Navigator.of(context).pop,
+          child: const Text("Modifier"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text("Oui"),
+        ),
+      ],
     );
   }
 }
@@ -203,17 +242,10 @@ class _AuthCountryModalState<T> extends State<AuthCountryModal<T>> {
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: theme.colorScheme.surface,
         automaticallyImplyLeading: false,
-        title: DefaultTextStyle.merge(
-          style: const TextStyle(
-            fontFamily: FontFamily.comfortaa,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-            fontSize: 24.0,
-          ),
-          child: Text(localizations.country.capitalize()),
-        ),
+        backgroundColor: theme.colorScheme.surface,
+        title: Text(localizations.country.capitalize()),
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
         actions: [
           TextButton(
             style: TextButton.styleFrom(padding: kTabLabelPadding),

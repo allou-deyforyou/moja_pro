@@ -46,14 +46,6 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
     return _signupUser();
   }
 
-  void _showErrorSnackbar(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      behavior: SnackBarBehavior.floating,
-      showCloseIcon: true,
-      content: Text(text),
-    ));
-  }
-
   /// UserService
   late AsyncController<AsyncState> _userController;
   String? _userId;
@@ -66,9 +58,12 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
       currentUser.value = data;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignupUserEvent>(:final code)) {
-      _showErrorSnackbar(switch (code) {
-        _ => "Une erreur s'est produite",
-      });
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 
@@ -80,7 +75,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
 
   Future<void> _signupUser() {
     return _userController.run(SignupUserEvent(
-      countryId: _country.id,
+      countryId: _country.id!,
       relayName: _fullname,
       userPhone: _phone,
       uid: _uid,

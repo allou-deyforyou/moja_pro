@@ -7,22 +7,27 @@ class Country extends Equatable {
     required this.id,
     required this.code,
     required this.dialCode,
+    required this.phoneFormat,
+    required this.translations,
   });
 
   static const String schema = 'country';
 
   static const String idKey = 'id';
   static const String codeKey = 'code';
-  static const String dialCodeKey = 'dialcode';
+  static const String dialCodeKey = 'dial_code';
+  static const String phoneFormatKey = 'phone_format';
+  static const String translationsKey = 'translations';
 
-  final String id;
+  final String? id;
   final String code;
   final String dialCode;
+  final String? phoneFormat;
+  final Map<String, String>? translations;
 
   @override
   List<Object?> get props {
     return [
-      id,
       code,
       dialCode,
     ];
@@ -37,11 +42,15 @@ class Country extends Equatable {
     String? id,
     String? code,
     String? dialCode,
+    String? phoneFormat,
+    Map<String, String>? translations,
   }) {
     return Country(
       id: id ?? this.id,
       code: code ?? this.code,
       dialCode: dialCode ?? this.dialCode,
+      phoneFormat: phoneFormat ?? this.phoneFormat,
+      translations: translations ?? this.translations,
     );
   }
 
@@ -50,6 +59,8 @@ class Country extends Equatable {
       id: id,
       code: code,
       dialCode: dialCode,
+      phoneFormat: phoneFormat,
+      translations: translations,
     );
   }
 
@@ -58,6 +69,8 @@ class Country extends Equatable {
       id: data[idKey],
       code: data[codeKey],
       dialCode: data[dialCodeKey],
+      phoneFormat: data[phoneFormatKey],
+      translations: data[translationsKey]?.cast<String, String>(),
     );
   }
 
@@ -66,6 +79,8 @@ class Country extends Equatable {
       idKey: id,
       codeKey: code,
       dialCodeKey: dialCode,
+      phoneFormatKey: phoneFormat,
+      translationsKey: translations,
     }..removeWhere((key, value) => value == null);
   }
 

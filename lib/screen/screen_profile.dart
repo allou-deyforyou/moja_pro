@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 
 import '_screen.dart';
@@ -17,36 +16,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Assets
   late Relay _currentRelay;
 
-  void _openAvatarModal() async {
-    final source = await showModalBottomSheet<ImageSource>(
+  void _openAvatarScreen() {
+    context.pushNamed(ProfilePhotoScreen.name);
+  }
+
+  void _openEditorModal() async {
+    await openImageEditorModal(
       context: context,
-      builder: (context) {
-        return ProfileAvatarModal(
-          children: [
-            ProfileAvatarCameraWidget(
-              onTap: () => Navigator.pop(context, ImageSource.camera),
-            ),
-            ProfileAvatarGaleryWidget(
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
-            ),
-          ],
-        );
-      },
     );
-
-    if (source != null) {
-      final picker = ImagePicker();
-      final file = await picker.pickImage(source: source);
-
-      if (file != null) {
-        final image = await file.readAsBytes();
-        if (mounted) {
-          context.pushNamed(ProfileAvatarScreen.name, extra: {
-            ProfileAvatarScreen.imageKey: image,
-          });
-        }
-      }
-    }
   }
 
   void _openNameModal() async {
@@ -98,7 +75,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         name: event?.name,
       );
 
-      switch (code) {}
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 
@@ -130,8 +112,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
             child: ProfileAvatarWidget(
-              onTap: () {},
-              onEdit: _openAvatarModal,
+              onTap: _openAvatarScreen,
+              onEdit: _openEditorModal,
             ),
           ),
           const SliverPadding(padding: kMaterialListPadding),

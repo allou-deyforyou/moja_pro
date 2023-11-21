@@ -62,7 +62,7 @@ class AppThemes {
         appBarTheme: _appBarTheme,
         dividerTheme: _dividerTheme,
         listTileTheme: _listTileTheme,
-        fontFamily: FontFamily.calibre,
+        fontFamily: FontFamily.quicksand,
         textButtonTheme: _textButtonTheme,
         bottomSheetTheme: _bottomSheetTheme,
         filledButtonTheme: _filledButtonTheme,
@@ -79,16 +79,13 @@ class AppThemes {
           tertiary: tertialColor,
           primary: primaryColor,
         ),
-        fontFamilyFallback: const [
-          FontFamily.comfortaa,
-        ],
       );
 
   static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
         dividerTheme: _dividerTheme,
         listTileTheme: _listTileTheme,
-        fontFamily: FontFamily.calibre,
+        fontFamily: FontFamily.quicksand,
         textButtonTheme: _textButtonTheme,
         bottomSheetTheme: _bottomSheetTheme,
         filledButtonTheme: _filledButtonTheme,
@@ -108,8 +105,5 @@ class AppThemes {
           tertiary: tertialColor,
           primary: primaryColor,
         ),
-        fontFamilyFallback: const [
-          FontFamily.comfortaa,
-        ],
       );
 }

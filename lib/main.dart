@@ -32,7 +32,6 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     /// Assets
-
     _currentLocale = DatabaseConfig.locale;
     _localeStream = DatabaseConfig.localeStream;
 
@@ -62,14 +61,13 @@ class _MyAppState extends State<MyApp> {
               },
               routes: [
                 GoRoute(
-                  name: ProfileAvatarScreen.name,
-                  path: ProfileAvatarScreen.path,
+                  name: ProfilePhotoScreen.name,
+                  path: ProfilePhotoScreen.path,
                   pageBuilder: (context, state) {
-                    final data = state.extra as Map<String, dynamic>;
+                    final data = state.extra as Map<String, dynamic>?;
                     return CupertinoPage(
-                      fullscreenDialog: true,
-                      child: ProfileAvatarScreen(
-                        image: data[ProfileAvatarScreen.imageKey],
+                      child: ProfilePhotoScreen(
+                        image: data?[ProfilePhotoScreen.imageKey],
                       ),
                     );
                   },

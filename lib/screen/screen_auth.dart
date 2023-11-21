@@ -23,11 +23,26 @@ class _AuthScreenState extends State<AuthScreen> {
     return _phoneTextController.text.trim();
   }
 
+  Future<bool?> _openAuthConfirmModal({required String phone}) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AuthConfirmPhoneModal(phone: phone);
+      },
+    );
+  }
+
   void _openAuthCountryModal() async {
     final data = await showModalBottomSheet<Country>(
       context: context,
       builder: (context) {
+        final code = Localizations.localeOf(context).languageCode;
         return AuthCountryModal<Country>(
+          valueFormatted: (item) {
+            final translations = item.translations!;
+            final name = translations[code] ?? translations.values.first;
+            return '${CustomString.toFlag(item.code)}  $name';
+          },
           initialValue: _currentCountry,
           values: _countryList!,
         );
@@ -35,6 +50,13 @@ class _AuthScreenState extends State<AuthScreen> {
     );
     if (data != null) {
       _currentCountry = data;
+    }
+  }
+
+  void _onSubmitted() async {
+    final data = await _openAuthConfirmModal(phone: _phone);
+    if (data != null) {
+      return _verifyPhoneNumber();
     }
   }
 
@@ -50,7 +72,12 @@ class _AuthScreenState extends State<AuthScreen> {
       _countryList = data;
       _currentCountry = _countryList!.firstOrNull;
     } else if (state case FailureState(:final code)) {
-      switch (code) {}
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 
@@ -68,12 +95,17 @@ class _AuthScreenState extends State<AuthScreen> {
       context.pushNamed(AuthSigninScreen.name, extra: {
         AuthSigninScreen.currentUserKey: _currentUser,
       });
-    } else if (state is FailureState) {
-      switch (state.code) {}
+    } else if (state case FailureState(:final code)) {
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 
-  Future<void> _onSubmitted() async {
+  Future<void> _verifyPhoneNumber() async {
     _authController.run(VerifyPhoneNumberEvent(
       timeout: _timeout + const Duration(seconds: 30),
       country: _currentCountry!,

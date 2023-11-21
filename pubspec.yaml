@@ -7,11 +7,12 @@ environment:
   sdk: '>=3.1.4 <4.0.0'
 
 dependencies:
+  # Assets
   flutter:
     sdk: flutter
-  # Assets
   flutter_localizations:
     sdk: flutter
+  mask_text_input_formatter:
   pattern_formatter:
   cupertino_icons:
   equatable:
@@ -37,7 +38,6 @@ dependencies:
   hive:
   dio:
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -54,18 +54,15 @@ flutter:
     - assets/files/
     - assets/images/
   fonts:
-    - family: HelveticaNeue
+    - family: Nunito
       fonts:
-        - asset: assets/fonts/HelveticaNeue.ttc
-    - family: FiraGO
+        - asset: assets/fonts/Nunito-Bold.ttf
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+        - asset: assets/fonts/Nunito-Medium.ttf
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-Light.ttf
+    - family: Quicksand
       fonts:
-        - asset: assets/fonts/FiraGO.ttf
-    - family: Comfortaa
-      fonts:
-        - asset: assets/fonts/Comfortaa.ttf
-    - family: NeueHaasGrotesk
-      fonts:
-        - asset: assets/fonts/NeueHaasGrotesk.otf
-    - family: Calibre
-      fonts:
-        - asset: assets/fonts/Calibre.otf
+        - asset: assets/fonts/Quicksand-Bold.ttf
+        - asset: assets/fonts/Quicksand-SemiBold.ttf
+        - asset: assets/fonts/Quicksand-Medium.ttf

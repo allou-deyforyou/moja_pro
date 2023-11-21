@@ -110,6 +110,12 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
           });
           break;
         default:
+          showErrorSnackbar(
+            context: context,
+            text: switch (code) {
+              _ => "Une erreur s'est produite",
+            },
+          );
       }
     }
   }

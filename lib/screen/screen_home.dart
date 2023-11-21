@@ -55,9 +55,19 @@ class _HomeScreenState extends State<HomeScreen> {
       _relayAccounts = _currentRelay.accounts ?? _relayAccounts;
       currentUser.value = currentUser.value?.copyWith(relays: [_currentRelay]);
     } else if (state case FailureState<GetRelay>(:final code)) {
-      switch (code) {}
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     } else if (state case FailureState<SetRelay>(:final code)) {
-      switch (code) {}
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 

@@ -129,7 +129,12 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     if (state is InitState) {
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignOutUserEvent>(:final code)) {
-      switch (code) {}
+      showErrorSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
     }
   }
 
@@ -158,7 +163,9 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const divider = SliverToBoxAdapter(child: Divider());
+    const divider = SliverToBoxAdapter(
+      child: Divider(thickness: 4.0, height: 4.0),
+    );
 
     return Scaffold(
       backgroundColor: context.theme.colorScheme.surface,
