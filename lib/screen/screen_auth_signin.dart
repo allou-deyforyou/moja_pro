@@ -99,7 +99,6 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
       _getUser();
     } else if (state case SuccessState<User>(:final data)) {
       currentUser.value = _currentUser?.copyWith(phone: data.phone) ?? data;
-      DatabaseConfig.currentUser = currentUser.value;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SigninUserEvent>(:final code)) {
       switch (code) {

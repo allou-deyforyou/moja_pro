@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 
 import '_screen.dart';
@@ -15,6 +16,38 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   /// Assets
   late Relay _currentRelay;
+
+  void _openAvatarModal() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) {
+        return ProfileAvatarModal(
+          children: [
+            ProfileAvatarCameraWidget(
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ProfileAvatarGaleryWidget(
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (source != null) {
+      final picker = ImagePicker();
+      final file = await picker.pickImage(source: source);
+
+      if (file != null) {
+        final image = await file.readAsBytes();
+        if (mounted) {
+          context.pushNamed(ProfileAvatarScreen.name, extra: {
+            ProfileAvatarScreen.imageKey: image,
+          });
+        }
+      }
+    }
+  }
 
   void _openNameModal() async {
     final data = await showDialog<String>(
@@ -59,7 +92,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
       currentUser.value = currentUser.value?.copyWith(relays: [_currentRelay]);
-      DatabaseConfig.currentUser = currentUser.value;
     } else if (state case FailureState<SetRelay>(:final code, :final event)) {
       _currentRelay = _currentRelay.copyWith(
         contacts: event?.contacts,
@@ -96,8 +128,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         slivers: [
           const ProfileAppBar(),
           const SliverPadding(padding: kMaterialListPadding),
-          const SliverToBoxAdapter(
-            child: ProfileAvatarWidget(),
+          SliverToBoxAdapter(
+            child: ProfileAvatarWidget(
+              onTap: () {},
+              onEdit: _openAvatarModal,
+            ),
           ),
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(

@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:listenable_tools/async.dart';
+import 'package:service_tools/service_tools.dart';
 
 import '_service.dart';
 
@@ -110,6 +112,30 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
   }
 }
 
+class SignOutUserEvent extends AsyncEvent<AsyncState> {
+  const SignOutUserEvent();
+
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+
+      await Future.wait([Hive.deleteFromDisk()]);
+      await runService(const MyService());
+
+      currentUser.value = null;
+      currentAuth.reset();
+
+      emit(const InitState());
+    } catch (error) {
+      emit(FailureState(
+        code: 'internal-error',
+        event: this,
+      ));
+    }
+  }
+}
+
 class GetUserEvent extends AsyncEvent<AsyncState> {
   const GetUserEvent({
     required this.id,
@@ -126,6 +152,7 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
       final responses = await sql('SELECT *, $relayQuery FROM ONLY $id');
 
       final data = User.fromMap(responses.first);
+      DatabaseConfig.currentUser = data;
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
@@ -157,6 +184,8 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
       final data = User.fromMap(responses.first);
+      final currentUser = DatabaseConfig.currentUser;
+      if (currentUser != null) DatabaseConfig.currentUser = currentUser.copyWith(phone: data.phone);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

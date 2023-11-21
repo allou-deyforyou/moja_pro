@@ -79,6 +79,10 @@ class HomeAvailableSwitch extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Switch(
             activeTrackColor: CupertinoColors.activeGreen.resolveFrom(context),
+            trackColor: MaterialStateProperty.resolveWith((states) {
+              if (states.isEmpty) return theme.colorScheme.surface;
+              return null;
+            }),
             trackOutlineColor: MaterialStateProperty.resolveWith((states) {
               if (states.isEmpty) return theme.colorScheme.onSurface;
               return null;
@@ -108,7 +112,7 @@ class HomeAccountSliverGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: kTabLabelPadding.copyWith(top: 12.0, bottom: 12.0),
+      padding: kTabLabelPadding,
       sliver: SliverGrid.builder(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 200.0,
@@ -152,6 +156,7 @@ class HomeAccountCard extends StatelessWidget {
         letterSpacing: 1.0,
         wordSpacing: 0.0,
         fontSize: 18.0,
+        height: 1.8,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14.0),

@@ -27,13 +27,42 @@ class ProfileAppBar extends StatelessWidget {
 }
 
 class ProfileAvatarWidget extends StatelessWidget {
-  const ProfileAvatarWidget({super.key});
-
+  const ProfileAvatarWidget({
+    super.key,
+    required this.onEdit,
+    required this.onTap,
+  });
+  final VoidCallback? onEdit;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircleAvatar(
-        radius: 50.0,
+    final theme = context.theme;
+    return Center(
+      child: Badge(
+        largeSize: 35.0,
+        alignment: const Alignment(0.8, 1.0),
+        label: CupertinoButton(
+          minSize: 0.0,
+          onPressed: onEdit,
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(
+            color: theme.colorScheme.onTertiary,
+            CupertinoIcons.pencil,
+          ),
+        ),
+        child: CupertinoButton(
+          onPressed: onTap,
+          padding: EdgeInsets.zero,
+          child: CircleAvatar(
+            backgroundColor: theme.colorScheme.surfaceVariant,
+            radius: 80.0,
+            child: Icon(
+              Icons.storefront,
+              color: theme.colorScheme.onSurfaceVariant,
+              size: 100.0,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -217,6 +246,7 @@ class _ProfileEditModalState extends State<ProfileEditModal> {
         keyboardType: widget.keyboardType,
         controller: _textEditingController,
         style: const TextStyle(fontSize: 18.0),
+        textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(hintText: widget.hint),
         onFieldSubmitted: (value) => Navigator.pop(context, value),
       ),
@@ -270,6 +300,84 @@ class ProfileEditContactModal extends StatelessWidget {
       label: localizations.editcontact.capitalize(),
       hint: localizations.relaypointcontact,
       value: contact,
+    );
+  }
+}
+
+class ProfileAvatarModal extends StatelessWidget {
+  const ProfileAvatarModal({
+    super.key,
+    required this.children,
+  });
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: theme.colorScheme.surface,
+        automaticallyImplyLeading: false,
+        title: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontFamily: FontFamily.comfortaa,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            fontSize: 24.0,
+          ),
+          child: Text(localizations.editavatar.capitalize()),
+        ),
+        actions: const [CustomCloseButton()],
+      ),
+      body: CustomScrollView(
+        controller: PrimaryScrollController.maybeOf(context),
+        slivers: [
+          const SliverPadding(padding: kMaterialListPadding),
+          SliverList.separated(
+            itemCount: children.length,
+            separatorBuilder: (context, index) {
+              return Padding(padding: kMaterialListPadding / 2);
+            },
+            itemBuilder: (context, index) {
+              return children[index];
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileAvatarCameraWidget extends StatelessWidget {
+  const ProfileAvatarCameraWidget({
+    super.key,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    return CustomListTile(
+      onTap: onTap,
+      leading: const Icon(CupertinoIcons.camera),
+      title: const Text("Ouvir la camera"),
+    );
+  }
+}
+
+class ProfileAvatarGaleryWidget extends StatelessWidget {
+  const ProfileAvatarGaleryWidget({
+    super.key,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    return CustomListTile(
+      onTap: onTap,
+      leading: const Icon(CupertinoIcons.photo_on_rectangle),
+      title: const Text("Ouvir la gallerie"),
     );
   }
 }

@@ -62,7 +62,7 @@ class AppThemes {
         appBarTheme: _appBarTheme,
         dividerTheme: _dividerTheme,
         listTileTheme: _listTileTheme,
-        fontFamily: FontFamily.gilroy,
+        fontFamily: FontFamily.calibre,
         textButtonTheme: _textButtonTheme,
         bottomSheetTheme: _bottomSheetTheme,
         filledButtonTheme: _filledButtonTheme,
@@ -81,7 +81,6 @@ class AppThemes {
         ),
         fontFamilyFallback: const [
           FontFamily.comfortaa,
-          FontFamily.futura,
         ],
       );
 
@@ -89,7 +88,7 @@ class AppThemes {
         useMaterial3: true,
         dividerTheme: _dividerTheme,
         listTileTheme: _listTileTheme,
-        fontFamily: FontFamily.gilroy,
+        fontFamily: FontFamily.calibre,
         textButtonTheme: _textButtonTheme,
         bottomSheetTheme: _bottomSheetTheme,
         filledButtonTheme: _filledButtonTheme,
@@ -111,7 +110,6 @@ class AppThemes {
         ),
         fontFamilyFallback: const [
           FontFamily.comfortaa,
-          FontFamily.futura,
         ],
       );
 }

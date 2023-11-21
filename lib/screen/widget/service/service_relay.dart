@@ -17,6 +17,8 @@ class GetRelay extends AsyncEvent<AsyncState> {
       const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema} PARALLEL) AS accounts';
       final responses = await sql('SELECT *, $accountQuery FROM ONLY $id');
       final data = Relay.fromMap(responses.first);
+      final currentUser = DatabaseConfig.currentUser;
+      if (currentUser != null) DatabaseConfig.currentUser = currentUser.copyWith(relays: [data]);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
@@ -52,14 +54,27 @@ class SetRelay extends AsyncEvent<AsyncState> {
         Relay.nameKey: name,
         Relay.imageKey: image,
         Relay.contactsKey: contacts,
-        Relay.availabilityKey: availability,
         Relay.locationKey: location?.toMap(),
       }
         ..removeWhere((key, value) => value == null)
         ..updateAll((key, value) => jsonEncode(value));
+      values[Relay.availabilityKey] = switch (availability) {
+        false => jsonEncode(null),
+        true => 'time::now()',
+        _ => null,
+      };
+      values.removeWhere((key, value) => value == null);
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
-      final data = Relay.fromMap(responses.first);
+      final result = Relay.fromMap(responses.first);
+      final data = relay.copyWith(
+        availability: result.availability,
+        contacts: result.contacts,
+        image: result.image,
+        name: result.name,
+      );
+      final currentUser = DatabaseConfig.currentUser;
+      if (currentUser != null) DatabaseConfig.currentUser = currentUser.copyWith(relays: [data]);
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

@@ -54,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _currentRelay = data;
       _relayAccounts = _currentRelay.accounts ?? _relayAccounts;
       currentUser.value = currentUser.value?.copyWith(relays: [_currentRelay]);
-      DatabaseConfig.currentUser = currentUser.value;
     } else if (state case FailureState<GetRelay>(:final code)) {
       switch (code) {}
     } else if (state case FailureState<SetRelay>(:final code)) {
@@ -121,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
+            const SliverPadding(padding: kMaterialListPadding),
             ControllerBuilder(
               canRebuild: _canRebuildRelay,
               controller: _relayController,

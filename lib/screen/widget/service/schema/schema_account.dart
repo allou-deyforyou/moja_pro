@@ -28,8 +28,8 @@ class Account extends Equatable {
   List<Object?> get props {
     return [
       id,
-      name,
-      balance,
+      // name,
+      // balance,
     ];
   }
 

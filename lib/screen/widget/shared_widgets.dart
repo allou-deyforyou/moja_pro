@@ -74,9 +74,11 @@ class CustomSubmittedButton extends StatelessWidget {
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({
     super.key,
+    this.color,
     this.radius = 10.0,
     this.strokeWidth = 2.0,
   });
+  final Color? color;
   final double radius;
   final double strokeWidth;
   @override
@@ -87,6 +89,7 @@ class CustomProgressIndicator extends StatelessWidget {
       child: CircularProgressIndicator(
         backgroundColor: theme.colorScheme.onInverseSurface,
         strokeWidth: strokeWidth,
+        color: color,
       ),
     );
   }

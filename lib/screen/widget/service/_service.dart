@@ -1,5 +1,7 @@
 export 'schema/_schema.dart';
 
+export 'binding_service.dart';
+
 export 'config_database.dart';
 export 'config_firebase.dart';
 export 'config_repository.dart';

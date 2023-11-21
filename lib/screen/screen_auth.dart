@@ -46,11 +46,11 @@ class _AuthScreenState extends State<AuthScreen> {
   void _listenCountryState(BuildContext context, AsyncState state) {
     if (state is InitState) {
       _searchCountry();
-    } else if (state is SuccessState<List<Country>>) {
-      _countryList = state.data;
+    } else if (state case SuccessState<List<Country>>(:final data)) {
+      _countryList = data;
       _currentCountry = _countryList!.firstOrNull;
-    } else if (state is FailureState) {
-      switch (state.code) {}
+    } else if (state case FailureState(:final code)) {
+      switch (code) {}
     }
   }
 

@@ -181,6 +181,13 @@ class HomeMenuLogout extends StatelessWidget {
       splashColor: CupertinoColors.destructiveRed.withOpacity(0.12),
       contentPadding: kTabLabelPadding.copyWith(top: 8.0, bottom: 8.0),
       title: Text(localizations.logout.capitalize()),
+      trailing: Visibility(
+        visible: onTap == null,
+        child: const CustomProgressIndicator(
+          color: CupertinoColors.destructiveRed,
+          radius: 6.0,
+        ),
+      ),
     );
   }
 }
@@ -192,6 +199,7 @@ class HomeMenuModal<T> extends StatefulWidget {
     required this.values,
     required this.selected,
     required this.formatted,
+    required this.onSelected,
   });
 
   final String title;
@@ -199,6 +207,7 @@ class HomeMenuModal<T> extends StatefulWidget {
   final T? selected;
   final List<T> values;
   final String Function(T value) formatted;
+  final ValueChanged<T> onSelected;
 
   @override
   State<HomeMenuModal<T>> createState() => _HomeMenuModalState<T>();
@@ -208,9 +217,10 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
   late T? _selected;
   late List<T> _values;
 
-  ValueChanged<bool?> _onChanged(T value) {
+  ValueChanged<bool?> _onChanged(T item) {
     return (_) {
-      setState(() => _selected = value);
+      widget.onSelected(item);
+      setState(() => _selected = item);
     };
   }
 
@@ -220,15 +230,6 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
 
     _values = widget.values;
     _selected = widget.selected;
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeMenuModal<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selected != widget.selected || oldWidget.values != widget.values) {
-      _values = widget.values;
-      _selected = widget.selected;
-    }
   }
 
   @override
@@ -287,7 +288,7 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
           onPressed: () => Navigator.pop(context, _selected),
           child: DefaultTextStyle.merge(
             style: const TextStyle(fontWeight: FontWeight.bold),
-            child: Text(localizations.change.toUpperCase()),
+            child: Text(localizations.apply.toUpperCase()),
           ),
         ),
       ],
@@ -299,16 +300,19 @@ class HomeMenuThemeModal<T> extends StatelessWidget {
   const HomeMenuThemeModal({
     super.key,
     required this.selected,
+    required this.onSelected,
   });
   final ThemeMode selected;
+  final ValueChanged<ThemeMode> onSelected;
 
   @override
   Widget build(BuildContext context) {
     final localizations = context.localizations;
     return HomeMenuModal<ThemeMode>(
       formatted: (value) => value.format(context),
-      title: localizations.changetheme.capitalize(),
+      title: localizations.theme.capitalize(),
       values: ThemeMode.values,
+      onSelected: onSelected,
       selected: selected,
     );
   }
@@ -318,19 +322,165 @@ class HomeMenuLanguageModal<T> extends StatelessWidget {
   const HomeMenuLanguageModal({
     super.key,
     required this.selected,
+    required this.onSelected,
   });
+  final ValueChanged<Locale> onSelected;
   final Locale? selected;
   @override
   Widget build(BuildContext context) {
     final localizations = context.localizations;
     const system = Locale('system');
     final supportedLocales = List<Locale>.from(AppLocalizations.supportedLocales);
-    supportedLocales.add(system);
+    supportedLocales.insert(0, system);
     return HomeMenuModal<Locale>(
-      title: localizations.changelanguage.capitalize(),
+      title: localizations.language.capitalize(),
       formatted: (value) => value.format(context),
       selected: selected ?? system,
       values: supportedLocales,
+      onSelected: onSelected,
+    );
+  }
+}
+
+class HomeMenuSupportModal extends StatelessWidget {
+  const HomeMenuSupportModal({
+    super.key,
+    required this.children,
+  });
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: theme.colorScheme.surface,
+        automaticallyImplyLeading: false,
+        title: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontFamily: FontFamily.comfortaa,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            fontSize: 24.0,
+          ),
+          child: Text(localizations.helporsuggestions.capitalize()),
+        ),
+        actions: const [CustomCloseButton()],
+      ),
+      body: CustomScrollView(
+        slivers: [
+          const SliverPadding(padding: kMaterialListPadding),
+          SliverList.separated(
+            itemCount: children.length,
+            separatorBuilder: (context, index) {
+              return Padding(padding: kMaterialListPadding / 2);
+            },
+            itemBuilder: (context, index) {
+              return children[index];
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HomeMenuSupportEmailWidget extends StatelessWidget {
+  const HomeMenuSupportEmailWidget({
+    super.key,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return ListTile(
+      subtitleTextStyle: theme.textTheme.labelLarge!.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      titleTextStyle: theme.textTheme.titleLarge!.copyWith(
+        fontWeight: FontWeight.w500,
+      ),
+      onTap: onTap,
+      leading: const Icon(Icons.email),
+      subtitle: const Text("allou.deyforyou@gmail.com"),
+      title: const Text("Email"),
+      trailing: const Icon(CupertinoIcons.right_chevron, size: 14.0),
+    );
+  }
+}
+
+class HomeMenuSupportWhatsappWidget extends StatelessWidget {
+  const HomeMenuSupportWhatsappWidget({
+    super.key,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return ListTile(
+      subtitleTextStyle: theme.textTheme.labelLarge!.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      titleTextStyle: theme.textTheme.titleLarge!.copyWith(
+        fontWeight: FontWeight.w500,
+      ),
+      onTap: onTap,
+      leading: const Icon(Icons.wechat_rounded, size: 26.0),
+      subtitle: const Text("+225 0749414602"),
+      title: const Text("Whatsapp"),
+      trailing: const Icon(CupertinoIcons.right_chevron, size: 14.0),
+    );
+  }
+}
+
+class HomeMenuLogoutModal extends StatelessWidget {
+  const HomeMenuLogoutModal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return AlertDialog(
+      elevation: 0.0,
+      insetPadding: kTabLabelPadding,
+      backgroundColor: theme.colorScheme.surface,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      titlePadding: const EdgeInsets.only(
+        bottom: 16.0,
+        right: 24.0,
+        left: 24.0,
+        top: 24.0,
+      ),
+      title: SizedBox(
+        width: double.maxFinite,
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontFamily: FontFamily.comfortaa,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            fontSize: 24.0,
+          ),
+          child: Text(localizations.logout.capitalize()),
+        ),
+      ),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
+          onPressed: Navigator.of(context).pop,
+          child: Text(localizations.cancel.toUpperCase()),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            child: Text(localizations.logout.toUpperCase()),
+          ),
+        ),
+      ],
     );
   }
 }

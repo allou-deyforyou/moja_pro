@@ -15,6 +15,18 @@ class GetAccount extends AsyncEvent<AsyncState> {
       emit(const PendingState());
       final responses = await sql('SELECT * FROM ONLY $id');
       final data = Account.fromMap(responses.first);
+
+      final currentUser = DatabaseConfig.currentUser;
+      if (currentUser != null) {
+        final relay = currentUser.relays!.first;
+        final accounts = relay.accounts!;
+        final index = accounts.indexOf(data);
+        accounts[index] = data;
+        DatabaseConfig.currentUser = currentUser.copyWith(relays: [
+          relay.copyWith(accounts: accounts),
+        ]);
+      }
+
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
@@ -48,6 +60,18 @@ class SetAccount extends AsyncEvent<AsyncState> {
       final accountCreate = 'RETURN RELATE ONLY $relayId->created->$accountId SET balance=$balance;';
       await sql('$accountQuery RETURN IF (\$created_id != NONE) {$accountUpdate} ELSE {$accountCreate};');
       final data = account.copyWith(balance: balance);
+
+      final currentUser = DatabaseConfig.currentUser;
+      if (currentUser != null) {
+        final relay = currentUser.relays!.first;
+        final accounts = relay.accounts!;
+        final index = accounts.indexOf(data);
+        accounts[index] = data;
+        DatabaseConfig.currentUser = currentUser.copyWith(relays: [
+          relay.copyWith(accounts: accounts),
+        ]);
+      }
+
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

@@ -18,7 +18,6 @@ dependencies:
   go_router:
   intl:
   # Widgets
-  reorderable_grid:
   listenable_tools:
   widget_tools:
   maplibre_gl:
@@ -26,12 +25,18 @@ dependencies:
   # Services
   firebase_messaging:
   permission_handler:
+  extended_image:
   firebase_core:
   service_tools:
   firebase_auth:
   hive_flutter:
+  image_picker:
+  image_editor:
+  url_launcher:
+  share_plus:
   hive:
   dio:
+
 
 dev_dependencies:
   flutter_test:
@@ -49,12 +54,18 @@ flutter:
     - assets/files/
     - assets/images/
   fonts:
-    - family: Futura
+    - family: HelveticaNeue
       fonts:
-        - asset: assets/fonts/Futura.ttc
+        - asset: assets/fonts/HelveticaNeue.ttc
+    - family: FiraGO
+      fonts:
+        - asset: assets/fonts/FiraGO.ttf
     - family: Comfortaa
       fonts:
         - asset: assets/fonts/Comfortaa.ttf
-    - family: Gilroy
+    - family: NeueHaasGrotesk
       fonts:
-        - asset: assets/fonts/Gilroy.ttf
+        - asset: assets/fonts/NeueHaasGrotesk.otf
+    - family: Calibre
+      fonts:
+        - asset: assets/fonts/Calibre.otf

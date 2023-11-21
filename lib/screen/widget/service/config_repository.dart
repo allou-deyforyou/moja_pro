@@ -10,8 +10,8 @@ class RepositoryConfig {
   const RepositoryConfig._();
 
   static Dio? _internalDio;
-  static const _connectTimeout = Duration(seconds: 5);
-  static const _receiveTimeout = Duration(seconds: 5);
+  static const _connectTimeout = Duration(seconds: 10);
+  static const _receiveTimeout = Duration(seconds: 10);
   static const _baseUrl = 'https://dei-surrealdb.fly.dev';
 
   static String? _namespace;

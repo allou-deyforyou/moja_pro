@@ -10,28 +10,6 @@ void main() {
   runService(const MyService()).whenComplete(() => runApp(const MyApp()));
 }
 
-class MyService extends FlutterService {
-  const MyService();
-
-  @override
-  Future<void> developmentBinding() {
-    return Future.wait([
-      RepositoryConfig.development(),
-      FirebaseConfig.development(),
-      DatabaseConfig.development(),
-    ]);
-  }
-
-  @override
-  Future<void> productionBinding() {
-    return Future.wait([
-      RepositoryConfig.production(),
-      FirebaseConfig.production(),
-      DatabaseConfig.production(),
-    ]);
-  }
-}
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -43,11 +21,24 @@ class _MyAppState extends State<MyApp> {
   /// Assets
   late final GoRouter _router;
 
+  Stream<ThemeMode>? _themeModeStream;
+  ThemeMode? _currentThemeMode;
+
+  Stream<Locale>? _localeStream;
+  Locale? _currentLocale;
+
   @override
   void initState() {
     super.initState();
 
     /// Assets
+
+    _currentLocale = DatabaseConfig.locale;
+    _localeStream = DatabaseConfig.localeStream;
+
+    _currentThemeMode = DatabaseConfig.themeMode;
+    _themeModeStream = DatabaseConfig.themeModeStream;
+
     _router = GoRouter(
       refreshListenable: currentUser,
       routes: [
@@ -70,6 +61,19 @@ class _MyAppState extends State<MyApp> {
                 );
               },
               routes: [
+                GoRoute(
+                  name: ProfileAvatarScreen.name,
+                  path: ProfileAvatarScreen.path,
+                  pageBuilder: (context, state) {
+                    final data = state.extra as Map<String, dynamic>;
+                    return CupertinoPage(
+                      fullscreenDialog: true,
+                      child: ProfileAvatarScreen(
+                        image: data[ProfileAvatarScreen.imageKey],
+                      ),
+                    );
+                  },
+                ),
                 GoRoute(
                   name: ProfileLocationScreen.name,
                   path: ProfileLocationScreen.path,
@@ -155,17 +159,18 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      initialData: DatabaseConfig.locale,
-      stream: DatabaseConfig.localeStream,
+      stream: _localeStream,
+      initialData: _currentLocale,
       builder: (context, localeSnapshot) {
         return StreamBuilder<ThemeMode>(
-          initialData: DatabaseConfig.themeMode,
-          stream: DatabaseConfig.themeModeStream,
+          stream: _themeModeStream,
+          initialData: _currentThemeMode,
           builder: (context, themeModeSnapshot) {
             return MaterialApp.router(
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               themeMode: themeModeSnapshot.data,
+              color: AppThemes.primaryColor,
               darkTheme: AppThemes.darkTheme,
               locale: localeSnapshot.data,
               theme: AppThemes.theme,

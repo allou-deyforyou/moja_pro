@@ -10,12 +10,18 @@
 class FontFamily {
   FontFamily._();
 
+  /// Font family: Calibre
+  static const String calibre = 'Calibre';
+
   /// Font family: Comfortaa
   static const String comfortaa = 'Comfortaa';
 
-  /// Font family: Futura
-  static const String futura = 'Futura';
+  /// Font family: FiraGO
+  static const String firaGO = 'FiraGO';
 
-  /// Font family: Gilroy
-  static const String gilroy = 'Gilroy';
+  /// Font family: HelveticaNeue
+  static const String helveticaNeue = 'HelveticaNeue';
+
+  /// Font family: NeueHaasGrotesk
+  static const String neueHaasGrotesk = 'NeueHaasGrotesk';
 }

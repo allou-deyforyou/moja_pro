@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 
 import '_screen.dart';
 
@@ -14,6 +17,14 @@ class HomeMenuScreen extends StatefulWidget {
 class _HomeMenuScreenState extends State<HomeMenuScreen> {
   /// Assets
   late User _currentUser;
+  Stream<bool>? _notificationsStream;
+  bool? _currentNotifications;
+
+  Stream<ThemeMode>? _themeModeStream;
+  ThemeMode? _currentThemeMode;
+
+  Stream<Locale>? _localeStream;
+  Locale? _currentLocale;
 
   void _openProfileScreen() {
     context.pushNamed(ProfileScreen.name);
@@ -35,12 +46,13 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         context: context,
         builder: (context) {
           return HomeMenuThemeModal<ThemeMode>(
+            onSelected: (value) => DatabaseConfig.themeMode = value,
             selected: themeMode,
           );
         },
       );
-      if (data != null) {
-        DatabaseConfig.themeMode = data;
+      if (data == null) {
+        DatabaseConfig.themeMode = themeMode;
       }
     };
   }
@@ -51,23 +63,79 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         context: context,
         builder: (context) {
           return HomeMenuLanguageModal<Locale>(
+            onSelected: (value) {
+              if (value.languageCode == 'system') {
+                DatabaseConfig.locale = null;
+              } else {
+                DatabaseConfig.locale = value;
+              }
+            },
             selected: locale,
           );
         },
       );
-      if (data != null) {
-        if (data.languageCode == 'system') {
-          DatabaseConfig.locale = null;
-        } else {
-          DatabaseConfig.locale = data;
-        }
+      if (data == null) {
+        DatabaseConfig.locale = locale;
       }
     };
   }
 
-  void _openSupportScreen() {}
+  void _openSupportScreen() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return HomeMenuSupportModal(
+          children: [
+            HomeMenuSupportEmailWidget(
+              onTap: () {
+                launchUrl(Uri.parse('uri'));
+              },
+            ),
+            HomeMenuSupportWhatsappWidget(
+              onTap: () {
+                launchUrl(Uri.parse('uri'));
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  void _openShareScreen() {}
+  void _openShareScreen() {
+    final box = context.findRenderObject() as RenderBox?;
+    Share.share(
+      'hello',
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    );
+  }
+
+  void _openLogoutModal() async {
+    final data = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return const HomeMenuLogoutModal();
+      },
+    );
+    if (data != null) {
+      _signOutUser();
+    }
+  }
+
+  /// UserService
+  late final AsyncController<AsyncState> _userController;
+
+  void _listenUserState(BuildContext context, AsyncState state) {
+    if (state is InitState) {
+      context.goNamed(HomeScreen.name);
+    } else if (state case FailureState<SignOutUserEvent>(:final code)) {
+      switch (code) {}
+    }
+  }
+
+  Future<void> _signOutUser() {
+    return _userController.run(const SignOutUserEvent());
+  }
 
   @override
   void initState() {
@@ -75,6 +143,17 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
     /// Assets
     _currentUser = currentUser.value!;
+    _currentLocale = DatabaseConfig.locale;
+    _localeStream = DatabaseConfig.localeStream;
+
+    _currentThemeMode = DatabaseConfig.themeMode;
+    _themeModeStream = DatabaseConfig.themeModeStream;
+
+    _currentNotifications = DatabaseConfig.notifications;
+    _notificationsStream = DatabaseConfig.notificationsStream;
+
+    /// UserService
+    _userController = AsyncController(SuccessState(_currentUser));
   }
 
   @override
@@ -102,8 +181,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               divider,
               SliverToBoxAdapter(
                 child: StreamBuilder(
-                  initialData: DatabaseConfig.notifications,
-                  stream: DatabaseConfig.notificationsStream,
+                  initialData: _currentNotifications,
+                  stream: _notificationsStream,
                   builder: (context, snapshot) {
                     return HomeMenuNotifs(
                       onChanged: _onNotifsTaped,
@@ -114,8 +193,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               ),
               SliverToBoxAdapter(
                 child: StreamBuilder(
-                  stream: DatabaseConfig.themeModeStream,
-                  initialData: DatabaseConfig.themeMode,
+                  stream: _themeModeStream,
+                  initialData: _currentThemeMode,
                   builder: (context, snapshot) {
                     return HomeMenuTheme(
                       onTap: _openThemeModal(snapshot.data!),
@@ -126,8 +205,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               ),
               SliverToBoxAdapter(
                 child: StreamBuilder(
-                  initialData: DatabaseConfig.locale,
-                  stream: DatabaseConfig.localeStream,
+                  stream: _localeStream,
+                  initialData: _currentLocale,
                   builder: (context, snapshot) {
                     return HomeLanguageTheme(
                       onTap: _openLanguageModal(snapshot.data),
@@ -149,8 +228,16 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               ),
               divider,
               SliverToBoxAdapter(
-                child: HomeMenuLogout(
-                  onTap: () {},
+                child: ControllerConsumer(
+                  listener: _listenUserState,
+                  controller: _userController,
+                  builder: (context, state, child) {
+                    VoidCallback? onTap = _openLogoutModal;
+                    if (state is PendingState) onTap = null;
+                    return HomeMenuLogout(
+                      onTap: onTap,
+                    );
+                  },
                 ),
               ),
             ],
