@@ -4,41 +4,8 @@ import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
-class GetAccount extends AsyncEvent<AsyncState> {
-  const GetAccount({
-    required this.id,
-  });
-  final String id;
-  @override
-  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
-    try {
-      emit(const PendingState());
-      final responses = await sql('SELECT * FROM ONLY $id');
-      final data = Account.fromMap(responses.first);
-
-      final currentUser = DatabaseConfig.currentUser;
-      if (currentUser != null) {
-        final relay = currentUser.relays!.first;
-        final accounts = relay.accounts!;
-        final index = accounts.indexOf(data);
-        accounts[index] = data;
-        DatabaseConfig.currentUser = currentUser.copyWith(relays: [
-          relay.copyWith(accounts: accounts),
-        ]);
-      }
-
-      emit(SuccessState(data));
-    } catch (error) {
-      emit(FailureState(
-        code: error.toString(),
-        event: this,
-      ));
-    }
-  }
-}
-
-class SetAccount extends AsyncEvent<AsyncState> {
-  const SetAccount({
+class SetAccountEvent extends AsyncEvent<AsyncState> {
+  const SetAccountEvent({
     required this.account,
     required this.balance,
     required this.relay,

@@ -35,8 +35,8 @@ class AuthSignupFullnameTextField extends StatelessWidget {
         autofocus: false,
         controller: controller,
         keyboardType: TextInputType.name,
-        style: const TextStyle(fontSize: 18.0),
         textCapitalization: TextCapitalization.words,
+        style: const TextStyle(fontSize: 18.0, letterSpacing: 0.0),
         decoration: InputDecoration(
           hintText: localizations.relaypointname,
         ),

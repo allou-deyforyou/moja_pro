@@ -79,24 +79,19 @@ class ProfileItemWidget extends StatelessWidget {
       contentPadding: kTabLabelPadding.copyWith(right: 2.0, top: 8.0),
       titleTextStyle: theme.textTheme.labelLarge!.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
-        height: 1.0,
       ),
       subtitleTextStyle: theme.textTheme.titleLarge!.copyWith(
         fontWeight: FontWeight.w500,
       ),
       title: Text(label),
-      subtitle: Row(
-        children: [
-          Expanded(child: Text(value)),
-          IconButton(
-            onPressed: onTap,
-            icon: Visibility(
-              visible: onTap != null,
-              replacement: const CustomProgressIndicator(),
-              child: const Icon(CupertinoIcons.pen, size: 20.0),
-            ),
-          ),
-        ],
+      subtitle: Text(value),
+      trailing: IconButton(
+        onPressed: onTap,
+        icon: Visibility(
+          visible: onTap != null,
+          replacement: const CustomProgressIndicator(),
+          child: const Icon(CupertinoIcons.pen, size: 20.0),
+        ),
       ),
     );
   }
@@ -281,77 +276,6 @@ class ProfileEditContactModal extends StatelessWidget {
       label: localizations.editcontact.capitalize(),
       hint: localizations.relaypointcontact,
       value: contact,
-    );
-  }
-}
-
-class ProfileAvatarModal extends StatelessWidget {
-  const ProfileAvatarModal({
-    super.key,
-    required this.children,
-  });
-  final List<Widget> children;
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    final localizations = context.localizations;
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        centerTitle: false,
-        automaticallyImplyLeading: false,
-        backgroundColor: theme.colorScheme.surface,
-        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
-        title: Text(localizations.editavatar.capitalize()),
-        actions: const [CustomCloseButton()],
-      ),
-      body: CustomScrollView(
-        controller: PrimaryScrollController.maybeOf(context),
-        slivers: [
-          const SliverPadding(padding: kMaterialListPadding),
-          SliverList.separated(
-            itemCount: children.length,
-            separatorBuilder: (context, index) {
-              return Padding(padding: kMaterialListPadding / 2);
-            },
-            itemBuilder: (context, index) {
-              return children[index];
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileAvatarCameraWidget extends StatelessWidget {
-  const ProfileAvatarCameraWidget({
-    super.key,
-    required this.onTap,
-  });
-  final VoidCallback? onTap;
-  @override
-  Widget build(BuildContext context) {
-    return CustomListTile(
-      onTap: onTap,
-      leading: const Icon(CupertinoIcons.camera),
-      title: const Text("Ouvir la camera"),
-    );
-  }
-}
-
-class ProfileAvatarGaleryWidget extends StatelessWidget {
-  const ProfileAvatarGaleryWidget({
-    super.key,
-    required this.onTap,
-  });
-  final VoidCallback? onTap;
-  @override
-  Widget build(BuildContext context) {
-    return CustomListTile(
-      onTap: onTap,
-      leading: const Icon(CupertinoIcons.photo_on_rectangle),
-      title: const Text("Ouvir la gallerie"),
     );
   }
 }

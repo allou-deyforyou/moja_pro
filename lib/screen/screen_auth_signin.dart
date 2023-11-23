@@ -68,14 +68,14 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
 
   Future<void> _signin() {
     return _authController.run(SignInEvent(
-      smsCode: _codeTextController.text,
+      smsCode: _codeTextController.text.trimSpace(),
       verificationId: _verificationId,
     ));
   }
 
   Future<void> _updatePhoneNumber() {
     return _authController.run(UpdatePhoneNumber(
-      smsCode: _codeTextController.text,
+      smsCode: _codeTextController.text.trimSpace(),
       verificationId: _verificationId,
     ));
   }
@@ -110,7 +110,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
           });
           break;
         default:
-          showErrorSnackbar(
+          showSnackbar(
             context: context,
             text: switch (code) {
               _ => "Une erreur s'est produite",

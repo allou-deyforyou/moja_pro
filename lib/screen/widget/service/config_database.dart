@@ -58,7 +58,7 @@ class DatabaseConfig {
   }
 
   static Locale? get locale {
-    final value = DatabaseConfig.settings.get(_localeKey);
+    final value = DatabaseConfig.settings.get(_localeKey, defaultValue: null);
     return value != null ? Locale(value) : null;
   }
 

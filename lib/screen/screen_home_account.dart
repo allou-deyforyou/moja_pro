@@ -47,8 +47,8 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   void _listenAccountState(BuildContext context, AsyncState state) {
     if (state case SuccessState<Account>(:final data)) {
       context.pop(data);
-    } else if (state case FailureState<SetAccount>(:final code)) {
-     showErrorSnackbar(
+    } else if (state case FailureState<SetAccountEvent>(:final code)) {
+     showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
@@ -58,7 +58,7 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   }
 
   Future<void> _setAccount() {
-    return _accountController.run(SetAccount(
+    return _accountController.run(SetAccountEvent(
       account: _currentAccount,
       relay: _currentRelay,
       balance: _balance,

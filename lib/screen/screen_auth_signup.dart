@@ -58,7 +58,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
       currentUser.value = data;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignupUserEvent>(:final code)) {
-      showErrorSnackbar(
+      showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",

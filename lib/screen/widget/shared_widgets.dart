@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart' as picker;
 
 import '_widget.dart';
 
-void showErrorSnackbar({
+void showSnackbar({
   required BuildContext context,
   required String text,
   VoidCallback? onTry,
@@ -61,7 +61,7 @@ class CustomSubmittedButton extends StatelessWidget {
         return FilledButton(
           onPressed: done ? onPressed : null,
           style: FilledButton.styleFrom(
-            textStyle: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600),
+            textStyle: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.0),
             padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
           ),
           child: Container(
@@ -248,12 +248,12 @@ Future<String?> openImageEditorModal({
   final source = await showModalBottomSheet<picker.ImageSource>(
     context: context,
     builder: (context) {
-      return ProfileAvatarModal(
+      return ImageEditorModal(
         children: [
-          ProfileAvatarCameraWidget(
+          ImageEditorCameraWidget(
             onTap: () => Navigator.pop(context, picker.ImageSource.camera),
           ),
-          ProfileAvatarGaleryWidget(
+          ImageEditorGaleryWidget(
             onTap: () => Navigator.pop(context, picker.ImageSource.gallery),
           ),
         ],
@@ -280,6 +280,80 @@ Future<String?> openImageEditorModal({
     }
   }
   return null;
+}
+
+class ImageEditorModal extends StatelessWidget {
+  const ImageEditorModal({
+    super.key,
+    required this.children,
+  });
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        centerTitle: false,
+        toolbarHeight: 64.0,
+        automaticallyImplyLeading: false,
+        backgroundColor: theme.colorScheme.surface,
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+        title: Text(localizations.editavatar.capitalize()),
+        actions: const [CustomCloseButton()],
+      ),
+      body: CustomScrollView(
+        controller: PrimaryScrollController.maybeOf(context),
+        slivers: [
+          const SliverPadding(padding: kMaterialListPadding),
+          SliverList.separated(
+            itemCount: children.length,
+            separatorBuilder: (context, index) {
+              return Padding(padding: kMaterialListPadding / 2);
+            },
+            itemBuilder: (context, index) {
+              return children[index];
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ImageEditorCameraWidget extends StatelessWidget {
+  const ImageEditorCameraWidget({
+    super.key,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return CustomListTile(
+      onTap: onTap,
+      leading: const Icon(CupertinoIcons.camera),
+      title: Text(localizations.opencamera.capitalize()),
+    );
+  }
+}
+
+class ImageEditorGaleryWidget extends StatelessWidget {
+  const ImageEditorGaleryWidget({
+    super.key,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return CustomListTile(
+      onTap: onTap,
+      leading: const Icon(CupertinoIcons.photo_on_rectangle),
+      title: Text(localizations.opengallery.capitalize()),
+    );
+  }
 }
 
 class ImageEditorScreen extends StatefulWidget {
@@ -417,7 +491,7 @@ class ImageEditorNavigationBar extends StatelessWidget {
     final localizations = context.localizations;
     return Container(
       color: theme.colorScheme.background,
-      height: kMinInteractiveDimension * 2.0,
+      height: kMinInteractiveDimension * 1.2,
       child: SafeArea(
         top: false,
         child: NavigationToolbar(

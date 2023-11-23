@@ -14,12 +14,13 @@ class ProfilePhotoAppBar extends CustomAppBar {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final localizations = context.localizations;
     return AppBar(
       centerTitle: false,
       toolbarHeight: preferredSize.height,
       titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
       leading: const Center(child: CustomBackButton()),
-      title: const Text("Photo de point relais"),
+      title:  Text(localizations.relaypointphoto.capitalize()),
       actions: actions,
     );
   }

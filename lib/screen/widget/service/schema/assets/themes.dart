@@ -18,8 +18,8 @@ class AppThemes {
     elevation: 2.0,
   );
   static const _dividerTheme = DividerThemeData(
-    space: 0.8,
     thickness: 0.8,
+    space: 0.8,
   );
   static final _filledButtonTheme = FilledButtonThemeData(
     style: FilledButton.styleFrom(

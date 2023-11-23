@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:widget_tools/widget_tools.dart';
 
 import '_widget.dart';
@@ -35,7 +36,13 @@ class AuthSignupCodePinTextField extends StatelessWidget {
         controller: controller,
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
-        style: const TextStyle(fontSize: 18.0),
+        style: const TextStyle(fontSize: 18.0, letterSpacing: 0.0),
+        inputFormatters: [
+          MaskTextInputFormatter(
+            type: MaskAutoCompletionType.eager,
+            mask: '## ## ##',
+          ),
+        ],
         decoration: InputDecoration(
           hintText: localizations.code,
           floatingLabelAlignment: FloatingLabelAlignment.center,

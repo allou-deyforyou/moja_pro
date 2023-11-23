@@ -33,6 +33,7 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: ProfilePhotoAppBar(
         actions: [
           ProfilePhotoEditButton(

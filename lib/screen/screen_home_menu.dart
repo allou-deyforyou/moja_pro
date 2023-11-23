@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:listenable_tools/listenable_tools.dart';
@@ -36,8 +37,30 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     });
   }
 
-  void _onNotifsTaped(bool active) {
-    DatabaseConfig.notifications = active;
+  void _onNotifsTaped(bool active) async {
+    if (active) {
+      final service = AsyncController<AsyncState>(const InitState());
+      await service.run(const GetPermissionEvent(permission: Permission.notification));
+      if (service.value is SuccessState<Permission>) {
+        DatabaseConfig.notifications = active;
+      } else {
+        _openNotifsModal();
+      }
+    } else {
+      DatabaseConfig.notifications = active;
+    }
+  }
+
+  void _openNotifsModal() async {
+    final data = await showDialog(
+      context: context,
+      builder: (context) {
+        return const HomeMenuNotifisModal();
+      },
+    );
+    if (data == null) {
+      openAppSettings();
+    }
   }
 
   VoidCallback _openThemeModal(ThemeMode themeMode) {
@@ -87,11 +110,13 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         return HomeMenuSupportModal(
           children: [
             HomeMenuSupportEmailWidget(
+              email: "support@moja.com",
               onTap: () {
                 launchUrl(Uri.parse('uri'));
               },
             ),
             HomeMenuSupportWhatsappWidget(
+              phone: "+225 0749414602",
               onTap: () {
                 launchUrl(Uri.parse('uri'));
               },
@@ -129,7 +154,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     if (state is InitState) {
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignOutUserEvent>(:final code)) {
-      showErrorSnackbar(
+      showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
@@ -168,11 +193,10 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     );
 
     return Scaffold(
-      backgroundColor: context.theme.colorScheme.surface,
       body: CustomScrollView(
-        controller: PrimaryScrollController.maybeOf(context),
         slivers: [
           const HomeMenuAppBar(),
+          SliverPadding(padding: kMaterialListPadding / 2),
           SliverMainAxisGroup(
             slivers: [
               SliverToBoxAdapter(
@@ -188,8 +212,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               divider,
               SliverToBoxAdapter(
                 child: StreamBuilder(
-                  initialData: _currentNotifications,
                   stream: _notificationsStream,
+                  initialData: _currentNotifications,
                   builder: (context, snapshot) {
                     return HomeMenuNotifs(
                       onChanged: _onNotifsTaped,

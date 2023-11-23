@@ -22,6 +22,10 @@ dependencies:
   listenable_tools:
   widget_tools:
   maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: main
+  shimmer:
   lottie:
   # Services
   firebase_messaging:
@@ -54,13 +58,6 @@ flutter:
     - assets/files/
     - assets/images/
   fonts:
-    - family: Nunito
-      fonts:
-        - asset: assets/fonts/Nunito-Bold.ttf
-        - asset: assets/fonts/Nunito-SemiBold.ttf
-        - asset: assets/fonts/Nunito-Medium.ttf
-        - asset: assets/fonts/Nunito-Regular.ttf
-        - asset: assets/fonts/Nunito-Light.ttf
     - family: Quicksand
       fonts:
         - asset: assets/fonts/Quicksand-Bold.ttf

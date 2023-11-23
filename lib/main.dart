@@ -90,7 +90,8 @@ class _MyAppState extends State<MyApp> {
               name: HomeMenuScreen.name,
               path: HomeMenuScreen.path,
               pageBuilder: (context, state) {
-                return const DialogPage(
+                return const CupertinoPage(
+                  fullscreenDialog: true,
                   child: HomeMenuScreen(),
                 );
               },

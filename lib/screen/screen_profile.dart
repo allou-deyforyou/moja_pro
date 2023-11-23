@@ -69,13 +69,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
       currentUser.value = currentUser.value?.copyWith(relays: [_currentRelay]);
-    } else if (state case FailureState<SetRelay>(:final code, :final event)) {
+    } else if (state case FailureState<SetRelayEvent>(:final code, :final event)) {
       _currentRelay = _currentRelay.copyWith(
         contacts: event?.contacts,
         name: event?.name,
       );
 
-      showErrorSnackbar(
+      showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
@@ -85,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _setRelay({String? name, List<String>? contacts}) {
-    return _relayController.run(SetRelay(
+    return _relayController.run(SetRelayEvent(
       relay: _currentRelay,
       contacts: contacts,
       name: name,

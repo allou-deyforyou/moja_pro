@@ -1,144 +1,28 @@
 import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:maplibre_gl/mapbox_gl.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:widget_tools/widget_tools.dart';
 
 import '_widget.dart';
 
-class ProfileLocationAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ProfileLocationAppBar({
-    super.key,
-    required this.middle,
-    required this.trailing,
-  });
-  final Widget middle;
-  final Widget trailing;
-  @override
-  Size get preferredSize => const Size.fromHeight(74.0);
-  @override
-  Widget build(BuildContext context) {
-    final style = switch (MediaQuery.platformBrightnessOf(context)) {
-      Brightness.light => SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
-      Brightness.dark => SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
-    };
-    return SafeArea(
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: style,
-        sized: false,
-        child: SizedBox.fromSize(
-          size: preferredSize,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const ProfileLocationBackButton(),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: middle,
-                  ),
-                ),
-                trailing,
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileLocationBackButton extends StatelessWidget {
-  const ProfileLocationBackButton({
-    super.key,
-    this.onPressed,
-  });
-  final VoidCallback? onPressed;
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    return IconButton.filledTonal(
-      style: IconButton.styleFrom(
-        elevation: 2.0,
-        surfaceTintColor: theme.colorScheme.primaryContainer,
-        backgroundColor: theme.colorScheme.onInverseSurface,
-      ),
-      constraints: const BoxConstraints.tightFor(width: kToolbarHeight),
-      icon: const Icon(CupertinoIcons.arrow_left),
-      onPressed: onPressed ?? Navigator.of(context).maybePop,
-    );
-  }
-}
-
-class ProfileLocationSearchBar extends CustomAppBar {
-  const ProfileLocationSearchBar({
-    super.key,
-    required this.suggestionsBuilder,
-  });
-  final SuggestionsBuilder suggestionsBuilder;
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    return ClipPath(
-      clipper: const ShapeBorderClipper(shape: StadiumBorder()),
-      child: Material(
-        elevation: 2.0,
-        shape: const StadiumBorder(),
-        color: theme.colorScheme.onInverseSurface,
-        surfaceTintColor: theme.colorScheme.primaryContainer,
-        child: SearchAnchor.bar(
-          viewElevation: 0.0,
-          barHintText: "Rechercher...",
-          suggestionsBuilder: suggestionsBuilder,
-          barElevation: const MaterialStatePropertyAll(0.0),
-          viewBackgroundColor: theme.scaffoldBackgroundColor,
-          barBackgroundColor: const MaterialStatePropertyAll(Colors.transparent),
-          constraints: const BoxConstraints.tightFor(height: kMinInteractiveDimension),
-          barLeading: const Icon(CupertinoIcons.search),
-          viewLeading: IconButton(
-            onPressed: Navigator.of(context).pop,
-            icon: const Icon(CupertinoIcons.arrow_left),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileLocationButton extends StatelessWidget {
-  const ProfileLocationButton({
-    super.key,
-    this.value = false,
-    required this.onChanged,
-  });
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-  VoidCallback? _onPressed() {
-    if (onChanged == null) return null;
-    return () => onChanged?.call(!value);
-  }
+class ProfileLocationAppBar extends StatelessWidget {
+  const ProfileLocationAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return IconButton.filledTonal(
-      style: IconButton.styleFrom(
-        elevation: 2.0,
-        surfaceTintColor: theme.colorScheme.primaryContainer,
-        backgroundColor: theme.colorScheme.onInverseSurface,
-      ),
-      constraints: const BoxConstraints.tightFor(width: kToolbarHeight),
-      icon: Visibility(
-        visible: value,
-        replacement: const Icon(CupertinoIcons.location),
-        child: const Icon(CupertinoIcons.location_fill),
-      ),
-      onPressed: _onPressed(),
+    return AppBar(
+      titleSpacing: 0.0,
+      toolbarHeight: 64.0,
+      backgroundColor: Colors.transparent,
+      shape: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant)),
+      leading: const Center(child: CustomBackButton()),
+      title: const Text("Adresse du point relais"),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }
@@ -148,7 +32,7 @@ class ProfileLocationMap extends StatelessWidget {
     super.key,
     this.onMapIdle,
     this.onMapClick,
-    this.onMapActive,
+    this.onMapMoved,
     this.onCameraIdle,
     this.onMapCreated,
     this.onMapLongClick,
@@ -160,7 +44,7 @@ class ProfileLocationMap extends StatelessWidget {
 
   final bool myLocationEnabled;
   final VoidCallback? onMapIdle;
-  final VoidCallback? onMapActive;
+  final VoidCallback? onMapMoved;
   final VoidCallback? onCameraIdle;
   final OnMapClickCallback? onMapClick;
   final MapCreatedCallback? onMapCreated;
@@ -174,9 +58,9 @@ class ProfileLocationMap extends StatelessWidget {
     return (_) => onMapIdle?.call();
   }
 
-  ValueChanged<PointerDownEvent>? _onMapActive() {
-    if (onMapActive == null) return null;
-    return (_) => onMapActive?.call();
+  ValueChanged<PointerDownEvent>? _onMapMoved() {
+    if (onMapMoved == null) return null;
+    return (_) => onMapMoved?.call();
   }
 
   @override
@@ -184,13 +68,13 @@ class ProfileLocationMap extends StatelessWidget {
     return CustomKeepAlive(
       child: Listener(
         onPointerUp: _onMapIdle(),
-        onPointerDown: _onMapActive(),
+        onPointerDown: _onMapMoved(),
         child: MaplibreMap(
           compassEnabled: false,
           onMapClick: onMapClick,
           trackCameraPosition: true,
-          onMapCreated: onMapCreated,
           onCameraIdle: onCameraIdle,
+          onMapCreated: onMapCreated,
           onMapLongClick: onMapLongClick,
           myLocationEnabled: myLocationEnabled,
           onUserLocationUpdated: onUserLocationUpdated,
@@ -229,35 +113,63 @@ class ProfileLocationPin extends StatelessWidget {
   }
 }
 
-class ProfileLocationItemWidget extends StatelessWidget {
-  const ProfileLocationItemWidget({
+class ProfileLocationSearchBar extends CustomAppBar {
+  const ProfileLocationSearchBar({
     super.key,
-    required this.title,
-    required this.subtitle,
+    required this.suggestionsBuilder,
   });
-
-  final String title;
-  final String subtitle;
-
+  final SuggestionsBuilder suggestionsBuilder;
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return Column(
-      children: [
-        ListTile(
-          title: const Text("Adresse du point relais"),
-          titleTextStyle: theme.textTheme.titleLarge!.copyWith(
-            color: theme.colorScheme.inverseSurface,
-          ),
-        ),
-        const Divider(),
-        ListTile(
-          titleTextStyle: theme.textTheme.titleMedium,
-          leading: const Icon(CupertinoIcons.location_solid),
-          title: Text(title),
-          subtitle: Text(subtitle),
-        )
-      ],
+    return SearchAnchor(
+      viewElevation: 0.0,
+      suggestionsBuilder: suggestionsBuilder,
+      viewBackgroundColor: theme.scaffoldBackgroundColor,
+      viewHintText: MaterialLocalizations.of(context).searchFieldLabel.capitalize(),
+      viewLeading: IconButton(
+        onPressed: Navigator.of(context).pop,
+        icon: const Icon(CupertinoIcons.arrow_left),
+      ),
+      builder: (context, controller) {
+        return FloatingActionButton.small(
+          elevation: 1.0,
+          onPressed: controller.openView,
+          backgroundColor: theme.colorScheme.surface,
+          child: const Icon(CupertinoIcons.search),
+        );
+      },
+    );
+  }
+}
+
+class ProfileLocationItemWidget extends StatelessWidget {
+  const ProfileLocationItemWidget({
+    super.key,
+    this.title,
+    this.subtitle,
+  });
+  final String? title;
+  final String? subtitle;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+
+    final child = ListTile(
+      titleTextStyle: theme.textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w500),
+      leading: const Icon(CupertinoIcons.location_solid),
+      title: Text(title ?? 'Chargement...'),
+      subtitle: Text(subtitle ?? 'Adresse'),
+    );
+
+    return Visibility(
+      visible: title != null || subtitle != null,
+      replacement: Shimmer.fromColors(
+        baseColor: theme.colorScheme.onSurfaceVariant,
+        highlightColor: theme.colorScheme.onInverseSurface,
+        child: child,
+      ),
+      child: child,
     );
   }
 }
@@ -270,11 +182,14 @@ class ProfileLocationSubmittedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: kTabLabelPadding.copyWith(top: 12.0, bottom: 12.0),
-      child: CustomSubmittedButton(
-        onPressed: onPressed,
-        child: const Text("Définir"),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CustomSubmittedButton(
+          onPressed: onPressed,
+          child: const Text("Définir"),
+        ),
       ),
     );
   }

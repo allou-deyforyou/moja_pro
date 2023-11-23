@@ -4,8 +4,17 @@ import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
-class SearchPlace extends AsyncEvent<AsyncState> {
-  const SearchPlace({
+Future<List<Place>> searchPlaceByQuery({
+  required Point position,
+  required String query,
+}) async {
+  final responses = await sql('RETURN fn::search_place_by_query("$query", ${position.latitude}, ${position.longitude}, "fr");');
+  final List response = responses.first;
+  return List.of(response.map((data) => Place.fromMap(data)));
+}
+
+class SearchPlaceEvent extends AsyncEvent<AsyncState> {
+  const SearchPlaceEvent({
     required this.position,
     this.query,
   });
@@ -15,9 +24,15 @@ class SearchPlace extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final responses = await sql('SELECT * FROM ${Place.schema}');
-      final data = List.of(responses.first.map((data) => Place.fromMap(data)));
-      emit(SuccessState(data));
+      if (query != null) {
+        final data = await searchPlaceByQuery(position: position, query: query!);
+        emit(SuccessState(data));
+      } else {
+        final responses = await sql('RETURN fn::search_place_by_point(${position.latitude}, ${position.longitude}, "fr");');
+        final List response = responses.first;
+        final data = List.of(response.map((data) => Place.fromMap(data)));
+        emit(SuccessState(data));
+      }
     } catch (error) {
       emit(FailureState(
         code: error.toString(),

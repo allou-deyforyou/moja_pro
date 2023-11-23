@@ -27,7 +27,9 @@ class _AuthScreenState extends State<AuthScreen> {
     return showDialog<bool>(
       context: context,
       builder: (context) {
-        return AuthConfirmPhoneModal(phone: phone);
+        return AuthConfirmPhoneModal(
+          phone: phone,
+        );
       },
     );
   }
@@ -72,7 +74,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _countryList = data;
       _currentCountry = _countryList!.firstOrNull;
     } else if (state case FailureState(:final code)) {
-      showErrorSnackbar(
+      showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
@@ -96,7 +98,7 @@ class _AuthScreenState extends State<AuthScreen> {
         AuthSigninScreen.currentUserKey: _currentUser,
       });
     } else if (state case FailureState(:final code)) {
-      showErrorSnackbar(
+      showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
@@ -145,26 +147,27 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
-            child: AuthPhoneTextField(
-              autofocus: _currentUser != null,
-              controller: _phoneTextController,
-              prefixIcon: ControllerConsumer(
-                autoListen: true,
-                listener: _listenCountryState,
-                controller: _countryController,
-                builder: (context, state, child) {
-                  final onPressed = switch (state) {
-                    SuccessState<List<Country>>() => _openAuthCountryModal,
-                    FailureState() => _searchCountry,
-                    _ => null,
-                  };
-                  return AuthDialCodeButton(
+            child: ControllerConsumer(
+              autoListen: true,
+              listener: _listenCountryState,
+              controller: _countryController,
+              builder: (context, state, child) {
+                final onPressed = switch (state) {
+                  SuccessState<List<Country>>() => _openAuthCountryModal,
+                  FailureState() => _searchCountry,
+                  _ => null,
+                };
+                return AuthPhoneTextField(
+                  autofocus: _currentUser != null,
+                  controller: _phoneTextController,
+                  format: _currentCountry?.phoneFormat,
+                  prefixIcon: AuthDialCodeButton(
                     dialCode: _currentCountry?.dialCode,
                     countryCode: _currentCountry?.code,
                     onPressed: onPressed,
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: kMinInteractiveDimension)),

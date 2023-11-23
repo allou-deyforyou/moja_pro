@@ -39,7 +39,7 @@ class Place extends Equatable {
     } else if (locality != null && name != null) {
       return '$locality $name';
     }
-    return name!;
+    return name ?? '';
   }
 
   String get subtitle {
@@ -48,7 +48,7 @@ class Place extends Equatable {
     } else if (city != null) {
       return city!;
     }
-    return state!;
+    return state ?? '';
   }
 
   @override

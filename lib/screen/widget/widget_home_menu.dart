@@ -15,7 +15,6 @@ class HomeMenuAppBar extends StatelessWidget {
       centerTitle: false,
       toolbarHeight: 64.0,
       automaticallyImplyLeading: false,
-      backgroundColor: theme.colorScheme.surface,
       titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
       title: Text(localizations.menu.capitalize()),
       actions: const [CustomCloseButton()],
@@ -180,6 +179,50 @@ class HomeMenuLogout extends StatelessWidget {
     );
   }
 }
+
+class HomeMenuNotifisModal extends StatelessWidget {
+  const HomeMenuNotifisModal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return AlertDialog(
+      elevation: 1.0,
+      insetPadding: kTabLabelPadding,
+      backgroundColor: theme.colorScheme.surface,
+      contentTextStyle: theme.textTheme.bodyLarge,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titlePadding: const EdgeInsets.only(
+        bottom: 16.0,
+        right: 24.0,
+        left: 24.0,
+        top: 24.0,
+      ),
+      title: SizedBox(
+        width: double.maxFinite,
+        child: Text(localizations.enablenotification.capitalize()),
+      ),
+      content: Text(localizations.disablednotification.capitalize()),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
+          onPressed: Navigator.of(context).pop,
+          child: Text(localizations.cancel.toUpperCase()),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.0),
+            child: Text(localizations.open.toUpperCase()),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 
 class HomeMenuModal<T> extends StatefulWidget {
   const HomeMenuModal({
@@ -360,15 +403,18 @@ class HomeMenuSupportEmailWidget extends StatelessWidget {
   const HomeMenuSupportEmailWidget({
     super.key,
     required this.onTap,
+    required this.email,
   });
   final VoidCallback? onTap;
+  final String email;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CustomListTile(
       onTap: onTap,
       leading: const Icon(Icons.email, size: 20.0),
-      title: const Text("Email"),
-      trailing: const Text("support@moja.com"),
+      title: Text(localizations.email.capitalize()),
+      trailing: Text(email),
     );
   }
 }
@@ -377,15 +423,18 @@ class HomeMenuSupportWhatsappWidget extends StatelessWidget {
   const HomeMenuSupportWhatsappWidget({
     super.key,
     required this.onTap,
+    required this.phone,
   });
   final VoidCallback? onTap;
+  final String phone;
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CustomListTile(
       onTap: onTap,
       leading: const Icon(Icons.wechat),
-      title: const Text("Whatsapp"),
-      trailing: const Text("+225 0749414602"),
+      title: Text(localizations.whatsapp.capitalize()),
+      trailing: Text(phone),
     );
   }
 }

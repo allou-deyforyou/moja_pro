@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '_widget.dart';
 
@@ -69,6 +70,7 @@ class AuthDialCodeButton extends StatelessWidget {
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   textStyle: theme.textTheme.titleLarge!.copyWith(
+                    letterSpacing: 0.0,
                     fontSize: 18.0,
                   ),
                   foregroundColor: theme.colorScheme.onSurface,
@@ -89,10 +91,12 @@ class AuthDialCodeButton extends StatelessWidget {
 class AuthPhoneTextField extends StatelessWidget {
   const AuthPhoneTextField({
     super.key,
+    required this.format,
     this.autofocus = false,
     required this.controller,
     required this.prefixIcon,
   });
+  final String? format;
   final bool autofocus;
   final Widget prefixIcon;
   final TextEditingController? controller;
@@ -105,7 +109,8 @@ class AuthPhoneTextField extends StatelessWidget {
         autofocus: autofocus,
         controller: controller,
         keyboardType: TextInputType.phone,
-        style: const TextStyle(fontSize: 18.0),
+        inputFormatters: [MaskTextInputFormatter(mask: format)],
+        style: const TextStyle(fontSize: 18.0, letterSpacing: 0.0),
         decoration: InputDecoration(
           hintText: localizations.phonenumber,
           prefixIcon: prefixIcon,
@@ -154,21 +159,31 @@ class AuthConfirmPhoneModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final localizations = context.localizations;
     return AlertDialog(
-      insetPadding: EdgeInsets.zero,
-      shadowColor: theme.colorScheme.surface,
+      elevation: 1.0,
       backgroundColor: theme.colorScheme.surface,
+      contentTextStyle: theme.textTheme.bodyLarge,
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      title: Text(phone),
-      content: const Text("Est-ce le bon numéro ?"),
+      insetPadding: kTabLabelPadding.copyWith(bottom: 16.0),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titlePadding: const EdgeInsets.only(bottom: 16.0, right: 24.0, left: 24.0, top: 24.0),
+      title: SizedBox(
+        width: double.maxFinite,
+        child: Text(phone),
+      ),
+      content: Text(localizations.rightnumber.capitalize()),
       actions: [
         TextButton(
           onPressed: Navigator.of(context).pop,
-          child: const Text("Modifier"),
+          child: Text(localizations.edit.toUpperCase()),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text("Oui"),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            child: Text(localizations.yes.toUpperCase()),
+          ),
         ),
       ],
     );
@@ -264,11 +279,10 @@ class _AuthCountryModalState<T> extends State<AuthCountryModal<T>> {
           return Center(
             child: DefaultTextStyle(
               style: theme.textTheme.titleMedium!.copyWith(
+                letterSpacing: -0.4,
                 fontSize: 18.0,
               ),
-              child: Text(
-                _defaultValueFormatted(item),
-              ),
+              child: Text(_defaultValueFormatted(item)),
             ),
           );
         },

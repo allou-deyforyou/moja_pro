@@ -5,8 +5,8 @@ import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
-class GetRelay extends AsyncEvent<AsyncState> {
-  const GetRelay({
+class GetRelayEvent extends AsyncEvent<AsyncState> {
+  const GetRelayEvent({
     required this.id,
   });
   final String id;
@@ -29,8 +29,8 @@ class GetRelay extends AsyncEvent<AsyncState> {
   }
 }
 
-class SetRelay extends AsyncEvent<AsyncState> {
-  const SetRelay({
+class SetRelayEvent extends AsyncEvent<AsyncState> {
+  const SetRelayEvent({
     required this.relay,
     this.name,
     this.image,
@@ -58,20 +58,18 @@ class SetRelay extends AsyncEvent<AsyncState> {
       }
         ..removeWhere((key, value) => value == null)
         ..updateAll((key, value) => jsonEncode(value));
+
       values[Relay.availabilityKey] = switch (availability) {
-        false => jsonEncode(null),
         true => 'time::now()',
+        false => 'NONE',
         _ => null,
       };
       values.removeWhere((key, value) => value == null);
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
       final result = Relay.fromMap(responses.first);
-      final data = relay.copyWith(
-        availability: result.availability,
-        contacts: result.contacts,
-        image: result.image,
-        name: result.name,
+      final data = result.copyWith(
+        accounts: relay.accounts,
       );
       final currentUser = DatabaseConfig.currentUser;
       if (currentUser != null) DatabaseConfig.currentUser = currentUser.copyWith(relays: [data]);
