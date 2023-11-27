@@ -49,5 +49,8 @@
     "relaypointphoto": "relay point photo",
     "editavatar": "edit photo",
     "opencamera": "open camera",
-    "opengallery": "open gallery"
+    "opengallery": "open gallery",
+    "relaypointaddress": "relay point address",
+    "loading": "loading",
+    "define": "define"
 }

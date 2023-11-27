@@ -56,10 +56,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _openLocationScreen() {
-    context.pushNamed(ProfileLocationScreen.name, extra: {
+  void _openLocationScreen() async {
+    final data = await context.pushNamed<Relay>(ProfileLocationScreen.name, extra: {
       ProfileLocationScreen.relayKey: _currentRelay,
     });
+    if (data != null) {
+      _relayController.value = SuccessState(data);
+    }
   }
 
   /// RelayService
@@ -151,7 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _relayController,
               builder: (context, state, child) {
                 return ProfileLocationWidget(
-                  location: "Cocody Riviera Faya",
+                  location: _currentRelay.location!.title,
                   onTap: _openLocationScreen,
                 );
               },

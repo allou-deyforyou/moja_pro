@@ -41,13 +41,13 @@ class Relay extends Equatable {
   List<Object?> get props {
     return [
       id,
-      name,
-      contacts,
-      image,
-      location,
-      availability,
-      accounts,
-      createdAt,
+      // name,
+      // contacts,
+      // image,
+      // location,
+      // availability,
+      // accounts,
+      // createdAt,
     ];
   }
 
@@ -91,9 +91,8 @@ class Relay extends Equatable {
       id: data[idKey],
       name: data[nameKey],
       image: data[imageKey],
+      location: Place.fromMap(data[locationKey]),
       contacts: data[contactsKey]?.cast<String>(),
-      location: null,
-      // location: Place.fromMap(data[locationKey]),
       createdAt: DateTime.tryParse(data[createdAtKey].toString()),
       availability: DateTime.tryParse(data[availabilityKey].toString()),
       accounts: data[accountsKey]?.map<Account>((data) => Account.fromMap(data)).toList(),
@@ -109,6 +108,19 @@ class Relay extends Equatable {
       locationKey: location?.toMap(),
       createdAtKey: createdAt?.toString(),
       availabilityKey: availability?.toString(),
+      accountsKey: accounts?.map((data) => data.toMap()).toList(),
+    }..removeWhere((key, value) => value == null);
+  }
+
+  Map<String, dynamic> toSurreal() {
+    return {
+      idKey: id,
+      nameKey: name.json(),
+      imageKey: image?.json(),
+      locationKey: location?.toMap(),
+      createdAtKey: createdAt?.toString(),
+      availabilityKey: availability?.toString(),
+      contactsKey: contacts?.map((e) => e.json()),
       accountsKey: accounts?.map((data) => data.toMap()).toList(),
     }..removeWhere((key, value) => value == null);
   }

@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -25,6 +24,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   PersistentBottomSheetController? _bottomSheetController;
   late AnimationController _pinAnimationController;
   late ValueNotifier<bool> _myLocationController;
+  late Relay _currentRelay;
 
   void _animatePin() {
     _pinAnimationController.repeat(min: 0.15, max: 1.0);
@@ -34,19 +34,18 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     _pinAnimationController.reset();
   }
 
-  FutureOr<Iterable<Widget>> _suggestionsBuilder(BuildContext context, SearchController controller) async {
+  Future<Iterable<Widget>> _suggestionsBuilder(BuildContext context, SearchController controller) async {
     if (_userLocation != null) {
       final position = _userLocation!.position;
       final data = searchPlaceByQuery(query: controller.text, position: (
-        longitude: position.longitude,
-        latitude: position.latitude,
+        position.longitude,
+        position.latitude,
       ));
       return data.then((places) {
         return places.map((item) {
           return ListTile(
             onTap: () => controller.closeView(item.title),
             title: Text(item.title),
-            subtitle: Text(item.subtitle),
           );
         });
       });
@@ -76,7 +75,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   void _onUserLocationUpdated(UserLocation location) {
     if (_userLocation == null) _goToPosition(location.position);
     _userLocation = location;
-    _goToMyPosition();
+    if (_myLocationController.value) _goToMyPosition();
   }
 
   void _goToPosition(LatLng position) {
@@ -89,7 +88,8 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   }
 
   void _goToMyPosition() async {
-    if (_userLocation != null && _myLocationController.value) {
+    if (_userLocation != null) {
+      _myLocationController.value = true;
       _goToPosition(_userLocation!.position);
     }
   }
@@ -125,9 +125,33 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
 
   void _searchPlaceByPoint(LatLng center) {
     _placeController.run(SearchPlaceEvent(position: (
-      longitude: center.longitude,
-      latitude: center.latitude,
+      center.longitude,
+      center.latitude,
     )));
+  }
+
+  /// RelayService
+  late final AsyncController<AsyncState> _relayController;
+
+  void _listenRelayState(BuildContext context, AsyncState state) {
+    if (state case SuccessState<Relay>(:var data)) {
+      _currentRelay = data;
+      context.pop(_currentRelay);
+    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+      showSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
+    }
+  }
+
+  Future<void> _setRelay({required Place place}) {
+    return _relayController.run(SetRelayEvent(
+      relay: _currentRelay,
+      location: place,
+    ));
   }
 
   @override
@@ -135,6 +159,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     super.initState();
 
     /// Assets
+    _currentRelay = widget.relay;
     _myLocationController = ValueNotifier(true);
     _pinAnimationController = AnimationController(
       duration: const Duration(seconds: 5),
@@ -146,6 +171,9 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
 
     /// PlaceService
     _placeController = AsyncController(const InitState());
+
+    /// RelayService
+    _relayController = AsyncController(const InitState());
   }
 
   @override
@@ -166,6 +194,28 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
       child: Scaffold(
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+        floatingActionButton: SafeArea(
+          top: false,
+          child: Padding(
+            padding: kTabLabelPadding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const ProfileLocationFloatingBackButton(),
+                ValueListenableBuilder(
+                  valueListenable: _myLocationController,
+                  builder: (context, active, child) {
+                    return ProfileLocationFloatingLocationButton(
+                      onChanged: (value) => _goToMyPosition(),
+                      active: active,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -180,37 +230,44 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
             ),
           ],
         ),
-        floatingActionButton: ProfileLocationSearchBar(
-          suggestionsBuilder: _suggestionsBuilder,
-        ),
-        bottomSheet: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ProfileLocationAppBar(),
-            ControllerConsumer(
-              listener: _listenPlaceState,
-              controller: _placeController,
-              builder: (context, state, child) {
-                Place? place;
-                if (state case SuccessState<List<Place>>(:final data)) {
-                  if (data.isNotEmpty) place = data.first;
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ProfileLocationItemWidget(
-                      subtitle: place?.subtitle,
-                      title: place?.title,
-                    ),
-                    ProfileLocationSubmittedButton(
-                      onPressed: () {},
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+        bottomSheet: SafeArea(
+          top: false,
+          child: ControllerConsumer(
+            listener: _listenPlaceState,
+            controller: _placeController,
+            builder: (context, placeState, child) {
+              Place? place;
+              if (placeState case SuccessState<Place>(:final data)) {
+                place = data;
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ProfileLocationItemWidget(
+                    suggestionsBuilder: _suggestionsBuilder,
+                    title: place?.title,
+                  ),
+                  ControllerConsumer(
+                    listener: _listenRelayState,
+                    controller: _relayController,
+                    builder: (context, relayState, child) {
+                      VoidCallback? onPressed = () {
+                        _setRelay(place: place!);
+                      };
+                      if (relayState is PendingState) {
+                        onPressed = null;
+                      }
+                      return ProfileLocationSubmittedButton(
+                        disabled: placeState is PendingState,
+                        onPressed: onPressed,
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

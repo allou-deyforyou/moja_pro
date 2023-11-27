@@ -31,6 +31,10 @@ extension CustomBuildContext on BuildContext {
 }
 
 extension CustomString on String {
+  String json() {
+    return '"$this"';
+  }
+
   String capitalize() {
     if (isNotEmpty) {
       return '${this[0].toUpperCase()}${substring(1)}';

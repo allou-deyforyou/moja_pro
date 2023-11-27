@@ -20,6 +20,7 @@ dependencies:
   intl:
   # Widgets
   listenable_tools:
+  auto_size_text:
   widget_tools:
   maplibre_gl:
     git:

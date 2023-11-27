@@ -169,7 +169,6 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
     this.phone,
   });
   final User user;
-
   final String? phone;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
@@ -177,15 +176,15 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
       emit(const PendingState());
       final id = user.id;
       final values = {
-        User.phoneKey: phone,
-      }
-        ..removeWhere((key, value) => value == null)
-        ..updateAll((key, value) => jsonEncode(value));
+        User.phoneKey: phone?.json(),
+      }..removeWhere((key, value) => value == null);
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
+
       final data = User.fromMap(responses.first);
-      final currentUser = DatabaseConfig.currentUser;
-      if (currentUser != null) DatabaseConfig.currentUser = currentUser.copyWith(phone: data.phone);
+      DatabaseConfig.currentUser = DatabaseConfig.currentUser?.copyWith(
+        phone: data.phone,
+      );
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(

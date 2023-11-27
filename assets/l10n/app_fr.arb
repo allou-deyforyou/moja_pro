@@ -49,5 +49,8 @@
     "relaypointphoto": "photo du point relais",
     "editavatar": "modifier la photo",
     "opencamera": "ouvrir la caméra",
-    "opengallery": "ouvrir la galerie"
+    "opengallery": "ouvrir la galerie",
+    "relaypointaddress": "adresse du point relais",
+    "loading": "chargement",
+    "define": "définir"
 }

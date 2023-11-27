@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/gestures.dart';
@@ -9,20 +10,57 @@ import 'package:widget_tools/widget_tools.dart';
 
 import '_widget.dart';
 
-class ProfileLocationAppBar extends StatelessWidget {
-  const ProfileLocationAppBar({super.key});
+class ProfileLocationFloatingBackButton extends CustomAppBar {
+  const ProfileLocationFloatingBackButton({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return FilledButton.tonal(
+      onPressed: Navigator.of(context).pop,
+      style: FilledButton.styleFrom(
+        elevation: 0.12,
+        shape: const StadiumBorder(),
+        shadowColor: theme.colorScheme.surfaceTint,
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onSurface,
+      ),
+      child: const Icon(CupertinoIcons.arrow_left),
+    );
+  }
+}
+
+class ProfileLocationFloatingLocationButton extends StatelessWidget {
+  const ProfileLocationFloatingLocationButton({
+    super.key,
+    this.active = false,
+    required this.onChanged,
+  });
+  final bool active;
+  final ValueChanged<bool>? onChanged;
+  VoidCallback? _onPressed() {
+    if (onChanged == null) return null;
+    return () => onChanged!(!active);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return AppBar(
-      titleSpacing: 0.0,
-      toolbarHeight: 64.0,
-      backgroundColor: Colors.transparent,
-      shape: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant)),
-      leading: const Center(child: CustomBackButton()),
-      title: const Text("Adresse du point relais"),
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+    return FilledButton.tonal(
+      onPressed: _onPressed(),
+      style: FilledButton.styleFrom(
+        elevation: 0.12,
+        shape: const StadiumBorder(),
+        shadowColor: theme.colorScheme.surfaceTint,
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onSurface,
+      ),
+      child: Visibility(
+        visible: active,
+        replacement: const Icon(CupertinoIcons.location),
+        child: const Icon(CupertinoIcons.location_fill),
+      ),
     );
   }
 }
@@ -113,57 +151,63 @@ class ProfileLocationPin extends StatelessWidget {
   }
 }
 
-class ProfileLocationSearchBar extends CustomAppBar {
-  const ProfileLocationSearchBar({
-    super.key,
-    required this.suggestionsBuilder,
-  });
-  final SuggestionsBuilder suggestionsBuilder;
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    return SearchAnchor(
-      viewElevation: 0.0,
-      suggestionsBuilder: suggestionsBuilder,
-      viewBackgroundColor: theme.scaffoldBackgroundColor,
-      viewHintText: MaterialLocalizations.of(context).searchFieldLabel.capitalize(),
-      viewLeading: IconButton(
-        onPressed: Navigator.of(context).pop,
-        icon: const Icon(CupertinoIcons.arrow_left),
-      ),
-      builder: (context, controller) {
-        return FloatingActionButton.small(
-          elevation: 1.0,
-          onPressed: controller.openView,
-          backgroundColor: theme.colorScheme.surface,
-          child: const Icon(CupertinoIcons.search),
-        );
-      },
-    );
-  }
-}
-
 class ProfileLocationItemWidget extends StatelessWidget {
   const ProfileLocationItemWidget({
     super.key,
     this.title,
-    this.subtitle,
+    required this.suggestionsBuilder,
   });
   final String? title;
-  final String? subtitle;
+  final SuggestionsBuilder suggestionsBuilder;
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-
+    final localizations = context.localizations;
     final child = ListTile(
-      titleTextStyle: theme.textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w500),
+      contentPadding: kTabLabelPadding.copyWith(right: 2.0, top: 16.0, bottom: 28.0),
+      titleTextStyle: theme.textTheme.headlineSmall!.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
+        fontWeight: FontWeight.w500,
+        height: 1.2,
+      ),
       leading: const Icon(CupertinoIcons.location_solid),
-      title: Text(title ?? 'Chargement...'),
-      subtitle: Text(subtitle ?? 'Adresse'),
+      title: Text(localizations.relaypointaddress.capitalize()),
+      subtitle: SizedBox(
+        height: 35.0,
+        child: Visibility(
+          visible: title != null,
+          replacement: Text('${localizations.loading.capitalize()}...'),
+          child: Builder(
+            builder: (context) {
+              return DefaultTextStyle.merge(
+                style: TextStyle(color: theme.colorScheme.primary),
+                child: AutoSizeText(title!, maxLines: 2),
+              );
+            },
+          ),
+        ),
+      ),
+      trailing: SearchAnchor(
+        viewElevation: 0.0,
+        suggestionsBuilder: suggestionsBuilder,
+        viewBackgroundColor: theme.scaffoldBackgroundColor,
+        viewHintText: MaterialLocalizations.of(context).searchFieldLabel.capitalize(),
+        viewLeading: IconButton(
+          onPressed: Navigator.of(context).pop,
+          icon: const Icon(CupertinoIcons.arrow_left),
+        ),
+        builder: (context, controller) {
+          return IconButton(
+            onPressed: controller.openView,
+            icon: const Icon(CupertinoIcons.search),
+          );
+        },
+      ),
     );
-
     return Visibility(
-      visible: title != null || subtitle != null,
+      visible: title != null,
       replacement: Shimmer.fromColors(
         baseColor: theme.colorScheme.onSurfaceVariant,
         highlightColor: theme.colorScheme.onInverseSurface,
@@ -177,18 +221,30 @@ class ProfileLocationItemWidget extends StatelessWidget {
 class ProfileLocationSubmittedButton extends StatelessWidget {
   const ProfileLocationSubmittedButton({
     super.key,
+    this.disabled = false,
     required this.onPressed,
   });
+  final bool disabled;
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: CustomSubmittedButton(
+        child: FilledButton(
           onPressed: onPressed,
-          child: const Text("Définir"),
+          style: FilledButton.styleFrom(
+            textStyle: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.0),
+            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+          ),
+          child: Visibility(
+            visible: disabled || onPressed != null,
+            replacement: const CustomProgressIndicator(),
+            child: Text(localizations.define.toUpperCase()),
+          ),
         ),
       ),
     );

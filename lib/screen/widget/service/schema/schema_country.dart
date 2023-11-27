@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
+import '_schema.dart';
+
 class Country extends Equatable {
   const Country({
     required this.id,
@@ -81,6 +83,14 @@ class Country extends Equatable {
       dialCodeKey: dialCode,
       phoneFormatKey: phoneFormat,
       translationsKey: translations,
+    }..removeWhere((key, value) => value == null);
+  }
+
+  Map<String, dynamic> toSurreal() {
+    return {
+      idKey: id,
+      codeKey: code.json(),
+      dialCodeKey: dialCode.json(),
     }..removeWhere((key, value) => value == null);
   }
 

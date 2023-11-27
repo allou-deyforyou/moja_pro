@@ -19,7 +19,6 @@ class ProfilePhotoScreen extends StatefulWidget {
 
 class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
   /// Assets
-
   void _onEditPressed() async {
     final data = await openImageEditorModal(
       context: context,

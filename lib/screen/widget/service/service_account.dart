@@ -28,16 +28,9 @@ class SetAccountEvent extends AsyncEvent<AsyncState> {
       await sql('$accountQuery RETURN IF (\$created_id != NONE) {$accountUpdate} ELSE {$accountCreate};');
       final data = account.copyWith(balance: balance);
 
-      final currentUser = DatabaseConfig.currentUser;
-      if (currentUser != null) {
-        final relay = currentUser.relays!.first;
-        final accounts = relay.accounts!;
-        final index = accounts.indexOf(data);
-        accounts[index] = data;
-        DatabaseConfig.currentUser = currentUser.copyWith(relays: [
-          relay.copyWith(accounts: accounts),
-        ]);
-      }
+      final index = relay.accounts!.indexOf(account);
+      relay.accounts![index] = data;
+      DatabaseConfig.relays = [relay];
 
       emit(SuccessState(data));
     } catch (error) {

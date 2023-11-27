@@ -2,10 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
-typedef Point = ({
-  double latitude,
-  double longitude,
-});
+import '_schema.dart';
 
 class Place extends Equatable {
   const Place({
@@ -31,24 +28,26 @@ class Place extends Equatable {
   final String? state;
   final String? name;
   final String? country;
-  final Point? position;
+  final Geometry? position;
 
   String get title {
-    if (city != null && locality != null) {
-      return '$city $locality';
-    } else if (locality != null && name != null) {
-      return '$locality $name';
+    List<String> words = name!.split(' ');
+    if (city != null) {
+      words.insertAll(0, city!.split(' '));
+    } else if (locality != null) {
+      words.insertAll(0, locality!.split(' '));
     }
-    return name ?? '';
+    words = List.of(words.reversed);
+    return words.toSet().toList().reversed.join(' ');
   }
 
   String get subtitle {
-    if (state != null && city != null) {
-      return '$state $city';
-    } else if (city != null) {
-      return city!;
+    List<String> words = country!.split(' ');
+    if (state != null) {
+      words.insertAll(0, state!.split(' '));
     }
-    return state ?? '';
+    words = List.of(words.reversed);
+    return words.toSet().toList().reversed.join(' ');
   }
 
   @override
@@ -74,7 +73,7 @@ class Place extends Equatable {
     String? state,
     String? name,
     String? country,
-    Point? position,
+    Geometry? position,
   }) {
     return Place(
       city: city ?? this.city,
@@ -97,18 +96,15 @@ class Place extends Equatable {
     );
   }
 
-  static Place fromMap(dynamic data) {
-    final position = data[positionKey];
+  static Place? fromMap(dynamic data) {
+    if (data == null) return null;
     return Place(
       city: data[cityKey],
       name: data[nameKey],
       state: data[stateKey],
       country: data[countryKey],
       locality: data[localityKey],
-      position: (
-        latitude: position['latitude'],
-        longitude: position['longitude'],
-      ),
+      position: Geometry.fromMap(data[positionKey]),
     );
   }
 
@@ -119,12 +115,23 @@ class Place extends Equatable {
       stateKey: state,
       countryKey: country,
       localityKey: locality,
-      positionKey: position,
+      positionKey: position?.toMap(),
+    }..removeWhere((key, value) => value == null);
+  }
+
+  Map<String, dynamic> toSurreal() {
+    return {
+      nameKey: name?.json(),
+      cityKey: city?.json(),
+      stateKey: state?.json(),
+      countryKey: country?.json(),
+      localityKey: locality?.json(),
+      positionKey: position?.toSurreal(),
     }..removeWhere((key, value) => value == null);
   }
 
   static Place fromJson(String source) {
-    return fromMap(jsonDecode(source));
+    return fromMap(jsonDecode(source))!;
   }
 
   String toJson() {

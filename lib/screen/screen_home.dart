@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:listenable_tools/listenable_tools.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '_screen.dart';
 
@@ -12,7 +11,9 @@ class HomeScreen extends StatefulWidget {
   static const path = '/';
 
   static Future<String?> redirect(BuildContext context, GoRouterState state) async {
-    if (currentUser.value != null) return null;
+    if (currentUser.value != null) {
+      return null;
+    }
     return AuthScreen.path;
   }
 
@@ -38,23 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
       HomeAccountScreen.relayKey: _currentRelay,
       HomeAccountScreen.accountKey: account,
     });
-  }
-
-  /// PermissionService
-  late AsyncController<AsyncState> _permissionController;
-
-  void _listenPermissionState(BuildContext context, AsyncState state) {
-    if (state is InitState) {
-      _requestPermission();
-    } else if (state is SuccessState<Permission>) {
-      DatabaseConfig.notifications = true;
-    }
-  }
-
-  Future<void> _requestPermission() {
-    return _permissionController.run(const RequestPermissionEvent(
-      permission: Permission.notification,
-    ));
   }
 
   /// RelayService
@@ -106,11 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     /// Assets
-    _currentRelay = currentUser.value!.relays!.first;
-    _relayAccounts = _currentRelay.accounts ?? const [];
-
-    /// PermissionService
-    _permissionController = AsyncController(const InitState());
+    final user = currentUser.value!;
+    _currentRelay = user.relays!.first;
+    _relayAccounts = _currentRelay.accounts!;
 
     /// RelayService
     _relayController = AsyncController(SuccessState(_currentRelay));
@@ -118,72 +100,67 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ControllerListener(
-      autoListen: true,
-      listener: _listenPermissionState,
-      controller: _permissionController,
-      child: Scaffold(
-        body: RefreshIndicator(
-          onRefresh: _getRelay,
-          child: CustomScrollView(
-            slivers: [
-              HomeSliverAppBar(
-                leading: HomeBarsButton(
-                  onPressed: _openMenu,
-                ),
-                trailing: ControllerConsumer(
-                  autoListen: true,
-                  listener: _listenRelayState,
-                  controller: _relayController,
-                  canRebuild: _canRebuildRelay,
-                  builder: (context, state, child) {
-                    bool active = _currentRelay.availability != null;
-                    return StatefulBuilder(
-                      builder: (context, setState) {
-                        void onChanged(bool value) {
-                          setState(() => active = value);
-                          _onAvailableChanged(value);
-                        }
-
-                        return HomeAvailableSwitch(
-                          onChanged: onChanged,
-                          value: active,
-                        );
-                      },
-                    );
-                  },
-                ),
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: _getRelay,
+        child: CustomScrollView(
+          slivers: [
+            HomeSliverAppBar(
+              leading: HomeBarsButton(
+                onPressed: _openMenu,
               ),
-              const SliverPadding(padding: kMaterialListPadding),
-              ControllerBuilder(
-                canRebuild: _canRebuildRelay,
+              trailing: ControllerConsumer(
+                autoListen: true,
+                listener: _listenRelayState,
                 controller: _relayController,
+                canRebuild: _canRebuildRelay,
                 builder: (context, state, child) {
-                  return HomeAccountSliverGridView(
-                    itemCount: _relayAccounts.length,
-                    itemBuilder: (context, index) {
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          final item = _relayAccounts[index];
-                          void onPressed() async {
-                            final data = await _onAccountTap(item);
-                            if (data != null) setState(() => _relayAccounts[index] = data);
-                          }
+                  bool active = _currentRelay.availability != null;
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      void onChanged(bool value) {
+                        setState(() => active = value);
+                        _onAvailableChanged(value);
+                      }
 
-                          return HomeAccountCard(
-                            onPressed: onPressed,
-                            amount: item.balance,
-                            key: ValueKey(item),
-                            name: item.name,
-                          );
-                        },
+                      return HomeAvailableSwitch(
+                        onChanged: onChanged,
+                        value: active,
                       );
                     },
                   );
                 },
               ),
-            ],
-          ),
+            ),
+            const SliverPadding(padding: kMaterialListPadding),
+            ControllerBuilder(
+              canRebuild: _canRebuildRelay,
+              controller: _relayController,
+              builder: (context, state, child) {
+                return HomeAccountSliverGridView(
+                  itemCount: _relayAccounts.length,
+                  itemBuilder: (context, index) {
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        final item = _relayAccounts[index];
+                        void onPressed() async {
+                          final data = await _onAccountTap(item);
+                          if (data != null) setState(() => _relayAccounts[index] = data);
+                        }
+
+                        return HomeAccountCard(
+                          onPressed: onPressed,
+                          amount: item.balance,
+                          key: ValueKey(item),
+                          name: item.name,
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

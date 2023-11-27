@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
+import '_schema.dart';
+
 class Account extends Equatable {
   const Account({
     required this.id,
@@ -66,6 +68,14 @@ class Account extends Equatable {
       idKey: id,
       nameKey: name,
       balanceKey: balance,
+    }..removeWhere((key, value) => value == null);
+  }
+
+  Map<String, dynamic> toSurreal() {
+    return {
+      idKey: id,
+      balanceKey: balance,
+      nameKey: name.json(),
     }..removeWhere((key, value) => value == null);
   }
 

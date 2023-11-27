@@ -85,6 +85,16 @@ class User extends Equatable {
     }..removeWhere((key, value) => value == null);
   }
 
+  Map<String, dynamic> toSurreal() {
+    return {
+      idKey: id,
+      phoneKey: phone.json(),
+      lastSignKey: lastSign?.toString(),
+      createdAtKey: createdAt.toString(),
+      relaysKey: relays?.map((data) => data.toMap()).toList(),
+    }..removeWhere((key, value) => value == null);
+  }
+
   static User fromJson(String source) {
     return fromMap(jsonDecode(source));
   }
