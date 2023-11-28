@@ -43,7 +43,7 @@ class _AuthScreenState extends State<AuthScreen> {
           valueFormatted: (item) {
             final translations = item.translations!;
             final name = translations[code] ?? translations.values.first;
-            return '${CustomString.toFlag(item.code)}  $name';
+            return '${CustomString.toFlag(item.code!)}  $name';
           },
           initialValue: _currentCountry,
           values: _countryList!,

@@ -113,7 +113,7 @@ class VerifyPhoneNumberEvent extends AsyncEvent<AsyncState> {
             event: this,
           ));
         },
-        phoneNumber: country.dialCode + phoneNumber,
+        phoneNumber: country.dialCode! + phoneNumber,
         forceResendingToken: resendToken,
         timeout: timeout,
       );

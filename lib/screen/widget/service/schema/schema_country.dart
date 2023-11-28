@@ -1,16 +1,20 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:isar/isar.dart';
 
 import '_schema.dart';
 
+part 'schema_country.g.dart';
+
+@Collection(inheritance: false)
 class Country extends Equatable {
   const Country({
-    required this.id,
-    required this.code,
-    required this.dialCode,
-    required this.phoneFormat,
-    required this.translations,
+    this.id,
+    this.code,
+    this.dialCode,
+    this.phoneFormat,
+    this.translations,
   });
 
   static const String schema = 'country';
@@ -21,17 +25,25 @@ class Country extends Equatable {
   static const String phoneFormatKey = 'phone_format';
   static const String translationsKey = 'translations';
 
+  Id? get isarId => id?.fastHash;
+
   final String? id;
-  final String code;
-  final String dialCode;
+  final String? code;
+  final String? dialCode;
+  @ignore
   final String? phoneFormat;
+  @ignore
   final Map<String, String>? translations;
 
+  @ignore
   @override
   List<Object?> get props {
     return [
+      // id,
       code,
       dialCode,
+      // phoneFormat,
+      // translations,
     ];
   }
 
@@ -89,8 +101,8 @@ class Country extends Equatable {
   Map<String, dynamic> toSurreal() {
     return {
       idKey: id,
-      codeKey: code.json(),
-      dialCodeKey: dialCode.json(),
+      codeKey: code?.json(),
+      dialCodeKey: dialCode?.json(),
     }..removeWhere((key, value) => value == null);
   }
 

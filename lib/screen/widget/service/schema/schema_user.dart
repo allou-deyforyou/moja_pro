@@ -1,16 +1,19 @@
 import 'dart:convert';
 
+import 'package:isar/isar.dart';
 import 'package:equatable/equatable.dart';
 
 import '_schema.dart';
 
+part 'schema_user.g.dart';
+
+@Collection(inheritance: false)
 class User extends Equatable {
-  const User({
-    required this.id,
-    required this.phone,
-    required this.relays,
+  User({
     this.lastSign,
     this.createdAt,
+    required this.id,
+    required this.phone,
   });
 
   static const String schema = 'user';
@@ -19,15 +22,21 @@ class User extends Equatable {
   static const String phoneKey = 'phone';
   static const String lastSignKey = 'last_sign';
   static const String createdAtKey = 'created_at';
+
+  /// Edges
   static const String relaysKey = 'relays';
+
+  Id get isarId => id.fastHash;
 
   final String id;
   final String phone;
   final DateTime? lastSign;
   final DateTime? createdAt;
 
-  final List<Relay>? relays;
+  /// Edges
+  final relays = IsarLinks<Relay>();
 
+  @ignore
   @override
   List<Object?> get props {
     return [
@@ -35,7 +44,6 @@ class User extends Equatable {
       phone,
       lastSign,
       createdAt,
-      relays,
     ];
   }
 
@@ -44,15 +52,19 @@ class User extends Equatable {
     String? phone,
     DateTime? lastSign,
     DateTime? createdAt,
-    List<Relay>? relays,
+
+    /// Edges
+    Iterable<Relay>? relays,
   }) {
     return User(
       id: id ?? this.id,
       phone: phone ?? this.phone,
       lastSign: lastSign ?? this.lastSign,
       createdAt: createdAt ?? this.createdAt,
-      relays: relays ?? this.relays,
-    );
+    )
+
+      /// Edges
+      ..relays.addAll(relays ?? this.relays);
   }
 
   User clone() {
@@ -61,18 +73,23 @@ class User extends Equatable {
       phone: phone,
       lastSign: lastSign,
       createdAt: createdAt,
+
+      /// Edges
       relays: relays,
     );
   }
 
-  static User fromMap(dynamic data) {
+  static User? fromMap(dynamic data) {
+    if (data == null) return null;
     return User(
       id: data[idKey],
       phone: data[phoneKey],
       lastSign: DateTime.tryParse(data[lastSignKey]),
       createdAt: DateTime.tryParse(data[createdAtKey]),
-      relays: data[relaysKey]?.map<Relay>((data) => Relay.fromMap(data)).toList(),
-    );
+    )
+
+      /// Edges
+      ..relays.addAll((data[relaysKey] ?? []).map<Relay>((data) => Relay.fromMap(data)!));
   }
 
   Map<String, dynamic> toMap() {
@@ -80,8 +97,7 @@ class User extends Equatable {
       idKey: id,
       phoneKey: phone,
       lastSignKey: lastSign?.toString(),
-      createdAtKey: createdAt.toString(),
-      relaysKey: relays?.map((data) => data.toMap()).toList(),
+      createdAtKey: createdAt?.toString(),
     }..removeWhere((key, value) => value == null);
   }
 
@@ -90,13 +106,12 @@ class User extends Equatable {
       idKey: id,
       phoneKey: phone.json(),
       lastSignKey: lastSign?.toString(),
-      createdAtKey: createdAt.toString(),
-      relaysKey: relays?.map((data) => data.toMap()).toList(),
+      createdAtKey: createdAt?.toString(),
     }..removeWhere((key, value) => value == null);
   }
 
   static User fromJson(String source) {
-    return fromMap(jsonDecode(source));
+    return fromMap(jsonDecode(source))!;
   }
 
   String toJson() {

@@ -1,11 +1,11 @@
 export 'schema/_schema.dart';
 
-export 'binding_service.dart';
+export 'binding.dart';
 
-export 'config_database.dart';
-export 'config_firebase.dart';
-export 'config_repository.dart';
-export 'config_surreal.dart';
+export 'binding_firebase.dart';
+export 'binding_hivelocaldb.dart';
+export 'binding_isarlocaldb.dart';
+export 'binding_surrealdb.dart';
 
 export 'service_account.dart';
 export 'service_auth.dart';

@@ -183,8 +183,8 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
               child: Builder(
                 builder: (context) {
                   return AuthSigninResendButton(
-                    timeout: _timeout,
                     onPressed: _verifyPhoneNumber,
+                    timeout: _timeout,
                   );
                 },
               ),
@@ -200,7 +200,9 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
                     controller: _userController,
                     builder: (context, userState, child) {
                       VoidCallback? onPressed = _onSubmitPressed;
-                      if (authState is PendingState || userState is PendingState) onPressed = null;
+                      if (authState is PendingState || userState is PendingState) {
+                        onPressed = null;
+                      }
                       return AuthSigninSubmittedButton(
                         onPressed: onPressed,
                       );

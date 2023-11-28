@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   Stream<ThemeMode>? _themeModeStream;
   ThemeMode? _currentThemeMode;
 
-  Stream<Locale>? _localeStream;
+  Stream<Locale?>? _localeStream;
   Locale? _currentLocale;
 
   @override
@@ -32,13 +32,14 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     /// Assets
-    _currentLocale = DatabaseConfig.locale;
-    _localeStream = DatabaseConfig.localeStream;
+    _currentLocale = HiveLocalDB.locale;
+    _localeStream = HiveLocalDB.localeStream;
 
-    _currentThemeMode = DatabaseConfig.themeMode;
-    _themeModeStream = DatabaseConfig.themeModeStream;
+    _currentThemeMode = HiveLocalDB.themeMode;
+    _themeModeStream = HiveLocalDB.themeModeStream;
 
     _router = GoRouter(
+      // initialLocation: OnBoardingScreen.path,
       refreshListenable: currentUser,
       routes: [
         GoRoute(
@@ -150,6 +151,15 @@ class _MyAppState extends State<MyApp> {
               },
             ),
           ],
+        ),
+        GoRoute(
+          name: OnBoardingScreen.name,
+          path: OnBoardingScreen.path,
+          pageBuilder: (context, state) {
+            return const CupertinoPage(
+              child: OnBoardingScreen(),
+            );
+          },
         ),
       ],
     );

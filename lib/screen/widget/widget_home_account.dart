@@ -48,7 +48,8 @@ class HomeAccountBalanceTextField extends StatelessWidget {
           controller: controller,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
-          style: theme.textTheme.headlineLarge!.copyWith(
+          style: theme.textTheme.displayMedium!.copyWith(
+            fontFamily: FontFamily.avenir,
             letterSpacing: 1.0,
           ),
           inputFormatters: [

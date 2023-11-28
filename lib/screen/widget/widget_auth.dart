@@ -132,6 +132,7 @@ class AuthSubmittedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizations = context.localizations;
     return SafeArea(
+      top: false,
       child: Padding(
         padding: kTabLabelPadding.copyWith(top: 16.0, bottom: 16.0),
         child: Column(

@@ -31,8 +31,10 @@ dependencies:
   # Services
   firebase_messaging:
   permission_handler:
+  isar_flutter_libs:
   extended_image:
   firebase_core:
+  path_provider:
   service_tools:
   firebase_auth:
   hive_flutter:
@@ -40,13 +42,17 @@ dependencies:
   image_editor:
   url_launcher:
   share_plus:
+  isar:
   hive:
   dio:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  isar_generator:
   flutter_lints:
+  build_runner:
+  analyzer:
 
 flutter_gen:
   output: lib/screen/widget/service/schema/assets/
@@ -62,5 +68,18 @@ flutter:
     - family: Quicksand
       fonts:
         - asset: assets/fonts/Quicksand-Bold.ttf
-        - asset: assets/fonts/Quicksand-SemiBold.ttf
         - asset: assets/fonts/Quicksand-Medium.ttf
+        - asset: assets/fonts/Quicksand-SemiBold.ttf
+    - family: SairaCondensed
+      fonts:
+        - asset: assets/fonts/SairaCondensed-Bold.ttf
+        - asset: assets/fonts/SairaCondensed-Medium.ttf
+        - asset: assets/fonts/SairaCondensed-Regular.ttf
+        - asset: assets/fonts/SairaCondensed-SemiBold.ttf
+    - family: Avenir
+      fonts:
+        - asset: assets/fonts/Avenir-Next-Condensed.ttc
+        - asset: assets/fonts/Avenir-Next-Condensed-Regular.otf
+        - asset: assets/fonts/Avenir-Next-Condensed-Medium.otf
+        - asset: assets/fonts/Avenir-Next-Condensed-Bold.otf
+        - asset: assets/fonts/Avenir-Next-Condensed-Demi.otf

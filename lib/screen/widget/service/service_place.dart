@@ -26,8 +26,11 @@ class SearchPlaceEvent extends AsyncEvent<AsyncState> {
       final List response = responses.first;
       final result = List.of(response.map((data) => Place.fromMap(data)!));
       if (result.isNotEmpty) {
-        final data = result.first.copyWith(
-          position: Geometry.point(position.$1, position.$2),
+        final place = result.first;
+        final data = place.copyWith(
+          position: place.position!.copyWith(
+            coordinates: [position.$1, position.$2],
+          ),
         );
         emit(SuccessState(data));
       } else {

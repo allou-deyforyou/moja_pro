@@ -33,8 +33,8 @@ class SelectCountry extends AsyncEvent<AsyncState> {
       final countriesLoaded = futures.first;
       final responsesFetched = futures.last;
       final data = List.of(responsesFetched.map((fetched) {
-        final index = countriesLoaded.indexOf(fetched);
-        return countriesLoaded[index].copyWith(id: fetched.id);
+        final country = countriesLoaded.elementAt(countriesLoaded.indexOf(fetched));
+        return country.copyWith(id: fetched.id);
       }));
 
       emit(SuccessState(data));

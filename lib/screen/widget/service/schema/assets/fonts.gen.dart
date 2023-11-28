@@ -10,9 +10,12 @@
 class FontFamily {
   FontFamily._();
 
-  /// Font family: Nunito
-  static const String nunito = 'Nunito';
+  /// Font family: Avenir
+  static const String avenir = 'Avenir';
 
   /// Font family: Quicksand
   static const String quicksand = 'Quicksand';
+
+  /// Font family: SairaCondensed
+  static const String sairaCondensed = 'SairaCondensed';
 }

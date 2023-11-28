@@ -43,9 +43,11 @@ class CustomSubmittedButton extends StatelessWidget {
   const CustomSubmittedButton({
     super.key,
     this.timeout,
+    this.elevation,
     required this.onPressed,
     required this.child,
   });
+  final double? elevation;
   final Duration? timeout;
   final VoidCallback? onPressed;
   final Widget child;
@@ -61,6 +63,7 @@ class CustomSubmittedButton extends StatelessWidget {
         return FilledButton(
           onPressed: done ? onPressed : null,
           style: FilledButton.styleFrom(
+            elevation: elevation,
             textStyle: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.0),
             padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
           ),
@@ -102,58 +105,6 @@ class CustomProgressIndicator extends StatelessWidget {
         backgroundColor: theme.colorScheme.onInverseSurface,
         strokeWidth: strokeWidth,
         color: color,
-      ),
-    );
-  }
-}
-
-class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({
-    super.key,
-    this.onDone,
-    this.onError,
-    required this.child,
-    required this.callback,
-  });
-  final Widget child;
-  final AsyncCallback callback;
-  final bool Function()? onDone;
-  final bool Function()? onError;
-  @override
-  State<LoadingScreen> createState() => _LoadingScreenState();
-}
-
-class _LoadingScreenState extends State<LoadingScreen> {
-  late Future<void> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = widget.callback();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: FutureBuilder<void>(
-          future: _future,
-          builder: (context, snapshot) {
-            return switch (snapshot.connectionState) {
-              ConnectionState.waiting => const CustomProgressIndicator(
-                  strokeWidth: 4.0,
-                  radius: 30.0,
-                ),
-              ConnectionState.done when widget.onError?.call() ?? snapshot.hasError => const Column(
-                  children: [
-                    Text("Une erreur s'est produite, lors du chargement..."),
-                  ],
-                ),
-              ConnectionState.done when widget.onDone?.call() ?? snapshot.hasData => widget.child,
-              _ => const SizedBox.shrink(),
-            };
-          },
-        ),
       ),
     );
   }

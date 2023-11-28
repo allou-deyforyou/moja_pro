@@ -18,13 +18,13 @@ class HomeMenuScreen extends StatefulWidget {
 class _HomeMenuScreenState extends State<HomeMenuScreen> {
   /// Assets
   late User _currentUser;
-  Stream<bool>? _notificationsStream;
+  Stream<bool?>? _notificationsStream;
   bool? _currentNotifications;
 
   Stream<ThemeMode>? _themeModeStream;
   ThemeMode? _currentThemeMode;
 
-  Stream<Locale>? _localeStream;
+  Stream<Locale?>? _localeStream;
   Locale? _currentLocale;
 
   void _openProfileScreen() {
@@ -42,12 +42,12 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
       final service = AsyncController<AsyncState>(const InitState());
       await service.run(const GetPermissionEvent(permission: Permission.notification));
       if (service.value is SuccessState<Permission>) {
-        DatabaseConfig.notifications = active;
+        HiveLocalDB.notifications = active;
       } else {
         _openNotifsModal();
       }
     } else {
-      DatabaseConfig.notifications = active;
+      HiveLocalDB.notifications = active;
     }
   }
 
@@ -69,13 +69,13 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         context: context,
         builder: (context) {
           return HomeMenuThemeModal<ThemeMode>(
-            onSelected: (value) => DatabaseConfig.themeMode = value,
+            onSelected: (value) => HiveLocalDB.themeMode = value,
             selected: themeMode,
           );
         },
       );
       if (data == null) {
-        DatabaseConfig.themeMode = themeMode;
+        HiveLocalDB.themeMode = themeMode;
       }
     };
   }
@@ -88,9 +88,9 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
           return HomeMenuLanguageModal<Locale>(
             onSelected: (value) {
               if (value.languageCode == 'system') {
-                DatabaseConfig.locale = null;
+                HiveLocalDB.locale = null;
               } else {
-                DatabaseConfig.locale = value;
+                HiveLocalDB.locale = value;
               }
             },
             selected: locale,
@@ -98,7 +98,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         },
       );
       if (data == null) {
-        DatabaseConfig.locale = locale;
+        HiveLocalDB.locale = locale;
       }
     };
   }
@@ -173,14 +173,14 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
     /// Assets
     _currentUser = currentUser.value!;
-    _currentLocale = DatabaseConfig.locale;
-    _localeStream = DatabaseConfig.localeStream;
+    _currentLocale = HiveLocalDB.locale;
+    _localeStream = HiveLocalDB.localeStream;
 
-    _currentThemeMode = DatabaseConfig.themeMode;
-    _themeModeStream = DatabaseConfig.themeModeStream;
+    _currentThemeMode = HiveLocalDB.themeMode;
+    _themeModeStream = HiveLocalDB.themeModeStream;
 
-    _currentNotifications = DatabaseConfig.notifications;
-    _notificationsStream = DatabaseConfig.notificationsStream;
+    _currentNotifications = HiveLocalDB.notifications;
+    _notificationsStream = HiveLocalDB.notificationsStream;
 
     /// UserService
     _userController = AsyncController(SuccessState(_currentUser));
@@ -216,8 +216,8 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
                   initialData: _currentNotifications,
                   builder: (context, snapshot) {
                     return HomeMenuNotifs(
+                      value: snapshot.data ?? false,
                       onChanged: _onNotifsTaped,
-                      value: snapshot.data!,
                     );
                   },
                 ),

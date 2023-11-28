@@ -31,7 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onAvailableChanged(bool value) {
-    _setRelay(availability: value);
+    _setRelay(
+      availability: switch (value) {
+        true => RelayAvailability.enable,
+        _ => RelayAvailability.disabled,
+      },
+    );
   }
 
   Future<Account?> _onAccountTap(Account account) {
@@ -54,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _getRelay();
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
-      _relayAccounts = _currentRelay.accounts!;
+      _relayAccounts = _currentRelay.accounts.toList();
     } else if (state case FailureState<GetRelayEvent>(:final code)) {
       showSnackbar(
         context: context,
@@ -78,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
-  Future<void> _setRelay({required bool availability}) {
+  Future<void> _setRelay({required RelayAvailability availability}) {
     return _relayController.run(SetRelayEvent(
       availability: availability,
       relay: _currentRelay,
@@ -91,8 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     /// Assets
     final user = currentUser.value!;
-    _currentRelay = user.relays!.first;
-    _relayAccounts = _currentRelay.accounts!;
+    _currentRelay = user.relays.first;
+    _relayAccounts = _currentRelay.accounts.toList();
 
     /// RelayService
     _relayController = AsyncController(SuccessState(_currentRelay));

@@ -1,35 +1,40 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:isar/isar.dart';
 
 import '_schema.dart';
 
+part 'schema_place.g.dart';
+
+@Embedded(inheritance: false)
 class Place extends Equatable {
   const Place({
     this.city,
-    this.locality,
-    this.state,
     this.name,
+    this.state,
     this.country,
+    this.locality,
     this.position,
   });
 
   static const String schema = 'place';
 
-  static const String cityKey = 'city';
-  static const String localityKey = 'locality';
-  static const String stateKey = 'state';
   static const String nameKey = 'name';
+  static const String cityKey = 'city';
+  static const String stateKey = 'state';
   static const String countryKey = 'country';
+  static const String localityKey = 'locality';
   static const String positionKey = 'position';
 
   final String? city;
-  final String? locality;
-  final String? state;
   final String? name;
+  final String? state;
   final String? country;
+  final String? locality;
   final Geometry? position;
 
+  @ignore
   String get title {
     List<String> words = name!.split(' ');
     if (city != null) {
@@ -41,6 +46,7 @@ class Place extends Equatable {
     return words.toSet().toList().reversed.join(' ');
   }
 
+  @ignore
   String get subtitle {
     List<String> words = country!.split(' ');
     if (state != null) {
@@ -55,32 +61,33 @@ class Place extends Equatable {
     return toMap().toString();
   }
 
+  @ignore
   @override
   List<Object?> get props {
     return [
       city,
-      locality,
-      state,
       name,
+      state,
       country,
+      locality,
       position,
     ];
   }
 
   Place copyWith({
     String? city,
-    String? locality,
-    String? state,
     String? name,
+    String? state,
     String? country,
+    String? locality,
     Geometry? position,
   }) {
     return Place(
       city: city ?? this.city,
-      locality: locality ?? this.locality,
-      state: state ?? this.state,
       name: name ?? this.name,
+      state: state ?? this.state,
       country: country ?? this.country,
+      locality: locality ?? this.locality,
       position: position ?? this.position,
     );
   }
@@ -88,10 +95,10 @@ class Place extends Equatable {
   Place clone() {
     return copyWith(
       city: city,
-      locality: locality,
-      state: state,
       name: name,
+      state: state,
       country: country,
+      locality: locality,
       position: position,
     );
   }

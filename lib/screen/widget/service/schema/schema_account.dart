@@ -1,9 +1,13 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:isar/isar.dart';
 
 import '_schema.dart';
 
+part 'schema_account.g.dart';
+
+@Collection(inheritance: false)
 class Account extends Equatable {
   const Account({
     required this.id,
@@ -17,6 +21,8 @@ class Account extends Equatable {
   static const String idKey = 'id';
   static const String balanceKey = 'balance';
 
+  Id get isarId => id.fastHash;
+
   final String id;
   final String name;
   final double? balance;
@@ -26,12 +32,13 @@ class Account extends Equatable {
     return toMap().toString();
   }
 
+  @ignore
   @override
   List<Object?> get props {
     return [
       id,
-      // name,
-      // balance,
+      name,
+      balance,
     ];
   }
 
@@ -55,7 +62,8 @@ class Account extends Equatable {
     );
   }
 
-  static Account fromMap(dynamic data) {
+  static Account? fromMap(dynamic data) {
+    if (data == null) return null;
     return Account(
       id: data[idKey],
       name: data[nameKey],
@@ -80,7 +88,7 @@ class Account extends Equatable {
   }
 
   static Account fromJson(String source) {
-    return fromMap(jsonDecode(source));
+    return fromMap(jsonDecode(source))!;
   }
 
   String toJson() {

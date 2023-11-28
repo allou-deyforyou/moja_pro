@@ -26,13 +26,36 @@ class SetAccountEvent extends AsyncEvent<AsyncState> {
       final accountUpdate = 'RETURN UPDATE ONLY \$created_id SET balance=$balance;';
       final accountCreate = 'RETURN RELATE ONLY $relayId->created->$accountId SET balance=$balance;';
       await sql('$accountQuery RETURN IF (\$created_id != NONE) {$accountUpdate} ELSE {$accountCreate};');
+
       final data = account.copyWith(balance: balance);
 
-      final index = relay.accounts!.indexOf(account);
-      relay.accounts![index] = data;
-      DatabaseConfig.relays = [relay];
+      await SaveAccountEvent(accounts: [data]).handle(emit);
 
       emit(SuccessState(data));
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}
+
+class SaveAccountEvent extends AsyncEvent<AsyncState> {
+  const SaveAccountEvent({
+    required this.accounts,
+  });
+  final List<Account> accounts;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+
+      await IsarLocalDB.isar.writeTxn(() async {
+        return IsarLocalDB.isar.accounts.putAll(accounts);
+      });
+
+      emit(SuccessState(accounts));
     } catch (error) {
       emit(FailureState(
         code: error.toString(),

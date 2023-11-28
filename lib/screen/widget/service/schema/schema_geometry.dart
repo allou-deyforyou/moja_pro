@@ -1,35 +1,33 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:isar/isar.dart';
 
 import '_schema.dart';
 
+part 'schema_geometry.g.dart';
+
+@Embedded(inheritance: false)
 class Geometry extends Equatable {
   const Geometry({
-    required this.type,
-    required this.coordinates,
+    this.type,
+    this.coordinates,
   });
-
-  factory Geometry.point(double longitude, double latitude) {
-    return Geometry(
-      type: 'Point',
-      coordinates: [longitude, latitude],
-    );
-  }
 
   static const String schema = 'geometry';
 
   static const String typeKey = 'type';
   static const String coordinatesKey = 'coordinates';
 
-  final String type;
-  final List<double> coordinates;
+  final String? type;
+  final List<double>? coordinates;
 
   @override
   String toString() {
     return toMap().toString();
   }
 
+  @ignore
   @override
   List<Object?> get props {
     return [
@@ -71,7 +69,7 @@ class Geometry extends Equatable {
 
   Map<String, dynamic> toSurreal() {
     return {
-      typeKey: type.json(),
+      typeKey: type?.json(),
       coordinatesKey: coordinates,
     }..removeWhere((key, value) => value == null);
   }

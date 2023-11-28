@@ -3,13 +3,19 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:listenable_tools/async.dart';
 import 'package:service_tools/service_tools.dart';
 
 import '_service.dart';
 
-AsyncController<User?> get currentUser => singleton(AsyncController<User?>(DatabaseConfig.currentUser), User.schema);
+AsyncController<User?> get currentUser {
+  final uid = FirebaseConfig.firebaseAuth.currentUser?.uid;
+  final user = IsarLocalDB.isar.users.getSync('${User.schema}:$uid'.fastHash);
+  return singleton(
+    AsyncController<User?>(user),
+    User.schema,
+  );
+}
 
 Future<String?> refreshToken({String? uid, String? idToken}) async {
   final user = FirebaseConfig.firebaseAuth.currentUser;
@@ -18,9 +24,9 @@ Future<String?> refreshToken({String? uid, String? idToken}) async {
 
   final userId = '${User.schema}:$uid';
   final data = await compute(jsonEncode, {
-    'ns': RepositoryConfig.namespace,
-    'db': RepositoryConfig.database,
-    'sc': RepositoryConfig.scope,
+    'ns': SurrealConfig.namespace,
+    'db': SurrealConfig.database,
+    'sc': SurrealConfig.scope,
     '${User.schema}_${User.idKey}': userId,
     'id_token': idToken,
   });
@@ -29,8 +35,8 @@ Future<String?> refreshToken({String? uid, String? idToken}) async {
     '/signin',
   );
   final result = await compute(jsonDecode, response.data!);
-  DatabaseConfig.token = result['token'];
-  return DatabaseConfig.token;
+  HiveLocalDB.token = result['token'];
+  return HiveLocalDB.token;
 }
 
 class SigninUserEvent extends AsyncEvent<AsyncState> {
@@ -80,9 +86,9 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
       emit(const PendingState());
       final userId = '${User.schema}:$uid';
       final data = await compute(jsonEncode, {
-        'ns': RepositoryConfig.namespace,
-        'db': RepositoryConfig.database,
-        'sc': RepositoryConfig.scope,
+        'ns': SurrealConfig.namespace,
+        'db': SurrealConfig.database,
+        'sc': SurrealConfig.scope,
         '${Country.schema}_${Country.idKey}': countryId,
         '${Relay.schema}_${Relay.nameKey}': relayName,
         '${User.schema}_${User.phoneKey}': userPhone,
@@ -93,7 +99,7 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
         '/signup',
       );
       final result = await compute(jsonDecode, response.data!);
-      DatabaseConfig.token = result['token'];
+      HiveLocalDB.token = result['token'];
       emit(SuccessState(userId));
     } on DioException catch (error) {
       emit(FailureState(
@@ -120,7 +126,11 @@ class SignOutUserEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
 
-      await Future.wait([Hive.deleteFromDisk()]);
+      await Future.wait([
+        HiveLocalDB.settingsBox.clear(),
+        IsarLocalDB.isar.close(deleteFromDisk: true),
+      ]);
+
       await runService(const MyService());
 
       currentUser.value = null;
@@ -148,11 +158,16 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
 
       const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
       const relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
-      const relayQuery = '(SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters) AS relays';
-      final responses = await sql('SELECT *, $relayQuery FROM ONLY $id');
+      const relayQuery = 'SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters';
 
-      final data = User.fromMap(responses.first);
-      DatabaseConfig.currentUser = data;
+      final responses = await sql('SELECT *, ($relayQuery) AS ${Relay.schema}s FROM ONLY $id');
+
+      final data = User.fromMap(responses.first)!;
+
+      await Future.wait([
+        SaveUserEvent(users: [data]).handle(emit),
+      ]);
+
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
@@ -180,12 +195,72 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
       }..removeWhere((key, value) => value == null);
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
+      final data = User.fromMap(responses.first)!;
 
-      final data = User.fromMap(responses.first);
-      DatabaseConfig.currentUser = DatabaseConfig.currentUser?.copyWith(
-        phone: data.phone,
-      );
+      await Future.wait([
+        SaveUserEvent(users: [data]).handle(emit),
+      ]);
+
       emit(SuccessState(data));
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}
+
+class LoadUserEvent extends AsyncEvent<AsyncState> {
+  const LoadUserEvent({
+    required this.userId,
+  });
+  final String userId;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+      final data = await IsarLocalDB.isar.users.get(userId.fastHash);
+      if (data != null) {
+        emit(SuccessState(data));
+      } else {
+        emit(FailureState(
+          code: 'no-record',
+          event: this,
+        ));
+      }
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}
+
+class SaveUserEvent extends AsyncEvent<AsyncState> {
+  const SaveUserEvent({
+    required this.users,
+  });
+  final List<User> users;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+
+      await IsarLocalDB.isar.writeTxn(() async {
+        return IsarLocalDB.isar.users.putAll(users);
+      });
+      await Future.wait([
+        SaveRelayEvent(
+          relays: List.of(users.expand((item) => item.relays)),
+        ).handle(emit),
+      ]);
+      await IsarLocalDB.isar.writeTxn(() async {
+        return Future.wait(users.map((item) => item.relays.save()));
+      });
+
+      emit(SuccessState(users));
     } catch (error) {
       emit(FailureState(
         code: error.toString(),

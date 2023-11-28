@@ -1,19 +1,35 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:isar/isar.dart';
 
 import '_schema.dart';
 
+part 'schema_relay.g.dart';
+
+enum RelayAvailability {
+  enable,
+  disabled;
+
+  @override
+  String toString() {
+    return switch (this) {
+      RelayAvailability.enable => 'time::now()',
+      RelayAvailability.disabled => 'NULL',
+    };
+  }
+}
+
+@Collection(inheritance: false)
 class Relay extends Equatable {
-  const Relay({
+  Relay({
+    this.image,
+    this.createdAt,
     required this.id,
+    this.availability,
     required this.name,
     required this.location,
-    required this.accounts,
     required this.contacts,
-    this.image,
-    this.availability,
-    this.createdAt,
   });
 
   static const String schema = 'relay';
@@ -22,32 +38,37 @@ class Relay extends Equatable {
   static const String nameKey = 'name';
   static const String imageKey = 'image';
   static const String locationKey = 'location';
-  static const String accountsKey = 'accounts';
   static const String contactsKey = 'contacts';
-  static const String availabilityKey = 'availability';
   static const String createdAtKey = 'created_at';
+  static const String availabilityKey = 'availability';
+
+  /// Edges
+  static const String accountsKey = 'accounts';
+
+  Id get isarId => id.fastHash;
 
   final String id;
   final String name;
   final String? image;
   final Place? location;
+  final DateTime? createdAt;
   final DateTime? availability;
   final List<String>? contacts;
-  final List<Account>? accounts;
 
-  final DateTime? createdAt;
+  /// Edges
+  final accounts = IsarLinks<Account>();
 
+  @ignore
   @override
   List<Object?> get props {
     return [
       id,
-      // name,
-      // contacts,
-      // image,
-      // location,
-      // availability,
-      // accounts,
-      // createdAt,
+      name,
+      image,
+      location,
+      contacts,
+      createdAt,
+      availability,
     ];
   }
 
@@ -56,10 +77,12 @@ class Relay extends Equatable {
     String? name,
     String? image,
     Place? location,
+    DateTime? createdAt,
     DateTime? availability,
     List<String>? contacts,
-    List<Account>? accounts,
-    DateTime? createdAt,
+
+    /// Edges
+    Iterable<Account>? accounts,
   }) {
     return Relay(
       id: id ?? this.id,
@@ -67,10 +90,12 @@ class Relay extends Equatable {
       image: image ?? this.image,
       location: location ?? this.location,
       contacts: contacts ?? this.contacts,
-      accounts: accounts ?? this.accounts,
       createdAt: createdAt ?? this.createdAt,
       availability: availability ?? this.availability,
-    );
+    )
+
+      /// Edges
+      ..accounts.addAll(accounts ?? this.accounts);
   }
 
   Relay clone() {
@@ -80,13 +105,16 @@ class Relay extends Equatable {
       image: image,
       contacts: contacts,
       location: location,
-      accounts: accounts,
       createdAt: createdAt,
       availability: availability,
+
+      /// Edges
+      accounts: accounts,
     );
   }
 
-  static Relay fromMap(dynamic data) {
+  static Relay? fromMap(dynamic data) {
+    if (data == null) return null;
     return Relay(
       id: data[idKey],
       name: data[nameKey],
@@ -95,8 +123,10 @@ class Relay extends Equatable {
       contacts: data[contactsKey]?.cast<String>(),
       createdAt: DateTime.tryParse(data[createdAtKey].toString()),
       availability: DateTime.tryParse(data[availabilityKey].toString()),
-      accounts: data[accountsKey]?.map<Account>((data) => Account.fromMap(data)).toList(),
-    );
+    )
+
+      /// Edges
+      ..accounts.addAll((data[accountsKey] ?? []).map<Account>((data) => Account.fromMap(data)!));
   }
 
   Map<String, dynamic> toMap() {
@@ -108,7 +138,6 @@ class Relay extends Equatable {
       locationKey: location?.toMap(),
       createdAtKey: createdAt?.toString(),
       availabilityKey: availability?.toString(),
-      accountsKey: accounts?.map((data) => data.toMap()).toList(),
     }..removeWhere((key, value) => value == null);
   }
 
@@ -121,12 +150,11 @@ class Relay extends Equatable {
       createdAtKey: createdAt?.toString(),
       availabilityKey: availability?.toString(),
       contactsKey: contacts?.map((e) => e.json()),
-      accountsKey: accounts?.map((data) => data.toMap()).toList(),
     }..removeWhere((key, value) => value == null);
   }
 
   static Relay fromJson(String source) {
-    return fromMap(jsonDecode(source));
+    return fromMap(jsonDecode(source))!;
   }
 
   String toJson() {

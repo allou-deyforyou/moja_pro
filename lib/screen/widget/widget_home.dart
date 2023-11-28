@@ -144,9 +144,10 @@ class HomeAccountCard extends StatelessWidget {
       ),
       subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
         color: theme.colorScheme.primary,
+        fontFamily: FontFamily.avenir,
         fontWeight: FontWeight.w500,
         letterSpacing: 1.0,
-        fontSize: 18.0,
+        fontSize: 20.0,
         height: 1.8,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),

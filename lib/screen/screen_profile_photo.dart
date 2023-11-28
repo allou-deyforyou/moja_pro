@@ -20,13 +20,8 @@ class ProfilePhotoScreen extends StatefulWidget {
 class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
   /// Assets
   void _onEditPressed() async {
-    final data = await openImageEditorModal(
-      context: context,
-    );
-
-    if (data != null && mounted) {
-      context.pop(data);
-    }
+    final data = await openImageEditorModal(context: context);
+    if (data != null && mounted) context.pop(data);
   }
 
   @override
@@ -45,7 +40,11 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
           child: Visibility(
             visible: widget.image != null,
             replacement: const ProfilePhotoStoreWidget(),
-            child: const SizedBox.shrink(),
+            child: Builder(
+              builder: (context) {
+                return const SizedBox.shrink();
+              },
+            ),
           ),
         ),
       ),

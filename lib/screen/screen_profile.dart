@@ -71,7 +71,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
-      currentUser.value = currentUser.value?.copyWith(relays: [_currentRelay]);
     } else if (state case FailureState<SetRelayEvent>(:final code, :final event)) {
       _currentRelay = _currentRelay.copyWith(
         contacts: event?.contacts,
@@ -100,7 +99,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
 
     /// Assets
-    _currentRelay = currentUser.value!.relays!.first;
+    final user = currentUser.value!;
+    _currentRelay = user.relays.first;
 
     /// RelayService
     _relayController = AsyncController(const InitState());

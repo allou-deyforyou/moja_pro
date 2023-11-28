@@ -25,11 +25,15 @@ class $AssetsImagesGen {
   /// File path: assets/images/lottie_pin.zip
   String get lottiePin => 'assets/images/lottie_pin.zip';
 
+  /// File path: assets/images/onboarding.jpg
+  AssetGenImage get onboarding =>
+      const AssetGenImage('assets/images/onboarding.jpg');
+
   /// File path: assets/images/pin.png
   AssetGenImage get pin => const AssetGenImage('assets/images/pin.png');
 
   /// List of all assets
-  List<dynamic> get values => [lottiePin, pin];
+  List<dynamic> get values => [lottiePin, onboarding, pin];
 }
 
 class Assets {

@@ -8,18 +8,20 @@ class MyService extends FlutterService {
   @override
   Future<void> developmentBinding() {
     return Future.wait([
-      RepositoryConfig.development(),
       FirebaseConfig.development(),
-      DatabaseConfig.development(),
+      SurrealConfig.development(),
+      HiveLocalDB.development(),
+      IsarLocalDB.development(),
     ]);
   }
 
   @override
   Future<void> productionBinding() {
     return Future.wait([
-      RepositoryConfig.production(),
       FirebaseConfig.production(),
-      DatabaseConfig.production(),
+      SurrealConfig.production(),
+      HiveLocalDB.production(),
+      IsarLocalDB.production(),
     ]);
   }
 }
