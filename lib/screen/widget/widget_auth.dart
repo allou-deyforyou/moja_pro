@@ -14,9 +14,12 @@ class AuthAppBar extends StatelessWidget {
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       leading: const Center(child: CustomBackButton()),
-      title: Text(localizations.login.capitalize()),
+      title: Text(localizations.login.toUpperCase()),
     );
   }
 }
@@ -30,9 +33,13 @@ class AuthEditPhoneAppBar extends StatelessWidget {
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      toolbarHeight: 64.0,
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       leading: const Center(child: CustomBackButton()),
-      title: Text(localizations.changephonenumber.capitalize()),
+      title: Text(localizations.changephonenumber.toUpperCase()),
     );
   }
 }
@@ -167,22 +174,34 @@ class AuthConfirmPhoneModal extends StatelessWidget {
       contentTextStyle: theme.textTheme.bodyLarge,
       actionsAlignment: MainAxisAlignment.spaceBetween,
       insetPadding: kTabLabelPadding.copyWith(bottom: 16.0),
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       titlePadding: const EdgeInsets.only(bottom: 16.0, right: 24.0, left: 24.0, top: 24.0),
       title: SizedBox(
         width: double.maxFinite,
-        child: Text(phone),
+        child: Text(phone.toUpperCase()),
       ),
       content: Text(localizations.rightnumber.capitalize()),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
           onPressed: Navigator.of(context).pop,
-          child: Text(localizations.edit.toUpperCase()),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+            ),
+            child: Text(localizations.edit.toUpperCase()),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+              fontWeight: FontWeight.w600,
+            ),
             child: Text(localizations.yes.toUpperCase()),
           ),
         ),
@@ -260,13 +279,21 @@ class _AuthCountryModalState<T> extends State<AuthCountryModal<T>> {
         centerTitle: true,
         automaticallyImplyLeading: false,
         backgroundColor: theme.colorScheme.surface,
-        title: Text(localizations.country.capitalize()),
-        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+        title: Text(localizations.country.toUpperCase()),
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+          fontFamily: FontFamily.avenirNext,
+          fontWeight: FontWeight.w600,
+        ),
         actions: [
           TextButton(
             style: TextButton.styleFrom(padding: kTabLabelPadding),
             onPressed: _onConfirm,
-            child: Text(localizations.ok.toUpperCase()),
+            child: DefaultTextStyle.merge(
+              style: const TextStyle(
+                fontFamily: FontFamily.avenirNext,
+              ),
+              child: Text(localizations.ok.toUpperCase()),
+            ),
           ),
         ],
       ),

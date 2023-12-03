@@ -6,6 +6,60 @@ import 'package:flutter/services.dart';
 
 import '_widget.dart';
 
+class OnBoardingPermissionModal extends StatelessWidget {
+  const OnBoardingPermissionModal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return AlertDialog(
+      elevation: 1.0,
+      insetPadding: kTabLabelPadding,
+      backgroundColor: theme.colorScheme.surface,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
+      titlePadding: const EdgeInsets.only(
+        bottom: 16.0,
+        right: 24.0,
+        left: 24.0,
+        top: 24.0,
+      ),
+      title: SizedBox(
+        width: double.maxFinite,
+        child: Text(localizations.open.toUpperCase()),
+      ),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: theme.colorScheme.onSurfaceVariant,
+          ),
+          onPressed: Navigator.of(context).pop,
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+            ),
+            child: Text(localizations.cancel.toUpperCase()),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+              fontWeight: FontWeight.w600,
+            ),
+            child: Text(localizations.open.toUpperCase()),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class OnBoardingSubmittedButton extends StatelessWidget {
   const OnBoardingSubmittedButton({
     super.key,
@@ -16,13 +70,9 @@ class OnBoardingSubmittedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
     final localizations = context.localizations;
-    final style = switch (MediaQuery.platformBrightnessOf(context)) {
-      Brightness.light => SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
-      Brightness.dark => SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
-    };
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: style,
       sized: false,
+      value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
@@ -52,6 +102,7 @@ class OnBoardingSubmittedButton extends StatelessWidget {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         titleTextStyle: theme.textTheme.displaySmall!.copyWith(
+                          fontFamily: FontFamily.avenirNext,
                           color: CupertinoColors.white,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.0,

@@ -13,9 +13,12 @@ class ProfileAppBar extends StatelessWidget {
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       leading: const Center(child: CustomBackButton()),
-      title: Text(localizations.relaypointprofile.capitalize()),
+      title: Text(localizations.relaypointprofile.toUpperCase()),
     );
   }
 }
@@ -141,7 +144,7 @@ class ProfileLocationWidget extends StatelessWidget {
     required this.location,
     required this.onTap,
   });
-  final String location;
+  final String? location;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
@@ -149,7 +152,7 @@ class ProfileLocationWidget extends StatelessWidget {
     return ProfileItemWidget(
       onTap: onTap,
       label: localizations.location.capitalize(),
-      value: location,
+      value: location ?? "Pas d'emplacement",
     );
   }
 }
@@ -210,11 +213,14 @@ class _ProfileEditModalState extends State<ProfileEditModal> {
       backgroundColor: theme.colorScheme.surface,
       actionsAlignment: MainAxisAlignment.spaceBetween,
       insetPadding: kTabLabelPadding.copyWith(bottom: 16.0),
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       titlePadding: const EdgeInsets.only(bottom: 16.0, right: 24.0, left: 24.0, top: 24.0),
       title: SizedBox(
         width: double.maxFinite,
-        child: Text(widget.label),
+        child: Text(widget.label.toUpperCase()),
       ),
       content: TextFormField(
         autofocus: true,
@@ -230,12 +236,20 @@ class _ProfileEditModalState extends State<ProfileEditModal> {
         TextButton(
           style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
           onPressed: Navigator.of(context).pop,
-          child: Text(localizations.cancel.toUpperCase()),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+            ),
+            child: Text(localizations.cancel.toUpperCase()),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _textEditingController.text),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+              fontWeight: FontWeight.w600,
+            ),
             child: Text(localizations.edit.toUpperCase()),
           ),
         ),

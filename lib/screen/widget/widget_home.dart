@@ -17,8 +17,11 @@ class HomeSliverAppBar extends StatelessWidget {
     final localizations = context.localizations;
     return SliverAppBar.medium(
       leading: leading,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
-      title: Text(localizations.mybalances.capitalize()),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
+      title: Text(localizations.mybalances.toUpperCase()),
       actions: [trailing],
     );
   }
@@ -139,12 +142,11 @@ class HomeAccountCard extends StatelessWidget {
       tileColor: theme.colorScheme.surfaceVariant,
       titleTextStyle: theme.textTheme.titleMedium!.copyWith(
         fontWeight: FontWeight.w600,
-        letterSpacing: 1.0,
+        letterSpacing: 0.0,
         fontSize: 18.0,
       ),
       subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
         color: theme.colorScheme.primary,
-        fontFamily: FontFamily.avenir,
         fontWeight: FontWeight.w500,
         letterSpacing: 1.0,
         fontSize: 20.0,
@@ -153,7 +155,7 @@ class HomeAccountCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       onTap: onPressed,
-      title: Text(name.toUpperCase(), softWrap: false),
+      title: Text(name, softWrap: false),
       subtitle: Text("${defaultNumberFormat.format(amount ?? 0)} f"),
     );
   }

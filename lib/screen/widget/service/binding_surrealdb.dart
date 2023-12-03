@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -12,8 +11,6 @@ class SurrealConfig {
   const SurrealConfig._();
 
   static Dio? _internalDio;
-  static const _connectTimeout = Duration(seconds: 10);
-  static const _receiveTimeout = Duration(seconds: 10);
   static const _baseUrl = 'https://dei-surrealdb.fly.dev';
 
   static String? _namespace;
@@ -26,10 +23,12 @@ class SurrealConfig {
   static void _createDio() {
     _internalDio ??= Dio(BaseOptions(
       baseUrl: _baseUrl,
-      connectTimeout: _connectTimeout,
-      receiveTimeout: _receiveTimeout,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(minutes: 30),
       headers: {
-        HttpHeaders.acceptHeader: 'application/json',
+        Headers.contentTypeHeader: Headers.textPlainContentType,
+        Headers.acceptHeader: Headers.jsonContentType,
         'NS': namespace,
         'DB': database,
         'SC': scope,
@@ -65,17 +64,17 @@ class _AuthInterceptor extends Interceptor {
   void onRequest(options, handler) {
     final token = HiveLocalDB.token;
     if (token != null) {
-      options.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
+      options.headers['authorization'] = '$_bearerKey $token';
     }
     return super.onRequest(options, handler);
   }
 
   @override
   void onError(err, handler) async {
-    if (err.response?.statusCode == HttpStatus.unauthorized) {
+    if (err.response?.statusCode == 401) {
       final token = await refreshToken();
       if (token != null) {
-        err.requestOptions.headers[HttpHeaders.authorizationHeader] = '$_bearerKey $token';
+        err.requestOptions.headers['authorization'] = '$_bearerKey $token';
         return handler.resolve(await dio.fetch(err.requestOptions));
       }
     }
@@ -83,7 +82,7 @@ class _AuthInterceptor extends Interceptor {
   }
 }
 
-Future<Iterable<dynamic>> sql(String query) async {
+Future<Iterable<dynamic>> sql(dynamic query, {Map<String, dynamic>? headers}) async {
   final response = await dio.post<String>('/sql', data: query);
   final data = await compute(_Response.fromListJson, response.data!);
   return data.map((res) => res.result);

@@ -8,14 +8,14 @@ import '_schema.dart';
 part 'schema_relay.g.dart';
 
 enum RelayAvailability {
-  enable,
+  enabled,
   disabled;
 
   @override
   String toString() {
     return switch (this) {
-      RelayAvailability.enable => 'time::now()',
-      RelayAvailability.disabled => 'NULL',
+      RelayAvailability.enabled => 'time::now()',
+      RelayAvailability.disabled => 'NONE',
     };
   }
 }

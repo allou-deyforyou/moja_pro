@@ -13,9 +13,9 @@ class FontFamily {
   /// Font family: Avenir
   static const String avenir = 'Avenir';
 
+  /// Font family: AvenirNext
+  static const String avenirNext = 'AvenirNext';
+
   /// Font family: Quicksand
   static const String quicksand = 'Quicksand';
-
-  /// Font family: SairaCondensed
-  static const String sairaCondensed = 'SairaCondensed';
 }

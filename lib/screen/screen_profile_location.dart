@@ -1,8 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:listenable_tools/listenable_tools.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '_screen.dart';
 
@@ -34,55 +34,42 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     _pinAnimationController.reset();
   }
 
-  Future<Iterable<Widget>> _suggestionsBuilder(BuildContext context, SearchController controller) async {
-    if (_userLocation != null) {
-      final position = _userLocation!.position;
-      final data = searchPlaceByQuery(query: controller.text, position: (
-        position.longitude,
-        position.latitude,
-      ));
-      return data.then((places) {
-        return places.map((item) {
-          return ListTile(
-            onTap: () => controller.closeView(item.title),
-            title: Text(item.title),
-          );
-        });
-      });
-    }
-    return const [];
+  LatLng? _placeToLaLng(Place? place) {
+    if (place == null) return null;
+    return LatLng(
+      place.position!.coordinates![1],
+      place.position!.coordinates![0],
+    );
   }
 
   /// MapLibre
   MaplibreMapController? _mapController;
   UserLocation? _userLocation;
 
+  void _onMapCreated(MaplibreMapController controller) {
+    _mapController = controller;
+    if (_currentPlace == null) _goToMyPosition();
+  }
+
   void _onMapIdle() {
     _myLocationController.value = false;
-    final center = _mapController!.cameraPosition!.target;
-    _searchPlaceByPoint(center);
+    _searchPlaceByPoint();
   }
 
   void _onMapMoved() {
     _bottomSheetController?.close();
   }
 
-  void _onMapCreated(MaplibreMapController controller) {
-    _mapController = controller;
-    _goToMyPosition();
-  }
-
   void _onUserLocationUpdated(UserLocation location) {
-    if (_userLocation == null) _goToPosition(location.position);
+    if (_currentPlace == null || _myLocationController.value) _goToPosition(location.position);
     _userLocation = location;
-    if (_myLocationController.value) _goToMyPosition();
   }
 
-  void _goToPosition(LatLng position) {
+  void _goToPosition(LatLng position, {double zoom = 18.0}) {
     _mapController?.animateCamera(
       CameraUpdate.newCameraPosition(CameraPosition(
         target: position,
-        zoom: 18.0,
+        zoom: zoom,
       )),
     );
   }
@@ -91,39 +78,26 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     if (_userLocation != null) {
       _myLocationController.value = true;
       _goToPosition(_userLocation!.position);
+      _searchPlaceByPoint(_userLocation!.position);
     }
-  }
-
-  /// PermissionService
-  late AsyncController<AsyncState> _permissionController;
-
-  void _listenPermissionState(BuildContext context, AsyncState state) {
-    if (state is InitState) {
-      _requestPermission();
-    } else if (state is SuccessState<Permission>) {
-      _goToMyPosition();
-    } else if (state case FailureState<RequestPermissionEvent>(:final code)) {
-      switch (code) {}
-    }
-  }
-
-  Future<void> _requestPermission() {
-    return _permissionController.run(const RequestPermissionEvent(
-      permission: Permission.locationWhenInUse,
-    ));
   }
 
   /// PlaceService
   late AsyncController<AsyncState> _placeController;
+  Place? _currentPlace;
 
   void _listenPlaceState(BuildContext context, AsyncState state) {
     if (state is PendingState) {
       return _animatePin();
+    } else if (state case SuccessState<Place>(:final data)) {
+      _currentPlace = data;
+      _goToPosition(_placeToLaLng(_currentPlace)!);
     }
     return _resetPin();
   }
 
-  void _searchPlaceByPoint(LatLng center) {
+  void _searchPlaceByPoint([LatLng? center]) {
+    center ??= _mapController!.cameraPosition!.target;
     _placeController.run(SearchPlaceEvent(position: (
       center.longitude,
       center.latitude,
@@ -147,10 +121,10 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     }
   }
 
-  Future<void> _setRelay({required Place place}) {
+  Future<void> _setRelay() {
     return _relayController.run(SetRelayEvent(
+      location: _currentPlace,
       relay: _currentRelay,
-      location: place,
     ));
   }
 
@@ -160,17 +134,18 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
 
     /// Assets
     _currentRelay = widget.relay;
-    _myLocationController = ValueNotifier(true);
+    _currentPlace = _currentRelay.location;
+    _myLocationController = ValueNotifier(false);
     _pinAnimationController = AnimationController(
-      duration: const Duration(seconds: 5),
+      duration: const Duration(milliseconds: 3000),
       vsync: this,
     );
 
-    /// PermissionService
-    _permissionController = AsyncController(const InitState());
-
     /// PlaceService
-    _placeController = AsyncController(const InitState());
+    _placeController = AsyncController(switch (_currentPlace) {
+      Place() => SuccessState<Place>(_currentPlace!),
+      null => const InitState(),
+    });
 
     /// RelayService
     _relayController = AsyncController(const InitState());
@@ -185,89 +160,98 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     super.dispose();
   }
 
+  Future<Iterable<Widget>> _suggestionsBuilder(BuildContext context, SearchController controller) async {
+    if (_userLocation != null) {
+      final position = _userLocation!.position;
+      final data = searchPlaceByQuery(query: controller.text, position: (
+        position.longitude,
+        position.latitude,
+      ));
+      return data.then((places) {
+        return places.map((item) {
+          return ListTile(
+            onTap: () {
+              _placeController.value = SuccessState(item);
+              Navigator.pop(context);
+            },
+            leading: const Icon(CupertinoIcons.location_solid),
+            subtitle: Text(item.subtitle),
+            title: Text(item.title),
+          );
+        });
+      });
+    }
+    return [];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ControllerListener(
-      autoListen: true,
-      listener: _listenPermissionState,
-      controller: _permissionController,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        resizeToAvoidBottomInset: false,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
-        floatingActionButton: SafeArea(
-          top: false,
-          child: Padding(
-            padding: kTabLabelPadding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const ProfileLocationFloatingBackButton(),
+          ValueListenableBuilder(
+            valueListenable: _myLocationController,
+            builder: (context, active, child) {
+              return ProfileLocationFloatingLocationButton(
+                onChanged: (value) => _goToMyPosition(),
+                active: active,
+              );
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          ProfileLocationMap(
+            onMapIdle: _onMapIdle,
+            onMapMoved: _onMapMoved,
+            onMapCreated: _onMapCreated,
+            center: _placeToLaLng(_currentPlace),
+            onUserLocationUpdated: _onUserLocationUpdated,
+          ),
+          ProfileLocationPin(
+            controller: _pinAnimationController,
+          ),
+        ],
+      ),
+      bottomSheet: SafeArea(
+        top: false,
+        child: ControllerConsumer(
+          listener: _listenPlaceState,
+          controller: _placeController,
+          builder: (context, placeState, child) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const ProfileLocationFloatingBackButton(),
-                ValueListenableBuilder(
-                  valueListenable: _myLocationController,
-                  builder: (context, active, child) {
-                    return ProfileLocationFloatingLocationButton(
-                      onChanged: (value) => _goToMyPosition(),
-                      active: active,
+                ProfileLocationItemWidget(
+                  suggestionsBuilder: _suggestionsBuilder,
+                  title: switch (placeState) {
+                    SuccessState<Place>(:final data) => data.title,
+                    _ => null,
+                  },
+                ),
+                ControllerConsumer(
+                  listener: _listenRelayState,
+                  controller: _relayController,
+                  builder: (context, relayState, child) {
+                    VoidCallback? onPressed = _setRelay;
+                    if (relayState is PendingState) onPressed = null;
+                    return ProfileLocationSubmittedButton(
+                      disabled: placeState is PendingState,
+                      onPressed: onPressed,
                     );
                   },
                 ),
               ],
-            ),
-          ),
-        ),
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            ProfileLocationMap(
-              onUserLocationUpdated: _onUserLocationUpdated,
-              onMapCreated: _onMapCreated,
-              onCameraIdle: _onMapIdle,
-              onMapMoved: _onMapMoved,
-            ),
-            ProfileLocationPin(
-              controller: _pinAnimationController,
-            ),
-          ],
-        ),
-        bottomSheet: SafeArea(
-          top: false,
-          child: ControllerConsumer(
-            listener: _listenPlaceState,
-            controller: _placeController,
-            builder: (context, placeState, child) {
-              Place? place;
-              if (placeState case SuccessState<Place>(:final data)) {
-                place = data;
-              }
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ProfileLocationItemWidget(
-                    suggestionsBuilder: _suggestionsBuilder,
-                    title: place?.title,
-                  ),
-                  ControllerConsumer(
-                    listener: _listenRelayState,
-                    controller: _relayController,
-                    builder: (context, relayState, child) {
-                      VoidCallback? onPressed = () {
-                        _setRelay(place: place!);
-                      };
-                      if (relayState is PendingState) {
-                        onPressed = null;
-                      }
-                      return ProfileLocationSubmittedButton(
-                        disabled: placeState is PendingState,
-                        onPressed: onPressed,
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+            );
+          },
         ),
       ),
     );

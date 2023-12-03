@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/gestures.dart';
@@ -15,17 +16,20 @@ class ProfileLocationFloatingBackButton extends CustomAppBar {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return FilledButton.tonal(
-      onPressed: Navigator.of(context).pop,
-      style: FilledButton.styleFrom(
-        elevation: 0.12,
-        shape: const StadiumBorder(),
-        shadowColor: theme.colorScheme.surfaceTint,
-        backgroundColor: theme.colorScheme.surface,
-        surfaceTintColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onSurface,
+    return Padding(
+      padding: kTabLabelPadding.copyWith(top: 8.0),
+      child: FilledButton.tonal(
+        onPressed: Navigator.of(context).pop,
+        style: FilledButton.styleFrom(
+          elevation: 0.12,
+          shape: const StadiumBorder(),
+          shadowColor: theme.colorScheme.surfaceTint,
+          backgroundColor: theme.colorScheme.surface,
+          surfaceTintColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onSurface,
+        ),
+        child: const Icon(CupertinoIcons.arrow_left),
       ),
-      child: const Icon(CupertinoIcons.arrow_left),
     );
   }
 }
@@ -46,40 +50,44 @@ class ProfileLocationFloatingLocationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return FilledButton.tonal(
-      onPressed: _onPressed(),
-      style: FilledButton.styleFrom(
-        elevation: 0.12,
-        shape: const StadiumBorder(),
-        shadowColor: theme.colorScheme.surfaceTint,
-        backgroundColor: theme.colorScheme.surface,
-        surfaceTintColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onSurface,
-      ),
-      child: Visibility(
-        visible: active,
-        replacement: const Icon(CupertinoIcons.location),
-        child: const Icon(CupertinoIcons.location_fill),
+    return Padding(
+      padding: kTabLabelPadding.copyWith(top: 8.0),
+      child: FilledButton.tonal(
+        onPressed: _onPressed(),
+        style: FilledButton.styleFrom(
+          elevation: 0.12,
+          shape: const StadiumBorder(),
+          shadowColor: theme.colorScheme.surfaceTint,
+          backgroundColor: theme.colorScheme.surface,
+          surfaceTintColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onSurface,
+        ),
+        child: Visibility(
+          visible: active,
+          replacement: const Icon(CupertinoIcons.location),
+          child: const Icon(CupertinoIcons.location_fill),
+        ),
       ),
     );
   }
 }
 
-class ProfileLocationMap extends StatelessWidget {
+class ProfileLocationMap extends StatefulWidget {
   const ProfileLocationMap({
     super.key,
+    this.center,
     this.onMapIdle,
     this.onMapClick,
     this.onMapMoved,
     this.onCameraIdle,
     this.onMapCreated,
     this.onMapLongClick,
-    this.initialCameraPosition,
     this.onUserLocationUpdated,
     this.onStyleLoadedCallback,
     this.myLocationEnabled = true,
   });
 
+  final LatLng? center;
   final bool myLocationEnabled;
   final VoidCallback? onMapIdle;
   final VoidCallback? onMapMoved;
@@ -88,38 +96,64 @@ class ProfileLocationMap extends StatelessWidget {
   final MapCreatedCallback? onMapCreated;
   final OnMapClickCallback? onMapLongClick;
   final VoidCallback? onStyleLoadedCallback;
-  final CameraPosition? initialCameraPosition;
   final OnUserLocationUpdated? onUserLocationUpdated;
 
+  @override
+  State<ProfileLocationMap> createState() => _ProfileLocationMapState();
+}
+
+class _ProfileLocationMapState extends State<ProfileLocationMap> {
+  late String _mapStyle;
+
   ValueChanged<PointerUpEvent>? _onMapIdle() {
-    if (onMapIdle == null) return null;
-    return (_) => onMapIdle?.call();
+    if (widget.onMapIdle == null) return null;
+    return (_) => widget.onMapIdle?.call();
   }
 
   ValueChanged<PointerDownEvent>? _onMapMoved() {
-    if (onMapMoved == null) return null;
-    return (_) => onMapMoved?.call();
+    if (widget.onMapMoved == null) return null;
+    return (_) => widget.onMapMoved?.call();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _mapStyle = switch (CupertinoTheme.brightnessOf(context)) {
+      Brightness.light => 'https://api.maptiler.com/maps/streets-v2/style.json?key=ohdDnBihXL3Yk2cDRMfO',
+      Brightness.dark => 'https://api.maptiler.com/maps/streets-v2-dark/style.json?key=ohdDnBihXL3Yk2cDRMfO',
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    return CustomKeepAlive(
-      child: Listener(
-        onPointerUp: _onMapIdle(),
-        onPointerDown: _onMapMoved(),
-        child: MaplibreMap(
-          compassEnabled: false,
-          onMapClick: onMapClick,
-          trackCameraPosition: true,
-          onCameraIdle: onCameraIdle,
-          onMapCreated: onMapCreated,
-          onMapLongClick: onMapLongClick,
-          myLocationEnabled: myLocationEnabled,
-          onUserLocationUpdated: onUserLocationUpdated,
-          onStyleLoadedCallback: onStyleLoadedCallback ?? () {},
-          gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
-          initialCameraPosition: initialCameraPosition ?? const CameraPosition(target: LatLng(0.0, 0.0)),
-          styleString: 'https://api.maptiler.com/maps/86f5df0b-f809-4e6f-b8f0-9d3e0976fe90/style.json?key=ohdDnBihXL3Yk2cDRMfO',
+    final style = switch (CupertinoTheme.brightnessOf(context)) {
+      Brightness.light => SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+      Brightness.dark => SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
+    };
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      sized: false,
+      value: style,
+      child: CustomKeepAlive(
+        child: Listener(
+          onPointerUp: _onMapIdle(),
+          onPointerDown: _onMapMoved(),
+          child: MaplibreMap(
+            compassEnabled: false,
+            styleString: _mapStyle,
+            trackCameraPosition: true,
+            onMapClick: widget.onMapClick,
+            onCameraIdle: widget.onCameraIdle,
+            onMapCreated: widget.onMapCreated,
+            onMapLongClick: widget.onMapLongClick,
+            myLocationEnabled: widget.myLocationEnabled,
+            onUserLocationUpdated: widget.onUserLocationUpdated,
+            onStyleLoadedCallback: widget.onStyleLoadedCallback ?? () {},
+            gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
+            initialCameraPosition: switch (widget.center) {
+              null => const CameraPosition(target: LatLng(0.0, 0.0)),
+              _ => CameraPosition(target: widget.center!, zoom: 18.0),
+            },
+          ),
         ),
       ),
     );
@@ -165,7 +199,8 @@ class ProfileLocationItemWidget extends StatelessWidget {
     final localizations = context.localizations;
     final child = ListTile(
       contentPadding: kTabLabelPadding.copyWith(right: 2.0, top: 16.0, bottom: 28.0),
-      titleTextStyle: theme.textTheme.headlineSmall!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),
       subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
@@ -173,7 +208,7 @@ class ProfileLocationItemWidget extends StatelessWidget {
         height: 1.2,
       ),
       leading: const Icon(CupertinoIcons.location_solid),
-      title: Text(localizations.relaypointaddress.capitalize()),
+      title: Text(localizations.relaypointaddress.toUpperCase()),
       subtitle: SizedBox(
         height: 35.0,
         child: Visibility(
@@ -228,23 +263,14 @@ class ProfileLocationSubmittedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     final localizations = context.localizations;
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FilledButton(
+        child: CustomSubmittedButton(
           onPressed: onPressed,
-          style: FilledButton.styleFrom(
-            textStyle: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.0),
-            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-          ),
-          child: Visibility(
-            visible: disabled || onPressed != null,
-            replacement: const CustomProgressIndicator(),
-            child: Text(localizations.define.toUpperCase()),
-          ),
+          child: Text(localizations.define.toUpperCase()),
         ),
       ),
     );

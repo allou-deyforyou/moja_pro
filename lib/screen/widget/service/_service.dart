@@ -10,6 +10,7 @@ export 'binding_surrealdb.dart';
 export 'service_account.dart';
 export 'service_auth.dart';
 export 'service_country.dart';
+export 'service_file.dart';
 export 'service_permission.dart';
 export 'service_place.dart';
 export 'service_relay.dart';

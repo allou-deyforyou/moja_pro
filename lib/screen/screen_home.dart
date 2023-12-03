@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onAvailableChanged(bool value) {
     _setRelay(
       availability: switch (value) {
-        true => RelayAvailability.enable,
+        true => RelayAvailability.enabled,
         _ => RelayAvailability.disabled,
       },
     );
@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state is InitState) {
-      _getRelay();
+      _loadRelay();
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
       _relayAccounts = _currentRelay.accounts.toList();
@@ -75,6 +75,13 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
     }
+  }
+
+  Future<void> _loadRelay() {
+    return _relayController.run(LoadRelayEvent(
+      relayId: _currentRelay.id,
+      listen: true,
+    ));
   }
 
   Future<void> _getRelay() {
@@ -100,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _relayAccounts = _currentRelay.accounts.toList();
 
     /// RelayService
-    _relayController = AsyncController(SuccessState(_currentRelay));
+    _relayController = AsyncController(const InitState());
   }
 
   @override

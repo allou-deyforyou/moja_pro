@@ -64,8 +64,16 @@ class CustomSubmittedButton extends StatelessWidget {
           onPressed: done ? onPressed : null,
           style: FilledButton.styleFrom(
             elevation: elevation,
-            textStyle: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.0),
-            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+            textStyle: theme.textTheme.titleSmall!.copyWith(
+              fontFamily: FontFamily.avenir,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.0,
+              height: 1.0,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 12.0,
+            ),
           ),
           child: Container(
             height: 24.0,
@@ -193,7 +201,7 @@ class CustomCloseButton extends StatelessWidget {
   }
 }
 
-Future<String?> openImageEditorModal({
+Future<Uint8List?> openImageEditorModal({
   required BuildContext context,
 }) async {
   final source = await showModalBottomSheet<picker.ImageSource>(
@@ -219,7 +227,7 @@ Future<String?> openImageEditorModal({
     if (file != null) {
       final image = await file.readAsBytes();
       // ignore: use_build_context_synchronously
-      return Navigator.push<String>(
+      return Navigator.push<Uint8List>(
         context,
         MaterialPageRoute(
           fullscreenDialog: true,
@@ -250,8 +258,11 @@ class ImageEditorModal extends StatelessWidget {
         toolbarHeight: 64.0,
         automaticallyImplyLeading: false,
         backgroundColor: theme.colorScheme.surface,
-        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
-        title: Text(localizations.editavatar.capitalize()),
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+          fontFamily: FontFamily.avenirNext,
+          fontWeight: FontWeight.w600,
+        ),
+        title: Text(localizations.editavatar.toUpperCase()),
         actions: const [CustomCloseButton()],
       ),
       body: CustomScrollView(
@@ -323,11 +334,11 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
   Future<void>? _imageFuture;
 
   Future<void> _onConfirm() async {
-    final path = await _editImage();
-    if (mounted) Navigator.pop(context, path);
+    final data = await _editImage();
+    if (mounted) Navigator.pop(context, data);
   }
 
-  Future<String> _editImage() async {
+  Future<Uint8List> _editImage() async {
     final state = _imageEditorKey.currentState!;
     final action = state.editAction!;
     final option = ImageEditorOption();
@@ -336,7 +347,7 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
     if (action.needFlip) option.addOption(FlipOption(horizontal: action.flipY, vertical: action.flipX));
     option.outputFormat = const OutputFormat.png(88);
     final result = await ImageEditor.editImageAndGetFile(imageEditorOption: option, image: state.rawImageData);
-    return result.path;
+    return result.readAsBytes();
   }
 
   void _onFlip() {
@@ -450,7 +461,9 @@ class ImageEditorNavigationBar extends StatelessWidget {
             padding: kTabLabelPadding,
             onPressed: Navigator.of(context).pop,
             child: DefaultTextStyle(
-              style: theme.textTheme.labelMedium!,
+              style: theme.textTheme.labelMedium!.copyWith(
+                fontFamily: FontFamily.avenirNext,
+              ),
               child: Text(localizations.cancel.toUpperCase()),
             ),
           ),
@@ -469,7 +482,8 @@ class ImageEditorNavigationBar extends StatelessWidget {
             child: DefaultTextStyle(
               style: theme.textTheme.labelMedium!.copyWith(
                 color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
+                fontFamily: FontFamily.avenirNext,
+                fontWeight: FontWeight.w600,
               ),
               child: Visibility(
                 visible: onConfirm != null,

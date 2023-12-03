@@ -134,6 +134,7 @@ class SignOutUserEvent extends AsyncEvent<AsyncState> {
       await runService(const MyService());
 
       currentUser.value = null;
+      currentCountry.reset();
       currentAuth.reset();
 
       emit(const InitState());
@@ -214,20 +215,43 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
 class LoadUserEvent extends AsyncEvent<AsyncState> {
   const LoadUserEvent({
     required this.userId,
+    this.fireImmediately = false,
+    this.listen = false,
   });
+  final bool listen;
+  final bool fireImmediately;
   final String userId;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final data = await IsarLocalDB.isar.users.get(userId.fastHash);
-      if (data != null) {
-        emit(SuccessState(data));
+      if (listen) {
+        final stream = IsarLocalDB.isar.users.watchObject(
+          fireImmediately: fireImmediately,
+          userId.fastHash,
+        );
+        await stream.forEach((data) {
+          if (data != null) {
+            emit(SuccessState(data));
+          } else {
+            emit(FailureState(
+              code: 'no-record',
+              event: this,
+            ));
+          }
+        });
       } else {
-        emit(FailureState(
-          code: 'no-record',
-          event: this,
-        ));
+        final data = await IsarLocalDB.isar.users.get(
+          userId.fastHash,
+        );
+        if (data != null) {
+          emit(SuccessState(data));
+        } else {
+          emit(FailureState(
+            code: 'no-record',
+            event: this,
+          ));
+        }
       }
     } catch (error) {
       emit(FailureState(

@@ -20,8 +20,10 @@ class HomeAccountSliverAppBar extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       leading: const Center(child: CircleAvatar()),
       titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.0,
+        wordSpacing: 1.5,
       ),
       title: Text(name.toUpperCase()),
       actions: const [CustomCloseButton()],
@@ -49,7 +51,7 @@ class HomeAccountBalanceTextField extends StatelessWidget {
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           style: theme.textTheme.displayMedium!.copyWith(
-            fontFamily: FontFamily.avenir,
+            fontWeight: FontWeight.w200,
             letterSpacing: 1.0,
           ),
           inputFormatters: [
@@ -59,59 +61,12 @@ class HomeAccountBalanceTextField extends StatelessWidget {
           ],
           decoration: InputDecoration(
             filled: false,
-            suffixIcon: const Text("francs"),
-            hintText: localizations.balance,
             border: InputBorder.none,
+            hintText: localizations.balance,
             focusedBorder: InputBorder.none,
+            suffixIcon: const Text("francs"),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class HomeAccountSuggestionListView extends StatelessWidget {
-  const HomeAccountSuggestionListView({
-    super.key,
-    required this.itemCount,
-    required this.itemBuilder,
-  });
-  final int itemCount;
-  final NullableIndexedWidgetBuilder itemBuilder;
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 60.0,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        itemCount: itemCount,
-        itemBuilder: itemBuilder,
-        separatorBuilder: (context, index) {
-          return const SizedBox(width: 14.0);
-        },
-      ),
-    );
-  }
-}
-
-class HomeAccountSuggestionItemWidget extends StatelessWidget {
-  const HomeAccountSuggestionItemWidget({
-    super.key,
-    required this.amount,
-    required this.onPressed,
-  });
-
-  final double amount;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ActionChip(
-      onPressed: onPressed,
-      label: DefaultTextStyle.merge(
-        style: const TextStyle(height: 1.0),
-        child: Text("${amount.formatted} f"),
       ),
     );
   }

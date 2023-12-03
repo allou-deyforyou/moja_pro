@@ -18,9 +18,12 @@ class ProfilePhotoAppBar extends CustomAppBar {
     return AppBar(
       centerTitle: false,
       toolbarHeight: preferredSize.height,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       leading: const Center(child: CustomBackButton()),
-      title:  Text(localizations.relaypointphoto.capitalize()),
+      title: Text(localizations.relaypointphoto.toUpperCase()),
       actions: actions,
     );
   }

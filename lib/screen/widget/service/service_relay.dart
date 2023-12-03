@@ -84,7 +84,7 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
         Relay.imageKey: image?.json(),
         Relay.locationKey: location?.toSurreal(),
         Relay.availabilityKey: availability?.toString(),
-        Relay.contactsKey: contacts?.map((e) => e.json()),
+        Relay.contactsKey: contacts?.map((e) => e.json()).toList(),
       }..removeWhere((key, value) => value == null);
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
@@ -95,6 +95,54 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
       await SaveRelayEvent(relays: [data]).handle(emit);
 
       emit(SuccessState(data));
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}
+
+class LoadRelayEvent extends AsyncEvent<AsyncState> {
+  const LoadRelayEvent({
+    required this.relayId,
+    this.listen = false,
+  });
+  final bool listen;
+  final String relayId;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+      if (listen) {
+        final stream = IsarLocalDB.isar.relays.watchObject(
+          fireImmediately: true,
+          relayId.fastHash,
+        );
+        await stream.forEach((data) {
+          if (data != null) {
+            emit(SuccessState(data));
+          } else {
+            emit(FailureState(
+              code: 'no-record',
+              event: this,
+            ));
+          }
+        });
+      } else {
+        final data = await IsarLocalDB.isar.relays.get(
+          relayId.fastHash,
+        );
+        if (data != null) {
+          emit(SuccessState(data));
+        } else {
+          emit(FailureState(
+            code: 'no-record',
+            event: this,
+          ));
+        }
+      }
     } catch (error) {
       emit(FailureState(
         code: error.toString(),

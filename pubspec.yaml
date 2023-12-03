@@ -42,6 +42,8 @@ dependencies:
   image_editor:
   url_launcher:
   share_plus:
+  archive:
+  http:
   isar:
   hive:
   dio:
@@ -70,16 +72,13 @@ flutter:
         - asset: assets/fonts/Quicksand-Bold.ttf
         - asset: assets/fonts/Quicksand-Medium.ttf
         - asset: assets/fonts/Quicksand-SemiBold.ttf
-    - family: SairaCondensed
-      fonts:
-        - asset: assets/fonts/SairaCondensed-Bold.ttf
-        - asset: assets/fonts/SairaCondensed-Medium.ttf
-        - asset: assets/fonts/SairaCondensed-Regular.ttf
-        - asset: assets/fonts/SairaCondensed-SemiBold.ttf
-    - family: Avenir
+    - family: AvenirNext
       fonts:
         - asset: assets/fonts/Avenir-Next-Condensed.ttc
-        - asset: assets/fonts/Avenir-Next-Condensed-Regular.otf
-        - asset: assets/fonts/Avenir-Next-Condensed-Medium.otf
-        - asset: assets/fonts/Avenir-Next-Condensed-Bold.otf
         - asset: assets/fonts/Avenir-Next-Condensed-Demi.otf
+        - asset: assets/fonts/Avenir-Next-Condensed-Bold.otf
+        - asset: assets/fonts/Avenir-Next-Condensed-Medium.otf
+        - asset: assets/fonts/Avenir-Next-Condensed-Regular.otf
+    - family: Avenir
+      fonts:
+        - asset: assets/fonts/AvenirNext-Regular.ttf

@@ -39,15 +39,15 @@ class _MyAppState extends State<MyApp> {
     _themeModeStream = HiveLocalDB.themeModeStream;
 
     _router = GoRouter(
-      // initialLocation: OnBoardingScreen.path,
       refreshListenable: currentUser,
+      initialLocation: OnBoardingScreen.path,
       routes: [
         GoRoute(
           name: HomeScreen.name,
           path: HomeScreen.path,
           redirect: HomeScreen.redirect,
           pageBuilder: (context, state) {
-            return const NoTransitionPage(
+            return const CupertinoPage(
               child: HomeScreen(),
             );
           },

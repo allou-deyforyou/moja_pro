@@ -4,13 +4,25 @@ import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
+Future<Iterable<dynamic>>? _searchPlaceResponses;
 Future<List<Place>> searchPlaceByQuery({
   required (double, double) position,
   required String query,
 }) async {
-  final responses = await sql('RETURN fn::search_place_by_query("$query", ${position.$2}, ${position.$1}, "fr");');
-  final List response = responses.first;
-  return List.of(response.map((data) => Place.fromMap(data)!));
+  try {
+    final ok = await Future.microtask(() {
+      _searchPlaceResponses?.ignore();
+      if (query.trim().isEmpty) return true;
+    });
+    if (ok != null) return [];
+    _searchPlaceResponses = sql('RETURN fn::search_place_by_query("$query", ${position.$2}, ${position.$1}, "fr");');
+    final List response = (await _searchPlaceResponses!).first;
+    return List.of(response.map((data) => Place.fromMap(data)!));
+  } on TimeoutException {
+    return [];
+  } catch (error) {
+    rethrow;
+  }
 }
 
 class SearchPlaceEvent extends AsyncEvent<AsyncState> {

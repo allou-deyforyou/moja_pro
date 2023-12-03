@@ -36,7 +36,7 @@ class Place extends Equatable {
 
   @ignore
   String get title {
-    List<String> words = name!.split(' ');
+    List<String> words = (name ?? '').split(' ');
     if (city != null) {
       words.insertAll(0, city!.split(' '));
     } else if (locality != null) {
@@ -48,7 +48,7 @@ class Place extends Equatable {
 
   @ignore
   String get subtitle {
-    List<String> words = country!.split(' ');
+    List<String> words = (country ?? '').split(' ');
     if (state != null) {
       words.insertAll(0, state!.split(' '));
     }

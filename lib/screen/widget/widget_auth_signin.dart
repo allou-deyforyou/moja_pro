@@ -13,9 +13,12 @@ class AuthSigninAppBar extends StatelessWidget {
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       leading: const Center(child: CustomBackButton()),
-      title: Text(localizations.confirm.capitalize()),
+      title: Text(localizations.confirm.toUpperCase()),
     );
   }
 }
@@ -70,7 +73,7 @@ class AuthSigninResendButton extends StatelessWidget {
       child: CounterBuilder(
         reverse: true,
         timeout: timeout,
-        child: Text(localizations.resendcode.toUpperCase()),
+        child: Text(localizations.resendcode.capitalize()),
         builder: (context, duration, child) {
           final done = duration == Duration.zero;
           return TextButton(

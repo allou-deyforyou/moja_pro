@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 
@@ -21,9 +22,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _openEditorModal() async {
-    await openImageEditorModal(
+    final data = await openImageEditorModal(
       context: context,
     );
+
+    if (data != null) {
+      _setFile(data);
+    }
   }
 
   void _openNameModal() async {
@@ -57,19 +62,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _openLocationScreen() async {
-    final data = await context.pushNamed<Relay>(ProfileLocationScreen.name, extra: {
+    context.pushNamed<Relay>(ProfileLocationScreen.name, extra: {
       ProfileLocationScreen.relayKey: _currentRelay,
     });
-    if (data != null) {
-      _relayController.value = SuccessState(data);
-    }
   }
 
   /// RelayService
   late final AsyncController<AsyncState> _relayController;
 
   void _listenRelayState(BuildContext context, AsyncState state) {
-    if (state case SuccessState<Relay>(:var data)) {
+    if (state is InitState) {
+      _loadRelay();
+    } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
     } else if (state case FailureState<SetRelayEvent>(:final code, :final event)) {
       _currentRelay = _currentRelay.copyWith(
@@ -86,11 +90,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _loadRelay() {
+    return _relayController.run(LoadRelayEvent(
+      relayId: _currentRelay.id,
+      listen: true,
+    ));
+  }
+
   Future<void> _setRelay({String? name, List<String>? contacts}) {
     return _relayController.run(SetRelayEvent(
       relay: _currentRelay,
       contacts: contacts,
       name: name,
+    ));
+  }
+
+  /// FileService
+  late final AsyncController<AsyncState> _fileController;
+
+  void _listenFileState(BuildContext context, AsyncState state) {
+    if (state case FailureState<SetFileEvent>(:final code)) {
+      switch (code) {}
+    }
+  }
+
+  Future<void> _setFile(Uint8List data) {
+    return _fileController.run(SetFileEvent(
+      record: _currentRelay.id,
+      bufferData: data,
     ));
   }
 
@@ -104,6 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     /// RelayService
     _relayController = AsyncController(const InitState());
+
+    /// FileService
+    _fileController = AsyncController(const InitState());
   }
 
   @override
@@ -114,14 +144,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const ProfileAppBar(),
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
-            child: ProfileAvatarWidget(
-              onTap: _openAvatarScreen,
-              onEdit: _openEditorModal,
+            child: ControllerConsumer(
+              listener: _listenFileState,
+              controller: _fileController,
+              builder: (context, state, child) {
+                return ProfileAvatarWidget(
+                  onTap: _openAvatarScreen,
+                  onEdit: _openEditorModal,
+                );
+              },
             ),
           ),
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
             child: ControllerConsumer(
+              autoListen: true,
               listener: _listenRelayState,
               controller: _relayController,
               builder: (context, state, child) {
@@ -154,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _relayController,
               builder: (context, state, child) {
                 return ProfileLocationWidget(
-                  location: _currentRelay.location!.title,
+                  location: _currentRelay.location?.title,
                   onTap: _openLocationScreen,
                 );
               },

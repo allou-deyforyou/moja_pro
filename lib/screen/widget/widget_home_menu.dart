@@ -15,8 +15,11 @@ class HomeMenuAppBar extends StatelessWidget {
       centerTitle: false,
       toolbarHeight: 64.0,
       automaticallyImplyLeading: false,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.w600),
-      title: Text(localizations.menu.capitalize()),
+      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
+      title: Text(localizations.menu.toUpperCase()),
       actions: const [CustomCloseButton()],
     );
   }
@@ -193,7 +196,10 @@ class HomeMenuNotifisModal extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       contentTextStyle: theme.textTheme.bodyLarge,
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       titlePadding: const EdgeInsets.only(
         bottom: 16.0,
         right: 24.0,
@@ -209,12 +215,20 @@ class HomeMenuNotifisModal extends StatelessWidget {
         TextButton(
           style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
           onPressed: Navigator.of(context).pop,
-          child: Text(localizations.cancel.toUpperCase()),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+            ),
+            child: Text(localizations.cancel.toUpperCase()),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, true),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.0),
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+              fontWeight: FontWeight.w600,
+            ),
             child: Text(localizations.open.toUpperCase()),
           ),
         ),
@@ -222,7 +236,6 @@ class HomeMenuNotifisModal extends StatelessWidget {
     );
   }
 }
-
 
 class HomeMenuModal<T> extends StatefulWidget {
   const HomeMenuModal({
@@ -273,10 +286,13 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
       insetPadding: kTabLabelPadding,
       backgroundColor: theme.colorScheme.surface,
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       title: SizedBox(
         width: double.maxFinite,
-        child: Text(widget.title),
+        child: Text(widget.title.toUpperCase()),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -301,12 +317,20 @@ class _HomeMenuModalState<T> extends State<HomeMenuModal<T>> {
         TextButton(
           style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
           onPressed: Navigator.of(context).pop,
-          child: Text(localizations.cancel.toUpperCase()),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+            ),
+            child: Text(localizations.cancel.toUpperCase()),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _selected),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.0),
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+              fontWeight: FontWeight.w600,
+            ),
             child: Text(localizations.apply.toUpperCase()),
           ),
         ),
@@ -375,10 +399,14 @@ class HomeMenuSupportModal extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         centerTitle: false,
+        toolbarHeight: 64.0,
         automaticallyImplyLeading: false,
         backgroundColor: theme.colorScheme.surface,
-        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
-        title: Text(localizations.helporsuggestions.capitalize()),
+        titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+          fontFamily: FontFamily.avenirNext,
+          fontWeight: FontWeight.w600,
+        ),
+        title: Text(localizations.helporsuggestions.toUpperCase()),
         actions: const [CustomCloseButton()],
       ),
       body: CustomScrollView(
@@ -412,7 +440,7 @@ class HomeMenuSupportEmailWidget extends StatelessWidget {
     final localizations = context.localizations;
     return CustomListTile(
       onTap: onTap,
-      leading: const Icon(Icons.email, size: 20.0),
+      leading: const Icon(CupertinoIcons.mail, size: 20.0),
       title: Text(localizations.email.capitalize()),
       trailing: Text(email),
     );
@@ -432,7 +460,11 @@ class HomeMenuSupportWhatsappWidget extends StatelessWidget {
     final localizations = context.localizations;
     return CustomListTile(
       onTap: onTap,
-      leading: const Icon(Icons.wechat),
+      leading: Assets.images.whatsappIcon.image(
+        color: CupertinoColors.activeGreen,
+        height: 26.0,
+        width: 26.0,
+      ),
       title: Text(localizations.whatsapp.capitalize()),
       trailing: Text(phone),
     );
@@ -451,7 +483,10 @@ class HomeMenuLogoutModal extends StatelessWidget {
       insetPadding: kTabLabelPadding,
       backgroundColor: theme.colorScheme.surface,
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w600),
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
       titlePadding: const EdgeInsets.only(
         bottom: 16.0,
         right: 24.0,
@@ -460,19 +495,27 @@ class HomeMenuLogoutModal extends StatelessWidget {
       ),
       title: SizedBox(
         width: double.maxFinite,
-        child: Text(localizations.logout.capitalize()),
+        child: Text(localizations.logout.toUpperCase()),
       ),
       actions: [
         TextButton(
-          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
+          style: TextButton.styleFrom(
+            foregroundColor: theme.colorScheme.onSurfaceVariant,
+          ),
           onPressed: Navigator.of(context).pop,
-          child: Text(localizations.cancel.toUpperCase()),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(
+              fontFamily: FontFamily.avenir,
+            ),
+            child: Text(localizations.cancel.toUpperCase()),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, true),
           child: DefaultTextStyle.merge(
             style: const TextStyle(
               color: CupertinoColors.destructiveRed,
+              fontFamily: FontFamily.avenir,
               fontWeight: FontWeight.w600,
             ),
             child: Text(localizations.logout.toUpperCase()),

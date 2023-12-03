@@ -25,6 +25,12 @@ class $AssetsImagesGen {
   /// File path: assets/images/lottie_pin.zip
   String get lottiePin => 'assets/images/lottie_pin.zip';
 
+  /// File path: assets/images/lottie_pin_dark.json
+  String get lottiePinDark => 'assets/images/lottie_pin_dark.json';
+
+  /// File path: assets/images/lottie_pin_light.json
+  String get lottiePinLight => 'assets/images/lottie_pin_light.json';
+
   /// File path: assets/images/onboarding.jpg
   AssetGenImage get onboarding =>
       const AssetGenImage('assets/images/onboarding.jpg');
@@ -32,8 +38,13 @@ class $AssetsImagesGen {
   /// File path: assets/images/pin.png
   AssetGenImage get pin => const AssetGenImage('assets/images/pin.png');
 
+  /// File path: assets/images/whatsapp_icon.png
+  AssetGenImage get whatsappIcon =>
+      const AssetGenImage('assets/images/whatsapp_icon.png');
+
   /// List of all assets
-  List<dynamic> get values => [lottiePin, onboarding, pin];
+  List<dynamic> get values =>
+      [lottiePin, lottiePinDark, lottiePinLight, onboarding, pin, whatsappIcon];
 }
 
 class Assets {
