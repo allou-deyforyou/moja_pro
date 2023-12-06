@@ -17,8 +17,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Assets
   late Relay _currentRelay;
 
+  String? _currentImage;
+  Place? _currentLocation;
+  late String _currentName;
+  late String _currentContact;
+
   void _openAvatarScreen() {
-    context.pushNamed(ProfilePhotoScreen.name);
+    context.pushNamed(ProfilePhotoScreen.name, extra: {
+      ProfilePhotoScreen.relayKey: _currentRelay,
+    });
   }
 
   void _openEditorModal() async {
@@ -27,7 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (data != null) {
-      _setFile(data);
+      _currentImage = '';
+      _setRelay(rawImage: data);
     }
   }
 
@@ -41,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
     if (data != null) {
-      _currentRelay = _currentRelay.copyWith(name: data);
+      _currentName = data;
       _setRelay(name: data);
     }
   }
@@ -56,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
     if (data != null) {
-      _currentRelay = _currentRelay.copyWith(contacts: [data]);
+      _currentContact = data;
       _setRelay(contacts: [data]);
     }
   }
@@ -70,16 +78,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// RelayService
   late final AsyncController<AsyncState> _relayController;
 
+  bool _canAvatarRebuild(AsyncState previousState, AsyncState currentState) {
+    if (currentState is PendingState && _currentRelay.image == _currentImage) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _canNameRebuild(AsyncState previousState, AsyncState currentState) {
+    if (currentState is PendingState && _currentRelay.name == _currentName) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _canContactsRebuild(AsyncState previousState, AsyncState currentState) {
+    if (currentState is PendingState && listEquals(_currentRelay.contacts, [_currentContact])) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _canLocationRebuild(AsyncState previousState, AsyncState currentState) {
+    if (currentState is PendingState && _currentRelay.location == _currentLocation) {
+      return false;
+    }
+    return true;
+  }
+
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state is InitState) {
       _loadRelay();
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
-    } else if (state case FailureState<SetRelayEvent>(:final code, :final event)) {
-      _currentRelay = _currentRelay.copyWith(
-        contacts: event?.contacts,
-        name: event?.name,
-      );
+
+      _currentName = _currentRelay.name;
+      _currentImage = _currentRelay.image;
+      _currentLocation = _currentRelay.location;
+      _currentContact = _currentRelay.contacts!.first;
+    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+      _currentName = _currentRelay.name;
+      _currentImage = _currentRelay.image;
+      _currentLocation = _currentRelay.location;
+      _currentContact = _currentRelay.contacts!.first;
 
       showSnackbar(
         context: context,
@@ -97,27 +138,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ));
   }
 
-  Future<void> _setRelay({String? name, List<String>? contacts}) {
+  Future<void> _setRelay({
+    String? name,
+    Uint8List? rawImage,
+    List<String>? contacts,
+  }) {
     return _relayController.run(SetRelayEvent(
       relay: _currentRelay,
       contacts: contacts,
+      rawImage: rawImage,
       name: name,
-    ));
-  }
-
-  /// FileService
-  late final AsyncController<AsyncState> _fileController;
-
-  void _listenFileState(BuildContext context, AsyncState state) {
-    if (state case FailureState<SetFileEvent>(:final code)) {
-      switch (code) {}
-    }
-  }
-
-  Future<void> _setFile(Uint8List data) {
-    return _fileController.run(SetFileEvent(
-      record: _currentRelay.id,
-      bufferData: data,
     ));
   }
 
@@ -129,11 +159,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = currentUser.value!;
     _currentRelay = user.relays.first;
 
+    _currentName = _currentRelay.name;
+    _currentImage = _currentRelay.image;
+    _currentLocation = _currentRelay.location;
+    _currentContact = _currentRelay.contacts!.first;
+
     /// RelayService
     _relayController = AsyncController(const InitState());
-
-    /// FileService
-    _fileController = AsyncController(const InitState());
   }
 
   @override
@@ -145,27 +177,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
             child: ControllerConsumer(
-              listener: _listenFileState,
-              controller: _fileController,
+              autoListen: true,
+              listener: _listenRelayState,
+              controller: _relayController,
+              canRebuild: _canAvatarRebuild,
               builder: (context, state, child) {
-                return ProfileAvatarWidget(
-                  onTap: _openAvatarScreen,
-                  onEdit: _openEditorModal,
+                return ProfileAvatarWrapper(
+                  onEditPressed: _openEditorModal,
+                  content: switch (state) {
+                    PendingState() => const ProfileAvatarProgressIndicator(),
+                    _ when (_currentImage != null && _currentImage!.isNotEmpty) => ProfileAvatarWidget(
+                        onTap: _openAvatarScreen,
+                        imageUrl: _currentImage,
+                      ),
+                    _ => const ProfileStoreIcon(),
+                  },
                 );
               },
             ),
           ),
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
-            child: ControllerConsumer(
-              autoListen: true,
-              listener: _listenRelayState,
+            child: ControllerBuilder(
+              canRebuild: _canNameRebuild,
               controller: _relayController,
               builder: (context, state, child) {
                 VoidCallback? onTap = _openNameModal;
                 if (state is PendingState) onTap = null;
                 return ProfileNameWidget(
-                  name: _currentRelay.name,
+                  name: _currentName,
                   onTap: onTap,
                 );
               },
@@ -175,11 +215,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SliverToBoxAdapter(
             child: ControllerBuilder(
               controller: _relayController,
+              canRebuild: _canContactsRebuild,
               builder: (context, state, child) {
                 VoidCallback? onTap = _onContactPressed;
                 if (state is PendingState) onTap = null;
                 return ProfileContactWidget(
-                  phone: _currentRelay.contacts!.first,
+                  phone: _currentContact,
                   onTap: onTap,
                 );
               },
@@ -189,9 +230,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SliverToBoxAdapter(
             child: ControllerBuilder(
               controller: _relayController,
+              canRebuild: _canLocationRebuild,
               builder: (context, state, child) {
                 return ProfileLocationWidget(
-                  location: _currentRelay.location?.title,
+                  location: _currentLocation?.title,
                   onTap: _openLocationScreen,
                 );
               },

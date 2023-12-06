@@ -22,13 +22,18 @@ const AccountSchema = CollectionSchema(
       name: r'balance',
       type: IsarType.double,
     ),
-    r'id': PropertySchema(
+    r'cash': PropertySchema(
       id: 1,
+      name: r'cash',
+      type: IsarType.bool,
+    ),
+    r'id': PropertySchema(
+      id: 2,
       name: r'id',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'name',
       type: IsarType.string,
     )
@@ -65,8 +70,9 @@ void _accountSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.balance);
-  writer.writeString(offsets[1], object.id);
-  writer.writeString(offsets[2], object.name);
+  writer.writeBool(offsets[1], object.cash);
+  writer.writeString(offsets[2], object.id);
+  writer.writeString(offsets[3], object.name);
 }
 
 Account _accountDeserialize(
@@ -77,8 +83,9 @@ Account _accountDeserialize(
 ) {
   final object = Account(
     balance: reader.readDoubleOrNull(offsets[0]),
-    id: reader.readString(offsets[1]),
-    name: reader.readString(offsets[2]),
+    cash: reader.readBoolOrNull(offsets[1]),
+    id: reader.readString(offsets[2]),
+    name: reader.readString(offsets[3]),
   );
   return object;
 }
@@ -93,8 +100,10 @@ P _accountDeserializeProp<P>(
     case 0:
       return (reader.readDoubleOrNull(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -263,6 +272,32 @@ extension AccountQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterFilterCondition> cashIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'cash',
+      ));
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterFilterCondition> cashIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'cash',
+      ));
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterFilterCondition> cashEqualTo(
+      bool? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'cash',
+        value: value,
       ));
     });
   }
@@ -599,6 +634,18 @@ extension AccountQuerySortBy on QueryBuilder<Account, Account, QSortBy> {
     });
   }
 
+  QueryBuilder<Account, Account, QAfterSortBy> sortByCash() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cash', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterSortBy> sortByCashDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cash', Sort.desc);
+    });
+  }
+
   QueryBuilder<Account, Account, QAfterSortBy> sortById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -635,6 +682,18 @@ extension AccountQuerySortThenBy
   QueryBuilder<Account, Account, QAfterSortBy> thenByBalanceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'balance', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterSortBy> thenByCash() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cash', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterSortBy> thenByCashDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cash', Sort.desc);
     });
   }
 
@@ -683,6 +742,12 @@ extension AccountQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Account, Account, QDistinct> distinctByCash() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'cash');
+    });
+  }
+
   QueryBuilder<Account, Account, QDistinct> distinctById(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -709,6 +774,12 @@ extension AccountQueryProperty
   QueryBuilder<Account, double?, QQueryOperations> balanceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'balance');
+    });
+  }
+
+  QueryBuilder<Account, bool?, QQueryOperations> cashProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'cash');
     });
   }
 

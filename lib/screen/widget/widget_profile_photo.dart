@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:widget_tools/widget_tools.dart';
 
@@ -45,22 +46,23 @@ class ProfilePhotoEditButton extends StatelessWidget {
   }
 }
 
-class ProfilePhotoStoreWidget extends StatelessWidget {
-  const ProfilePhotoStoreWidget({super.key});
-
+class ProfilePhotoWidget extends StatelessWidget {
+  const ProfilePhotoWidget({
+    super.key,
+    required this.imageUrl,
+  });
+  final String imageUrl;
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    return Container(
-      height: 300.0,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant,
-      ),
-      child: Icon(
-        Icons.storefront,
-        color: theme.colorScheme.onSurfaceVariant,
-        size: 150.0,
+    return InteractiveViewer(
+      child: Center(
+        child: CachedNetworkImage(
+          fit: BoxFit.cover,
+          imageUrl: imageUrl,
+          placeholder: (context, url) {
+            return const ProfileAvatarProgressIndicator();
+          },
+        ),
       ),
     );
   }

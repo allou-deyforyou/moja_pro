@@ -1,16 +1,17 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:go_router/go_router.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 
 import '_screen.dart';
 
 class ProfilePhotoScreen extends StatefulWidget {
   const ProfilePhotoScreen({
     super.key,
-    required this.image,
+    required this.relay,
   });
-  final Uint8List? image;
-  static const imageKey = 'image';
+  final Relay relay;
+  static const relayKey = 'relay';
   static const name = 'profile-photo';
   static const path = 'photo';
   @override
@@ -19,9 +20,49 @@ class ProfilePhotoScreen extends StatefulWidget {
 
 class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
   /// Assets
+  late Relay _currentRelay;
+
   void _onEditPressed() async {
     final data = await openImageEditorModal(context: context);
-    if (data != null && mounted) context.pop(data);
+    if (data != null) {
+      _setRelay(rawImage: data);
+    }
+  }
+
+  /// RelayService
+  late final AsyncController<AsyncState> _relayController;
+
+  void _listenRelayState(BuildContext context, AsyncState state) {
+    if (state case SuccessState<Relay>(:var data)) {
+      _currentRelay = data;
+    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+      showSnackbar(
+        context: context,
+        text: switch (code) {
+          _ => "Une erreur s'est produite",
+        },
+      );
+    }
+  }
+
+  Future<void> _setRelay({
+    Uint8List? rawImage,
+  }) {
+    return _relayController.run(SetRelayEvent(
+      relay: _currentRelay,
+      rawImage: rawImage,
+    ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Assets
+    _currentRelay = widget.relay;
+
+    /// RelayService
+    _relayController = AsyncController(const InitState());
   }
 
   @override
@@ -35,18 +76,20 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
           ),
         ],
       ),
-      body: InteractiveViewer(
-        child: Center(
-          child: Visibility(
-            visible: widget.image != null,
-            replacement: const ProfilePhotoStoreWidget(),
-            child: Builder(
-              builder: (context) {
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ),
+      body: ControllerConsumer(
+        listener: _listenRelayState,
+        controller: _relayController,
+        builder: (context, state, child) {
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              ProfilePhotoWidget(
+                imageUrl: _currentRelay.image!,
+              ),
+              if (state is PendingState) const ProfileAvatarProgressIndicator(),
+            ],
+          );
+        },
       ),
     );
   }

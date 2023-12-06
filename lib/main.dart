@@ -65,10 +65,10 @@ class _MyAppState extends State<MyApp> {
                   name: ProfilePhotoScreen.name,
                   path: ProfilePhotoScreen.path,
                   pageBuilder: (context, state) {
-                    final data = state.extra as Map<String, dynamic>?;
+                    final data = state.extra as Map<String, dynamic>;
                     return CupertinoPage(
                       child: ProfilePhotoScreen(
-                        image: data?[ProfilePhotoScreen.imageKey],
+                        relay: data[ProfilePhotoScreen.relayKey],
                       ),
                     );
                   },

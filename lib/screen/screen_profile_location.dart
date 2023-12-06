@@ -34,7 +34,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     _pinAnimationController.reset();
   }
 
-  LatLng? _placeToLaLng(Place? place) {
+  LatLng? _placeToLatLng(Place? place) {
     if (place == null) return null;
     return LatLng(
       place.position!.coordinates![1],
@@ -91,7 +91,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
       return _animatePin();
     } else if (state case SuccessState<Place>(:final data)) {
       _currentPlace = data;
-      _goToPosition(_placeToLaLng(_currentPlace)!);
+      _goToPosition(_placeToLatLng(_currentPlace)!);
     }
     return _resetPin();
   }
@@ -212,7 +212,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
             onMapIdle: _onMapIdle,
             onMapMoved: _onMapMoved,
             onMapCreated: _onMapCreated,
-            center: _placeToLaLng(_currentPlace),
+            center: _placeToLatLng(_currentPlace),
             onUserLocationUpdated: _onUserLocationUpdated,
           ),
           ProfileLocationPin(

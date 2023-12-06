@@ -12,8 +12,8 @@ class HomeAccountScreen extends StatefulWidget {
   });
   final Relay relay;
   final Account account;
-  static const name = 'home-account';
-  static const path = 'account';
+  static const name = 'home-transaction';
+  static const path = 'transaction';
   static const relayKey = 'relay';
   static const accountKey = 'account';
   @override

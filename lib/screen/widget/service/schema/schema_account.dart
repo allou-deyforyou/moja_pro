@@ -12,18 +12,21 @@ class Account extends Equatable {
   const Account({
     required this.id,
     required this.name,
+    required this.cash,
     required this.balance,
   });
 
   static const String schema = 'account';
 
-  static const String nameKey = 'name';
   static const String idKey = 'id';
+  static const String nameKey = 'name';
+  static const String cashKey = 'cash';
   static const String balanceKey = 'balance';
 
   Id get isarId => id.fastHash;
 
   final String id;
+  final bool? cash;
   final String name;
   final double? balance;
 
@@ -38,18 +41,21 @@ class Account extends Equatable {
     return [
       id,
       name,
+      cash,
       balance,
     ];
   }
 
   Account copyWith({
     String? id,
+    bool? cash,
     String? name,
     double? balance,
   }) {
     return Account(
       id: id ?? this.id,
       name: name ?? this.name,
+      cash: cash ?? this.cash,
       balance: balance ?? this.balance,
     );
   }
@@ -58,6 +64,7 @@ class Account extends Equatable {
     return copyWith(
       id: id,
       name: name,
+      cash: cash,
       balance: balance,
     );
   }
@@ -67,6 +74,7 @@ class Account extends Equatable {
     return Account(
       id: data[idKey],
       name: data[nameKey],
+      cash: data[cashKey],
       balance: data[balanceKey],
     );
   }
@@ -75,6 +83,7 @@ class Account extends Equatable {
     return {
       idKey: id,
       nameKey: name,
+      cashKey: cash,
       balanceKey: balance,
     }..removeWhere((key, value) => value == null);
   }
@@ -82,6 +91,7 @@ class Account extends Equatable {
   Map<String, dynamic> toSurreal() {
     return {
       idKey: id,
+      cashKey: cash,
       balanceKey: balance,
       nameKey: name.json(),
     }..removeWhere((key, value) => value == null);

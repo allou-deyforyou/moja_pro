@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:typed_data';
 
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
@@ -62,7 +65,7 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
   const SetRelayEvent({
     required this.relay,
     this.name,
-    this.image,
+    this.rawImage,
     this.location,
     this.availability,
     this.contacts,
@@ -70,15 +73,36 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
   final Relay relay;
 
   final String? name;
-  final String? image;
   final Place? location;
+  final Uint8List? rawImage;
   final List<String>? contacts;
   final RelayAvailability? availability;
+
+  Future<Uint8List> _compressImage(Uint8List data) {
+    return FlutterImageCompress.compressWithList(
+      format: CompressFormat.png,
+      rawImage!,
+    );
+  }
+
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
       final id = relay.id;
+
+      String? image;
+      if (rawImage != null) {
+        final storage = FirebaseConfig.firebaseStorage.ref(
+          '${Relay.schema}/$id.png',
+        );
+        await storage.putData(
+          await _compressImage(rawImage!),
+          SettableMetadata(contentType: "image/png"),
+        );
+        image = await storage.getDownloadURL();
+      }
+
       final values = {
         Relay.nameKey: name?.json(),
         Relay.imageKey: image?.json(),

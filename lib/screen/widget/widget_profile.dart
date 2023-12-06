@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -23,14 +24,14 @@ class ProfileAppBar extends StatelessWidget {
   }
 }
 
-class ProfileAvatarWidget extends StatelessWidget {
-  const ProfileAvatarWidget({
+class ProfileAvatarWrapper extends StatelessWidget {
+  const ProfileAvatarWrapper({
     super.key,
-    required this.onEdit,
-    required this.onTap,
+    required this.content,
+    required this.onEditPressed,
   });
-  final VoidCallback? onEdit;
-  final VoidCallback? onTap;
+  final Widget content;
+  final VoidCallback? onEditPressed;
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
@@ -40,27 +41,77 @@ class ProfileAvatarWidget extends StatelessWidget {
         alignment: const Alignment(0.8, 1.0),
         label: CupertinoButton(
           minSize: 0.0,
-          onPressed: onEdit,
+          onPressed: onEditPressed,
           padding: const EdgeInsets.all(2.0),
           child: Icon(
             color: theme.colorScheme.onTertiary,
             CupertinoIcons.pencil,
           ),
         ),
-        child: CupertinoButton(
-          onPressed: onTap,
-          padding: EdgeInsets.zero,
-          child: CircleAvatar(
-            backgroundColor: theme.colorScheme.surfaceVariant,
-            radius: 80.0,
-            child: Icon(
-              Icons.storefront,
-              color: theme.colorScheme.onSurfaceVariant,
-              size: 100.0,
-            ),
+        child: SizedBox.square(
+          dimension: 80.0 * 2,
+          child: Material(
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            color: theme.colorScheme.surfaceVariant,
+            child: content,
           ),
         ),
       ),
+    );
+  }
+}
+
+class ProfileAvatarProgressIndicator extends StatelessWidget {
+  const ProfileAvatarProgressIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CustomProgressIndicator(
+        strokeWidth: 4.0,
+        radius: 35.0,
+      ),
+    );
+  }
+}
+
+class ProfileAvatarWidget extends StatelessWidget {
+  const ProfileAvatarWidget({
+    super.key,
+    required this.imageUrl,
+    required this.onTap,
+  });
+  final VoidCallback? onTap;
+  final String? imageUrl;
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      onPressed: onTap,
+      padding: EdgeInsets.zero,
+      child: SizedBox.expand(
+        child: CachedNetworkImage(
+          fit: BoxFit.cover,
+          imageUrl: imageUrl!,
+          placeholder: (context, url) {
+            return const ProfileAvatarProgressIndicator();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileStoreIcon extends StatelessWidget {
+  const ProfileStoreIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return Icon(
+      Icons.storefront,
+      color: theme.colorScheme.onSurfaceVariant,
+      size: 80.0,
     );
   }
 }

@@ -19,6 +19,7 @@ dependencies:
   go_router:
   intl:
   # Widgets
+  cached_network_image:
   listenable_tools:
   auto_size_text:
   widget_tools:
@@ -29,9 +30,11 @@ dependencies:
   shimmer:
   lottie:
   # Services
+  flutter_image_compress:
   firebase_messaging:
   permission_handler:
   isar_flutter_libs:
+  firebase_storage:
   extended_image:
   firebase_core:
   path_provider:
@@ -42,7 +45,6 @@ dependencies:
   image_editor:
   url_launcher:
   share_plus:
-  archive:
   http:
   isar:
   hive:
