@@ -94,6 +94,8 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
         slivers: [
           HomeAccountSliverAppBar(
             name: _currentAccount.name,
+            cash: _currentAccount.cash,
+            image: _currentAccount.image,
           ),
           SliverToBoxAdapter(
             child: HomeAccountBalanceTextField(

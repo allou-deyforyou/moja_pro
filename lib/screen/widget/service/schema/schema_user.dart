@@ -20,6 +20,7 @@ class User extends Equatable {
 
   static const String idKey = 'id';
   static const String phoneKey = 'phone';
+  static const String countryKey = 'country';
   static const String lastSignKey = 'last_sign';
   static const String createdAtKey = 'created_at';
 
@@ -35,6 +36,7 @@ class User extends Equatable {
 
   /// Edges
   final relays = IsarLinks<Relay>();
+  final country = IsarLink<Country>();
 
   @ignore
   @override
@@ -42,6 +44,7 @@ class User extends Equatable {
     return [
       id,
       phone,
+      country,
       lastSign,
       createdAt,
     ];
@@ -50,6 +53,7 @@ class User extends Equatable {
   User copyWith({
     String? id,
     String? phone,
+    Country? country,
     DateTime? lastSign,
     DateTime? createdAt,
 
@@ -64,7 +68,8 @@ class User extends Equatable {
     )
 
       /// Edges
-      ..relays.addAll(relays ?? this.relays);
+      ..relays.addAll(relays ?? this.relays)
+      ..country.value = country ?? this.country.value;
   }
 
   User clone() {
@@ -73,6 +78,7 @@ class User extends Equatable {
       phone: phone,
       lastSign: lastSign,
       createdAt: createdAt,
+      country: country.value,
 
       /// Edges
       relays: relays,
@@ -89,6 +95,7 @@ class User extends Equatable {
     )
 
       /// Edges
+      ..country.value = Country.fromMap(data[countryKey])
       ..relays.addAll((data[relaysKey] ?? []).map<Relay>((data) => Relay.fromMap(data)!));
   }
 
@@ -96,6 +103,7 @@ class User extends Equatable {
     return {
       idKey: id,
       phoneKey: phone,
+      countryKey: country,
       lastSignKey: lastSign?.toString(),
       createdAtKey: createdAt?.toString(),
     }..removeWhere((key, value) => value == null);
@@ -107,6 +115,7 @@ class User extends Equatable {
       phoneKey: phone.json(),
       lastSignKey: lastSign?.toString(),
       createdAtKey: createdAt?.toString(),
+      countryKey: country.value?.toSurreal(),
     }..removeWhere((key, value) => value == null);
   }
 

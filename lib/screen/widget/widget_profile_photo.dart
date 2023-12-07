@@ -19,7 +19,7 @@ class ProfilePhotoAppBar extends CustomAppBar {
     return AppBar(
       centerTitle: false,
       toolbarHeight: preferredSize.height,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),

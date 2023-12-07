@@ -13,6 +13,7 @@ class Account extends Equatable {
     required this.id,
     required this.name,
     required this.cash,
+    required this.image,
     required this.balance,
   });
 
@@ -21,6 +22,7 @@ class Account extends Equatable {
   static const String idKey = 'id';
   static const String nameKey = 'name';
   static const String cashKey = 'cash';
+  static const String imageKey = 'image';
   static const String balanceKey = 'balance';
 
   Id get isarId => id.fastHash;
@@ -28,6 +30,7 @@ class Account extends Equatable {
   final String id;
   final bool? cash;
   final String name;
+  final String image;
   final double? balance;
 
   @override
@@ -41,6 +44,7 @@ class Account extends Equatable {
     return [
       id,
       name,
+      image,
       cash,
       balance,
     ];
@@ -50,12 +54,14 @@ class Account extends Equatable {
     String? id,
     bool? cash,
     String? name,
+    String? image,
     double? balance,
   }) {
     return Account(
       id: id ?? this.id,
       name: name ?? this.name,
       cash: cash ?? this.cash,
+      image: image ?? this.image,
       balance: balance ?? this.balance,
     );
   }
@@ -65,6 +71,7 @@ class Account extends Equatable {
       id: id,
       name: name,
       cash: cash,
+      image: image,
       balance: balance,
     );
   }
@@ -75,6 +82,7 @@ class Account extends Equatable {
       id: data[idKey],
       name: data[nameKey],
       cash: data[cashKey],
+      image: data[imageKey],
       balance: data[balanceKey],
     );
   }
@@ -84,6 +92,7 @@ class Account extends Equatable {
       idKey: id,
       nameKey: name,
       cashKey: cash,
+      imageKey: image,
       balanceKey: balance,
     }..removeWhere((key, value) => value == null);
   }
@@ -94,6 +103,7 @@ class Account extends Equatable {
       cashKey: cash,
       balanceKey: balance,
       nameKey: name.json(),
+      imageKey: image.json(),
     }..removeWhere((key, value) => value == null);
   }
 

@@ -13,7 +13,7 @@ class AuthSignupAppBar extends StatelessWidget {
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),

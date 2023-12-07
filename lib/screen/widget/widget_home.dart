@@ -17,7 +17,7 @@ class HomeSliverAppBar extends StatelessWidget {
     final localizations = context.localizations;
     return SliverAppBar.medium(
       leading: leading,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),
@@ -128,35 +128,66 @@ class HomeAccountSliverGridView extends StatelessWidget {
 class HomeAccountCard extends StatelessWidget {
   const HomeAccountCard({
     super.key,
+    required this.cash,
     required this.name,
     required this.amount,
     required this.onPressed,
   });
+  final bool? cash;
   final String name;
   final double? amount;
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return ListTile(
-      tileColor: theme.colorScheme.surfaceVariant,
-      titleTextStyle: theme.textTheme.titleMedium!.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.0,
-        fontSize: 18.0,
-      ),
-      subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
-        color: theme.colorScheme.primary,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 1.0,
-        fontSize: 20.0,
-        height: 1.8,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-      onTap: onPressed,
-      title: Text(name, softWrap: false),
-      subtitle: Text("${defaultNumberFormat.format(amount ?? 0)} f"),
+    final localizations = context.localizations;
+
+    Color textColor = theme.colorScheme.onSurface;
+    Color tileColor = theme.colorScheme.surfaceVariant;
+    // if (cash != null && cash!) {
+    //   textColor = theme.colorScheme.onSurface;
+    //   tileColor = theme.colorScheme.surfaceVariant.withOpacity(0.4);
+    // }
+    return Stack(
+      children: [
+        ListTile(
+          tileColor: tileColor,
+          titleTextStyle: theme.textTheme.titleMedium!.copyWith(
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.0,
+            color: textColor,
+            fontSize: 18.0,
+          ),
+          subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.0,
+            fontSize: 20.0,
+            height: 1.8,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          onTap: onPressed,
+          title: Visibility(
+            visible: cash != null && cash!,
+            replacement: Text(name, softWrap: false),
+            child: Text(localizations.cash, softWrap: false),
+          ),
+          subtitle: Text("${defaultNumberFormat.format(amount ?? 0)} f"),
+        ),
+        if (cash != null && cash!)
+          const Positioned(
+            right: 0.0,
+            child: CornerBanner(
+              bannerPosition: CornerBannerPosition.topRight,
+              bannerColor: Colors.green,
+              child: Text(
+                style: TextStyle(color: Colors.white),
+                "cash",
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

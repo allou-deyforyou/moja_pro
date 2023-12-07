@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -13,13 +14,16 @@ class SelectCountry extends AsyncEvent<AsyncState> {
 
   static Future<List<Country>> _loadCountries(String path) async {
     final source = await rootBundle.loadString(path);
-    return compute(Country.fromListJson, source);
+    return compute(
+      (value) => List.of(jsonDecode(value).map<Country>((data) => Country.fromMap(data)!)),
+      source,
+    );
   }
 
   static Future<List<Country>> _fetchCountries(String query) async {
     final responses = await sql(query);
     final List response = responses.first;
-    return List.of(response.map((data) => Country.fromMap(data)));
+    return List.of(response.map((data) => Country.fromMap(data)!));
   }
 
   @override

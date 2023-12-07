@@ -201,6 +201,85 @@ class CustomCloseButton extends StatelessWidget {
   }
 }
 
+class CustomModal extends StatelessWidget {
+  const CustomModal({
+    super.key,
+    this.title,
+    this.content,
+    this.actions,
+  });
+  final Widget? title;
+  final Widget? content;
+  final List<Widget>? actions;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return AlertDialog(
+      elevation: 1.0,
+      insetPadding: kTabLabelPadding,
+      backgroundColor: theme.colorScheme.surface,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      titleTextStyle: theme.textTheme.headlineSmall!.copyWith(
+        fontFamily: FontFamily.avenirNext,
+        fontWeight: FontWeight.w600,
+      ),
+      titlePadding: const EdgeInsets.all(24).copyWith(bottom: 16.0),
+      title: SizedBox(width: 500.0, child: title),
+      content: content,
+      actions: actions,
+    );
+  }
+}
+
+class CustomModalCancelAction extends StatelessWidget {
+  const CustomModalCancelAction({
+    super.key,
+    this.text,
+    this.onPressed,
+  });
+  final String? text;
+  final VoidCallback? onPressed;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final localizations = context.localizations;
+    return TextButton(
+      onPressed: onPressed ?? Navigator.of(context).pop,
+      style: TextButton.styleFrom(
+        foregroundColor: theme.colorScheme.onSurfaceVariant,
+      ),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(fontFamily: FontFamily.avenir),
+        child: Text((text ?? localizations.cancel).toUpperCase()),
+      ),
+    );
+  }
+}
+
+class CustomModalConfirmAction extends StatelessWidget {
+  const CustomModalConfirmAction({
+    super.key,
+    this.text,
+    this.onPressed,
+  });
+  final String? text;
+  final VoidCallback? onPressed;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return TextButton(
+      onPressed: onPressed ?? () => Navigator.of(context).pop(true),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: FontFamily.avenir,
+          fontWeight: FontWeight.w600,
+        ),
+        child: Text((text ?? localizations.ok).toUpperCase()),
+      ),
+    );
+  }
+}
+
 Future<Uint8List?> openImageEditorModal({
   required BuildContext context,
 }) async {

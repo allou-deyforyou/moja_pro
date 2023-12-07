@@ -10,10 +10,13 @@ class AppThemes {
     centerTitle: false,
   );
   static const _floatingActionButtonTheme = FloatingActionButtonThemeData(
-    shape: StadiumBorder(),
-    elevation: 0.0,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(18.0))),
+    extendedSizeConstraints: BoxConstraints.tightFor(height: kMinInteractiveDimension),
+    extendedPadding: kTabLabelPadding,
+    elevation: 0.5,
   );
   static const _bottomSheetTheme = BottomSheetThemeData(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12.0))),
     clipBehavior: Clip.antiAlias,
     elevation: 2.0,
   );
@@ -100,6 +103,7 @@ class AppThemes {
           tertiaryContainer: const Color(0xFF593F3F),
           brightness: Brightness.dark,
           background: Colors.black,
+          onTertiary: Colors.white,
           onPrimary: Colors.white,
           seedColor: primaryColor,
           tertiary: tertialColor,

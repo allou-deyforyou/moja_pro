@@ -17,7 +17,7 @@ class SelectRelayEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
 
-      const accountSelect = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      const accountSelect = '(SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
       final relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = $userId)';
       final responses = await sql('SELECT *, $accountSelect FROM ${Relay.schema} $relayFilters');
 
@@ -45,7 +45,7 @@ class GetRelayEvent extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      const accountSelect = 'SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema} PARALLEL';
+      const accountSelect = 'SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema} PARALLEL';
       final responses = await sql('SELECT *, ($accountSelect) AS ${Account.schema}s FROM ONLY $id');
       final data = Relay.fromMap(responses.first)!;
 

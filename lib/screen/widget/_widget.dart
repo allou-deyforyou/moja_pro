@@ -1,5 +1,6 @@
 export 'service/schema/assets/_assets.dart';
 
+export 'banner.dart';
 export 'shared_widgets.dart';
 
 export 'widget_auth_signin.dart';

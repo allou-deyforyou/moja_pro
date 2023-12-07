@@ -46,8 +46,16 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   MaplibreMapController? _mapController;
   UserLocation? _userLocation;
 
-  void _onMapCreated(MaplibreMapController controller) {
+  void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
+
+    double bottom = context.mediaQuery.padding.bottom;
+    await _mapController!.updateContentInsets(EdgeInsets.only(
+      bottom: bottom + kBottomNavigationBarHeight * 3,
+      right: 16.0,
+      left: 16.0,
+    ));
+
     if (_currentPlace == null) _goToMyPosition();
   }
 
@@ -198,7 +206,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
             valueListenable: _myLocationController,
             builder: (context, active, child) {
               return ProfileLocationFloatingLocationButton(
-                onChanged: (value) => _goToMyPosition(),
+                onPressed: _goToMyPosition,
                 active: active,
               );
             },
@@ -220,39 +228,36 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
           ),
         ],
       ),
-      bottomSheet: SafeArea(
-        top: false,
-        child: ControllerConsumer(
-          listener: _listenPlaceState,
-          controller: _placeController,
-          builder: (context, placeState, child) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ProfileLocationItemWidget(
-                  suggestionsBuilder: _suggestionsBuilder,
-                  title: switch (placeState) {
-                    SuccessState<Place>(:final data) => data.title,
-                    _ => null,
-                  },
-                ),
-                ControllerConsumer(
-                  listener: _listenRelayState,
-                  controller: _relayController,
-                  builder: (context, relayState, child) {
-                    VoidCallback? onPressed = _setRelay;
-                    if (relayState is PendingState) onPressed = null;
-                    return ProfileLocationSubmittedButton(
-                      disabled: placeState is PendingState,
-                      onPressed: onPressed,
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        ),
+      bottomSheet: ControllerConsumer(
+        listener: _listenPlaceState,
+        controller: _placeController,
+        builder: (context, placeState, child) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProfileLocationItemWidget(
+                suggestionsBuilder: _suggestionsBuilder,
+                title: switch (placeState) {
+                  SuccessState<Place>(:final data) => data.title,
+                  _ => null,
+                },
+              ),
+              ControllerConsumer(
+                listener: _listenRelayState,
+                controller: _relayController,
+                builder: (context, relayState, child) {
+                  VoidCallback? onPressed = _setRelay;
+                  if (relayState is PendingState) onPressed = null;
+                  return ProfileLocationSubmittedButton(
+                    disabled: placeState is PendingState,
+                    onPressed: onPressed,
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }

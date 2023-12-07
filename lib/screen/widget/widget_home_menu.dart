@@ -15,7 +15,7 @@ class HomeMenuAppBar extends StatelessWidget {
       centerTitle: false,
       toolbarHeight: 64.0,
       automaticallyImplyLeading: false,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),

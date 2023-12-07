@@ -14,7 +14,7 @@ class ProfileAppBar extends StatelessWidget {
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),
@@ -51,7 +51,11 @@ class ProfileAvatarWrapper extends StatelessWidget {
         child: SizedBox.square(
           dimension: 80.0 * 2,
           child: Material(
-            shape: const CircleBorder(),
+            shape: CircleBorder(
+              side: BorderSide(
+                color: theme.colorScheme.outlineVariant,
+              ),
+            ),
             clipBehavior: Clip.antiAlias,
             color: theme.colorScheme.surfaceVariant,
             child: content,

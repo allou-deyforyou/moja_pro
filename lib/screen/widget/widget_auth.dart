@@ -14,7 +14,7 @@ class AuthAppBar extends StatelessWidget {
       pinned: true,
       centerTitle: false,
       toolbarHeight: 64.0,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),
@@ -158,6 +158,22 @@ class AuthSubmittedButton extends StatelessWidget {
   }
 }
 
+class AuthCountryEmptyModal extends StatelessWidget {
+  const AuthCountryEmptyModal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomModal(
+      title: Text("format du numero de telephone".toUpperCase()),
+      content: const Text("Pour continuer, renseignez votre pays et votre numero de telephone."),
+      actions: const [
+        SizedBox.shrink(),
+        CustomModalConfirmAction(),
+      ],
+    );
+  }
+}
+
 class AuthConfirmPhoneModal extends StatelessWidget {
   const AuthConfirmPhoneModal({
     super.key,
@@ -166,44 +182,16 @@ class AuthConfirmPhoneModal extends StatelessWidget {
   final String phone;
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     final localizations = context.localizations;
-    return AlertDialog(
-      elevation: 1.0,
-      backgroundColor: theme.colorScheme.surface,
-      contentTextStyle: theme.textTheme.bodyLarge,
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      insetPadding: kTabLabelPadding.copyWith(bottom: 16.0),
-      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
-        fontFamily: FontFamily.avenirNext,
-        fontWeight: FontWeight.w600,
-      ),
-      titlePadding: const EdgeInsets.only(bottom: 16.0, right: 24.0, left: 24.0, top: 24.0),
-      title: SizedBox(
-        width: double.maxFinite,
-        child: Text(phone.toUpperCase()),
-      ),
+    return CustomModal(
+      title: Text(phone.toUpperCase()),
       content: Text(localizations.rightnumber.capitalize()),
       actions: [
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.onSurfaceVariant),
-          onPressed: Navigator.of(context).pop,
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(
-              fontFamily: FontFamily.avenir,
-            ),
-            child: Text(localizations.edit.toUpperCase()),
-          ),
+        CustomModalCancelAction(
+          text: localizations.edit.toUpperCase(),
         ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(
-              fontFamily: FontFamily.avenir,
-              fontWeight: FontWeight.w600,
-            ),
-            child: Text(localizations.yes.toUpperCase()),
-          ),
+        CustomModalConfirmAction(
+          text: localizations.yes.toUpperCase(),
         ),
       ],
     );

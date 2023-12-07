@@ -157,7 +157,7 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
 
-      const accountQuery = '(SELECT id, name, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      const accountQuery = '(SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
       const relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
       const relayQuery = 'SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters';
 

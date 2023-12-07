@@ -26,6 +26,15 @@ class _HomeScreenState extends State<HomeScreen> {
   late Relay _currentRelay;
   late List<Account> _relayAccounts;
 
+  int _accountSort(Account a, Account b) {
+    if (a.cash != null && a.cash!) {
+      return -1;
+    } else if (b.cash != null && b.cash!) {
+      return 1;
+    }
+    return (b.balance ?? 0).compareTo(a.balance ?? 0);
+  }
+
   void _openMenu() {
     context.pushNamed(HomeMenuScreen.name);
   }
@@ -149,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
               canRebuild: _canRebuildRelay,
               controller: _relayController,
               builder: (context, state, child) {
+                _relayAccounts.sort(_accountSort);
                 return HomeAccountSliverGridView(
                   itemCount: _relayAccounts.length,
                   itemBuilder: (context, index) {
@@ -163,8 +173,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         return HomeAccountCard(
                           onPressed: onPressed,
                           amount: item.balance,
-                          key: ValueKey(item),
                           name: item.name,
+                          cash: item.cash,
                         );
                       },
                     );

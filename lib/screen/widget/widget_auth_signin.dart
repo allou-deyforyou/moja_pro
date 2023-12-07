@@ -13,7 +13,7 @@ class AuthSigninAppBar extends StatelessWidget {
     return SliverAppBar.medium(
       pinned: true,
       centerTitle: false,
-      titleTextStyle: theme.textTheme.headlineLarge!.copyWith(
+      titleTextStyle: theme.textTheme.headlineMedium!.copyWith(
         fontFamily: FontFamily.avenirNext,
         fontWeight: FontWeight.w600,
       ),

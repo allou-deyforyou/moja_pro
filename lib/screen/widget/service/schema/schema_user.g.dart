@@ -50,6 +50,12 @@ const UserSchema = CollectionSchema(
       name: r'relays',
       target: r'Relay',
       single: false,
+    ),
+    r'country': LinkSchema(
+      id: 2305651892628284085,
+      name: r'country',
+      target: r'Country',
+      single: true,
     )
   },
   embeddedSchemas: {},
@@ -122,11 +128,12 @@ Id _userGetId(User object) {
 }
 
 List<IsarLinkBase<dynamic>> _userGetLinks(User object) {
-  return [object.relays];
+  return [object.relays, object.country];
 }
 
 void _userAttach(IsarCollection<dynamic> col, Id id, User object) {
   object.relays.attach(col, col.isar.collection<Relay>(), r'relays', id);
+  object.country.attach(col, col.isar.collection<Country>(), r'country', id);
 }
 
 extension UserQueryWhereSort on QueryBuilder<User, User, QWhere> {
@@ -707,6 +714,19 @@ extension UserQueryLinks on QueryBuilder<User, User, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(
           r'relays', lower, includeLower, upper, includeUpper);
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> country(
+      FilterQuery<Country> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'country');
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> countryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'country', 0, true, 0, true);
     });
   }
 }

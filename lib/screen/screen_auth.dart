@@ -23,6 +23,25 @@ class _AuthScreenState extends State<AuthScreen> {
     return _phoneTextController.text.trim();
   }
 
+  Future<bool?> _checkPhoneFormat() async {
+    if (_currentCountry == null || _phone.isEmpty) {
+      _openCountryEmptyModal();
+      return false;
+    }
+    return _openAuthConfirmModal(
+      phone: '${_currentCountry!.dialCode} $_phone',
+    );
+  }
+
+  Future<void> _openCountryEmptyModal() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return const AuthCountryEmptyModal();
+      },
+    );
+  }
+
   Future<bool?> _openAuthConfirmModal({required String phone}) {
     return showDialog<bool>(
       context: context,
@@ -56,10 +75,8 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _onSubmitted() async {
-    final data = await _openAuthConfirmModal(phone: _phone);
-    if (data != null) {
-      return _verifyPhoneNumber();
-    }
+    final data = await _checkPhoneFormat();
+    if (data != null && data) return _verifyPhoneNumber();
   }
 
   /// CountryService

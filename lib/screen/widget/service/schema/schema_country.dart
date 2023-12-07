@@ -78,7 +78,8 @@ class Country extends Equatable {
     );
   }
 
-  static Country fromMap(Map<String, dynamic> data) {
+  static Country? fromMap(dynamic data) {
+    if (data == null) return null;
     return Country(
       id: data[idKey],
       code: data[codeKey],
@@ -106,27 +107,11 @@ class Country extends Equatable {
     }..removeWhere((key, value) => value == null);
   }
 
-  static List<Country> fromListMap(dynamic data) {
-    return List.of((data as List<dynamic>).map((value) => fromMap(value)));
-  }
-
-  static List<Map<String, dynamic>> toListMap(List<Country> values) {
-    return List.of(values.map((value) => value.toMap()));
-  }
-
   static Country fromJson(String source) {
-    return fromMap(jsonDecode(source));
+    return fromMap(jsonDecode(source))!;
   }
 
   String toJson() {
     return jsonEncode(toMap());
-  }
-
-  static List<Country> fromListJson(String source) {
-    return List.of((jsonDecode(source) as List).map((value) => fromMap(value)));
-  }
-
-  static String toListJson(List<Country> values) {
-    return jsonEncode(values.map((value) => value.toMap()));
   }
 }

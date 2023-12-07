@@ -11,23 +11,44 @@ import 'package:widget_tools/widget_tools.dart';
 
 import '_widget.dart';
 
+class HomeButton extends StatelessWidget {
+  const HomeButton({
+    super.key,
+    required this.child,
+    required this.onPressed,
+    this.shape = const StadiumBorder(),
+  });
+
+  final Widget? child;
+  final OutlinedBorder? shape;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return FilledButton.tonal(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        shape: shape,
+        elevation: 0.12,
+        shadowColor: theme.colorScheme.surfaceTint,
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onSurface,
+      ),
+      child: child,
+    );
+  }
+}
+
 class ProfileLocationFloatingBackButton extends CustomAppBar {
   const ProfileLocationFloatingBackButton({super.key});
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     return Padding(
       padding: kTabLabelPadding.copyWith(top: 8.0),
-      child: FilledButton.tonal(
+      child: HomeButton(
         onPressed: Navigator.of(context).pop,
-        style: FilledButton.styleFrom(
-          elevation: 0.12,
-          shape: const StadiumBorder(),
-          shadowColor: theme.colorScheme.surfaceTint,
-          backgroundColor: theme.colorScheme.surface,
-          surfaceTintColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onSurface,
-        ),
         child: const Icon(CupertinoIcons.arrow_left),
       ),
     );
@@ -38,30 +59,17 @@ class ProfileLocationFloatingLocationButton extends StatelessWidget {
   const ProfileLocationFloatingLocationButton({
     super.key,
     this.active = false,
-    required this.onChanged,
+    required this.onPressed,
   });
   final bool active;
-  final ValueChanged<bool>? onChanged;
-  VoidCallback? _onPressed() {
-    if (onChanged == null) return null;
-    return () => onChanged!(!active);
-  }
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     return Padding(
-      padding: kTabLabelPadding.copyWith(top: 8.0),
-      child: FilledButton.tonal(
-        onPressed: _onPressed(),
-        style: FilledButton.styleFrom(
-          elevation: 0.12,
-          shape: const StadiumBorder(),
-          shadowColor: theme.colorScheme.surfaceTint,
-          backgroundColor: theme.colorScheme.surface,
-          surfaceTintColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onSurface,
-        ),
+      padding: kTabLabelPadding.copyWith(top: 6.0),
+      child: HomeButton(
+        onPressed: onPressed,
         child: Visibility(
           visible: active,
           replacement: const Icon(CupertinoIcons.location),
