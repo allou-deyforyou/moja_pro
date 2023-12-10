@@ -85,7 +85,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Country? _currentCountry;
 
   void _listenCountryState(BuildContext context, AsyncState state) {
-    if (state is InitState) {
+    if (state is InitState && _currentCountry == null) {
       _searchCountry();
     } else if (state case SuccessState<List<Country>>(:final data)) {
       _countryList = data;
@@ -146,6 +146,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     /// CountryService
     _countryController = currentCountry;
+    _currentCountry = _currentUser?.country.value;
 
     /// AuthService
     _authController = currentAuth;

@@ -46,7 +46,7 @@ class ProfileLocationFloatingBackButton extends CustomAppBar {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: kTabLabelPadding.copyWith(top: 8.0),
+      padding: kTabLabelPadding.copyWith(top: 16.0),
       child: HomeButton(
         onPressed: Navigator.of(context).pop,
         child: const Icon(CupertinoIcons.arrow_left),
@@ -67,7 +67,7 @@ class ProfileLocationFloatingLocationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: kTabLabelPadding.copyWith(top: 6.0),
+      padding: kTabLabelPadding.copyWith(top: 16.0),
       child: HomeButton(
         onPressed: onPressed,
         child: Visibility(
@@ -244,7 +244,7 @@ class ProfileLocationItemWidget extends StatelessWidget {
         builder: (context, controller) {
           return IconButton(
             onPressed: controller.openView,
-            icon: const Icon(CupertinoIcons.search),
+            icon: const Icon(CupertinoIcons.pen),
           );
         },
       ),

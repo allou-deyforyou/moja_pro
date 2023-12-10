@@ -11,6 +11,8 @@ import '_service.dart';
 AsyncController<User?> get currentUser {
   final uid = FirebaseConfig.firebaseAuth.currentUser?.uid;
   final user = IsarLocalDB.isar.users.getSync('${User.schema}:$uid'.fastHash);
+  user?.country.loadSync();
+
   return singleton(
     AsyncController<User?>(user),
     User.schema,
@@ -161,7 +163,7 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
       const relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
       const relayQuery = 'SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters';
 
-      final responses = await sql('SELECT *, ($relayQuery) AS ${Relay.schema}s FROM ONLY $id');
+      final responses = await sql('SELECT *, country.*, ($relayQuery) AS ${Relay.schema}s FROM ONLY $id');
 
       final data = User.fromMap(responses.first)!;
 
@@ -276,12 +278,18 @@ class SaveUserEvent extends AsyncEvent<AsyncState> {
         return IsarLocalDB.isar.users.putAll(users);
       });
       await Future.wait([
+        SaveCountryEvent(
+          countries: List.of(users.expand((item) => [item.country.value!])),
+        ).handle(emit),
         SaveRelayEvent(
           relays: List.of(users.expand((item) => item.relays)),
         ).handle(emit),
       ]);
       await IsarLocalDB.isar.writeTxn(() async {
-        return Future.wait(users.map((item) => item.relays.save()));
+        return Future.wait([
+          ...users.map((item) => item.country.save()),
+          ...users.map((item) => item.relays.save()),
+        ]);
       });
 
       emit(SuccessState(users));

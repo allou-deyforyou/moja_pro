@@ -4,22 +4,18 @@ import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
-Future<Iterable<dynamic>>? _searchPlaceResponses;
-Future<List<Place>> searchPlaceByQuery({
-  required (double, double) position,
-  required String query,
+Future<Iterable<dynamic>> _response = Future.value([]);
+Future<List<Place>> searchPlace({
+  required ({double longitude, double latitude}) position,
+  String query = '',
 }) async {
   try {
-    final ok = await Future.microtask(() {
-      _searchPlaceResponses?.ignore();
-      if (query.trim().isEmpty) return true;
-    });
-    if (ok != null) return [];
-    _searchPlaceResponses = sql('RETURN fn::search_place_by_query("$query", ${position.$2}, ${position.$1}, "fr");');
-    final List response = (await _searchPlaceResponses!).first;
+    await Future.sync(_response.ignore);
+    _response = sql('fn::search_place("$query", ${position.longitude}, ${position.latitude});');
+    final List response = await _response.then((value) => value.first);
     return List.of(response.map((data) => Place.fromMap(data)!));
   } on TimeoutException {
-    return [];
+    return List.empty();
   } catch (error) {
     rethrow;
   }
@@ -27,27 +23,32 @@ Future<List<Place>> searchPlaceByQuery({
 
 class SearchPlaceEvent extends AsyncEvent<AsyncState> {
   const SearchPlaceEvent({
+    this.query = '',
     required this.position,
   });
-  final (double, double) position;
+  final String query;
+  final ({double longitude, double latitude}) position;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final responses = await sql('RETURN fn::search_place_by_point(${position.$2}, ${position.$1}, "fr");');
-      final List response = responses.first;
-      final result = List.of(response.map((data) => Place.fromMap(data)!));
-      if (result.isNotEmpty) {
-        final place = result.first;
-        final data = place.copyWith(
-          position: place.position!.copyWith(
-            coordinates: [position.$1, position.$2],
-          ),
-        );
-        emit(SuccessState(data));
+      final data = await searchPlace(position: position, query: query);
+      if (data.isNotEmpty) {
+        if (query.isEmpty) {
+          emit(SuccessState(data));
+        } else {
+          final place = data.first;
+          final item = place.copyWith(
+            position: place.position!.copyWith(coordinates: [
+              position.longitude,
+              position.latitude,
+            ]),
+          );
+          emit(SuccessState(item));
+        }
       } else {
         emit(FailureState(
-          code: 'no-found',
+          code: 'no-record',
           event: this,
         ));
       }

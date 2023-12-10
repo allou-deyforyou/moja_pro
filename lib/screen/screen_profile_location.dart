@@ -107,8 +107,8 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   void _searchPlaceByPoint([LatLng? center]) {
     center ??= _mapController!.cameraPosition!.target;
     _placeController.run(SearchPlaceEvent(position: (
-      center.longitude,
-      center.latitude,
+      longitude: center.longitude,
+      latitude: center.latitude,
     )));
   }
 
@@ -171,9 +171,9 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   Future<Iterable<Widget>> _suggestionsBuilder(BuildContext context, SearchController controller) async {
     if (_userLocation != null) {
       final position = _userLocation!.position;
-      final data = searchPlaceByQuery(query: controller.text, position: (
-        position.longitude,
-        position.latitude,
+      final data = searchPlace(query: controller.text, position: (
+        longitude: position.longitude,
+        latitude: position.latitude,
       ));
       return data.then((places) {
         return places.map((item) {

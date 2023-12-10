@@ -50,3 +50,27 @@ class SelectCountry extends AsyncEvent<AsyncState> {
     }
   }
 }
+
+class SaveCountryEvent extends AsyncEvent<AsyncState> {
+  const SaveCountryEvent({
+    required this.countries,
+  });
+  final List<Country> countries;
+  @override
+  Future<void> handle(AsyncEmitter<AsyncState> emit) async {
+    try {
+      emit(const PendingState());
+
+      await IsarLocalDB.isar.writeTxn(() async {
+        return IsarLocalDB.isar.countrys.putAll(countries);
+      });
+
+      emit(SuccessState(countries));
+    } catch (error) {
+      emit(FailureState(
+        code: error.toString(),
+        event: this,
+      ));
+    }
+  }
+}

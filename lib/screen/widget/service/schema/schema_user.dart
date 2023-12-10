@@ -103,7 +103,7 @@ class User extends Equatable {
     return {
       idKey: id,
       phoneKey: phone,
-      countryKey: country,
+      countryKey: country.value,
       lastSignKey: lastSign?.toString(),
       createdAtKey: createdAt?.toString(),
     }..removeWhere((key, value) => value == null);
