@@ -33,10 +33,10 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   void _setupData() {
     _currentRelay = widget.relay;
     _currentAccount = widget.account;
-    final balance = _currentAccount.balance;
-    _balanceTextController = TextEditingController(text: balance?.formatted);
+    final balance = _currentAccount.balance?.formatted;
+    _balanceTextController = TextEditingController(text: balance);
     _balanceTextController.selection = TextSelection(
-      extentOffset: balance?.formatted.length ?? 0,
+      extentOffset: balance?.length ?? 0,
       baseOffset: 0,
     );
   }
@@ -48,7 +48,7 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
     if (state case SuccessState<Account>(:final data)) {
       context.pop(data);
     } else if (state case FailureState<SetAccountEvent>(:final code)) {
-     showSnackbar(
+      showSnackbar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
