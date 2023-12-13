@@ -10,7 +10,7 @@ Future<List<Place>> searchPlace({
   String query = '',
 }) async {
   try {
-    await Future.sync(_response.ignore);
+    await Future.microtask(_response.ignore);
     _response = sql('fn::search_place("$query", ${position.longitude}, ${position.latitude});');
     final List response = await _response.then((value) => value.first);
     return List.of(response.map((data) => Place.fromMap(data)!));
@@ -34,7 +34,7 @@ class SearchPlaceEvent extends AsyncEvent<AsyncState> {
       emit(const PendingState());
       final data = await searchPlace(position: position, query: query);
       if (data.isNotEmpty) {
-        if (query.isEmpty) {
+        if (query.isNotEmpty) {
           emit(SuccessState(data));
         } else {
           final place = data.first;
