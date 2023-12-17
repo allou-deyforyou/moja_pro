@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _currentLocation = _currentRelay.location;
       _currentContact = _currentRelay.contacts!.first;
 
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",

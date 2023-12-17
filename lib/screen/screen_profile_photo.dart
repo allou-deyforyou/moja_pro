@@ -36,7 +36,7 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
     } else if (state case FailureState<SetRelayEvent>(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",

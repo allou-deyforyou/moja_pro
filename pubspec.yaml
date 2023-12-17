@@ -45,7 +45,6 @@ dependencies:
   image_editor:
   url_launcher:
   share_plus:
-  http:
   isar:
   hive:
   dio:

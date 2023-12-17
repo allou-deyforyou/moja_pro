@@ -70,14 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
       _currentRelay = data;
       _relayAccounts = _currentRelay.accounts.toList();
     } else if (state case FailureState<GetRelayEvent>(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
         },
       );
     } else if (state case FailureState<SetRelayEvent>(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",

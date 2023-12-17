@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart' as picker;
 
 import '_widget.dart';
 
-void showSnackbar({
+void showSnackBar({
   required BuildContext context,
   required String text,
   VoidCallback? onTry,

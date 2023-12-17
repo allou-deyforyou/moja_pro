@@ -154,7 +154,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     if (state is InitState) {
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<SignOutUserEvent>(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",

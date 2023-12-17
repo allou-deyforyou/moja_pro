@@ -120,7 +120,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
       _currentRelay = data;
       context.pop(_currentRelay);
     } else if (state case FailureState<SetRelayEvent>(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",

@@ -91,7 +91,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _countryList = data;
       _currentCountry = _countryList!.firstOrNull;
     } else if (state case FailureState(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
@@ -115,7 +115,7 @@ class _AuthScreenState extends State<AuthScreen> {
         AuthSigninScreen.currentUserKey: _currentUser,
       });
     } else if (state case FailureState(:final code)) {
-      showSnackbar(
+      showSnackBar(
         context: context,
         text: switch (code) {
           _ => "Une erreur s'est produite",
