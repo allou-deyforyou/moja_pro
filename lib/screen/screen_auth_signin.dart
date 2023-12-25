@@ -103,7 +103,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
     } else if (state case FailureState<SigninUserEvent>(:final code)) {
       switch (code) {
         case 'no-record':
-          context.pushNamed(AuthSignupScreen.name, extra: {
+          context.pushReplacementNamed(AuthSignupScreen.name, extra: {
             AuthSignupScreen.countryKey: _currentCountry,
             AuthSignupScreen.phoneKey: _phoneNumber,
             AuthSignupScreen.uidKey: _uid,

@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 
 import '_screen.dart';
@@ -24,19 +28,80 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   /// Assets
   late Relay _currentRelay;
+
   late List<Account> _relayAccounts;
 
-  int _accountSort(Account a, Account b) {
-    if (a.cash != null && a.cash!) {
-      return -1;
-    } else if (b.cash != null && b.cash!) {
-      return 1;
+  Timer? _interstitialAdTimer;
+  late Duration _interstitialAdTimeout;
+  InterstitialAd? _interstitialAd;
+
+  BannerAd? _bannerAd;
+  late ValueNotifier<bool> _bannerAdLoaded;
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      request: const AdRequest(),
+      adUnitId: AdMobConfig.homeInterstitialAd,
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdFailedToLoad: (err) {},
+        onAdLoaded: (ad) {
+          _interstitialAd = ad;
+        },
+      ),
+    );
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      size: customBannerAd,
+      request: const AdRequest(),
+      adUnitId: AdMobConfig.choiceAdBanner,
+      listener: BannerAdListener(
+        onAdFailedToLoad: (ad, err) => ad.dispose(),
+        onAdLoaded: (ad) => _bannerAdLoaded.value = true,
+      ),
+    )..load();
+  }
+
+  void _showDisabledLocationModal() async {
+    final data = await showCupertinoModalPopup<bool>(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) {
+        return const HomeDisabledLocationModal();
+      },
+    );
+    if (data != null && data) {
+      _openLocationScreen();
     }
-    return (b.balance ?? 0).compareTo(a.balance ?? 0);
   }
 
   void _openMenu() {
     context.pushNamed(HomeMenuScreen.name);
+  }
+
+  void _openLocationScreen() async {
+    context.pushNamed<Relay>(ProfileLocationScreen.name, extra: {
+      ProfileLocationScreen.relayKey: _currentRelay,
+    });
+  }
+
+  void _showAvailabilitySnackBar(DateTime? availability) {
+    if (mounted) {
+      if (availability != null) {
+        showSnackBar(
+          context: context,
+          backgroundColor: CupertinoColors.activeGreen,
+          text: "Votre point relais est visible jusqu'a 22h",
+        );
+      } else {
+        showSnackBar(
+          context: context,
+          backgroundColor: CupertinoColors.destructiveRed,
+          text: "Votre point relais est fermé",
+        );
+      }
+    }
   }
 
   void _onAvailableChanged(bool value) {
@@ -48,11 +113,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<Account?> _onAccountTap(Account account) {
-    return context.pushNamed<Account>(HomeAccountScreen.name, extra: {
+  Future<Account?> _onAccountTap(Account account) async {
+    _interstitialAdTimer = Timer(_interstitialAdTimeout, () async {
+      _loadInterstitialAd();
+
+      if (_interstitialAdTimeout <= const Duration(minutes: 5)) {
+        _interstitialAdTimeout += const Duration(minutes: 1);
+      }
+    });
+
+    final data = await context.pushNamed<Account>(HomeAccountScreen.name, extra: {
       HomeAccountScreen.relayKey: _currentRelay,
       HomeAccountScreen.accountKey: account,
     });
+
+    if (data != null) {
+      await _interstitialAd?.show();
+      _interstitialAd = null;
+
+      return data;
+    }
+    return null;
   }
 
   /// RelayService
@@ -68,6 +149,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadRelay();
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
+
+      _showAvailabilitySnackBar(_currentRelay.availability);
+
       _relayAccounts = _currentRelay.accounts.toList();
     } else if (state case FailureState<GetRelayEvent>(:final code)) {
       showSnackBar(
@@ -115,13 +199,36 @@ class _HomeScreenState extends State<HomeScreen> {
     _currentRelay = user.relays.first;
     _relayAccounts = _currentRelay.accounts.toList();
 
+    _interstitialAdTimeout = Duration.zero;
+
+    _bannerAdLoaded = ValueNotifier(false);
+    _loadBannerAd();
+
     /// RelayService
     _relayController = AsyncController(const InitState());
   }
 
   @override
+  void dispose() {
+    /// Assets
+    _interstitialAdTimer?.cancel();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      bottomNavigationBar: ValueListenableBuilder(
+        valueListenable: _bannerAdLoaded,
+        builder: (context, loaded, child) {
+          return CustomBannerAdWidget(
+            loaded: loaded,
+            ad: _bannerAd!,
+          );
+        },
+      ),
       body: RefreshIndicator(
         onRefresh: _getRelay,
         child: CustomScrollView(
@@ -140,6 +247,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   return StatefulBuilder(
                     builder: (context, setState) {
                       void onChanged(bool value) {
+                        if (_currentRelay.location == null) {
+                          return _showDisabledLocationModal();
+                        }
                         setState(() => active = value);
                         _onAvailableChanged(value);
                       }
@@ -158,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
               canRebuild: _canRebuildRelay,
               controller: _relayController,
               builder: (context, state, child) {
-                _relayAccounts.sort(_accountSort);
+                _relayAccounts.sort(Account.accountSort);
                 return HomeAccountSliverGridView(
                   itemCount: _relayAccounts.length,
                   itemBuilder: (context, index) {
@@ -181,6 +291,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 );
               },
+            ),
+            const SliverSafeArea(
+              top: false,
+              sliver: SliverPadding(
+                padding: kMaterialListPadding,
+              ),
             ),
           ],
         ),

@@ -164,7 +164,7 @@ class AuthCountryEmptyModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomModal(
-      title: Text("format du numero de telephone".toUpperCase()),
+      title: Text("numero de telephone".toUpperCase()),
       content: const Text("Pour continuer, renseignez votre pays et votre numero de telephone."),
       actions: const [
         SizedBox.shrink(),

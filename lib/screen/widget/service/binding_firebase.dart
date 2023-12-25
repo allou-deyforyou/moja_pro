@@ -18,7 +18,6 @@ class FirebaseConfig {
 
   static Future<void> development() async {
     _app ??= await Firebase.initializeApp(
-      name: 'development',
       options: _currentPlatform,
     );
   }

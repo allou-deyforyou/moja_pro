@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -39,34 +40,31 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
   void _onNotifsTaped(bool active) async {
     if (active) {
-      final service = AsyncController<AsyncState>(const InitState());
-      await service.run(const GetPermissionEvent(permission: Permission.notification));
-      if (service.value is SuccessState<Permission>) {
-        HiveLocalDB.notifications = active;
-      } else {
-        _openNotifsModal();
-      }
+      final enabled = await NotificationConfig.enableNotifications();
+      if (!enabled) _openNotifsModal();
     } else {
-      HiveLocalDB.notifications = active;
+      NotificationConfig.disableNotifications();
     }
   }
 
   void _openNotifsModal() async {
-    final data = await showDialog(
+    final data = await showCupertinoModalPopup<bool>(
       context: context,
+      barrierColor: Colors.black54,
       builder: (context) {
         return const HomeMenuNotifisModal();
       },
     );
-    if (data == null) {
+    if (data != null) {
       openAppSettings();
     }
   }
 
   VoidCallback _openThemeModal(ThemeMode themeMode) {
     return () async {
-      final data = await showDialog<ThemeMode>(
+      final data = await showCupertinoModalPopup<ThemeMode>(
         context: context,
+        barrierColor: Colors.black54,
         builder: (context) {
           return HomeMenuThemeModal<ThemeMode>(
             onSelected: (value) => HiveLocalDB.themeMode = value,
@@ -82,8 +80,9 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
 
   VoidCallback _openLanguageModal(Locale? locale) {
     return () async {
-      final data = await showDialog<Locale>(
+      final data = await showCupertinoModalPopup<Locale>(
         context: context,
+        barrierColor: Colors.black54,
         builder: (context) {
           return HomeMenuLanguageModal<Locale>(
             onSelected: (value) {
@@ -136,8 +135,9 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
   }
 
   void _openLogoutModal() async {
-    final data = await showDialog<bool>(
+    final data = await showCupertinoModalPopup<bool>(
       context: context,
+      barrierColor: Colors.black54,
       builder: (context) {
         return const HomeMenuLogoutModal();
       },

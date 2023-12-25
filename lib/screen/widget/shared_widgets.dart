@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:widget_tools/widget_tools.dart';
 import 'package:image_editor/image_editor.dart';
 import 'package:extended_image/extended_image.dart';
@@ -13,11 +14,21 @@ import '_widget.dart';
 void showSnackBar({
   required BuildContext context,
   required String text,
+  Color? backgroundColor,
   VoidCallback? onTry,
 }) {
+  final localizations = context.localizations;
+
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    action: onTry != null ? SnackBarAction(label: "RESSAYER", onPressed: onTry) : null,
+    action: switch (onTry) {
+      VoidCallback() => SnackBarAction(
+          label: localizations.apply.capitalize(),
+          onPressed: onTry,
+        ),
+      _ => null,
+    },
     behavior: SnackBarBehavior.floating,
+    backgroundColor: backgroundColor,
     showCloseIcon: true,
     content: Text(text),
   ));
@@ -218,6 +229,7 @@ class CustomModal extends StatelessWidget {
       elevation: 1.0,
       insetPadding: kTabLabelPadding,
       backgroundColor: theme.colorScheme.surface,
+      contentTextStyle: theme.textTheme.bodyLarge,
       actionsAlignment: MainAxisAlignment.spaceBetween,
       titleTextStyle: theme.textTheme.headlineSmall!.copyWith(
         fontFamily: FontFamily.avenirNext,
@@ -635,6 +647,45 @@ class ImageEditorResetButton extends StatelessWidget {
         CupertinoIcons.refresh_circled_solid,
         color: theme.colorScheme.onSurface,
         size: 26.0,
+      ),
+    );
+  }
+}
+
+const customBannerAd = AdSize(width: 640, height: 60);
+
+class CustomBannerAdWidget extends StatelessWidget {
+  const CustomBannerAdWidget({
+    super.key,
+    this.width,
+    this.height,
+    this.loaded = false,
+    required this.ad,
+  });
+  final double? width;
+  final double? height;
+  final bool loaded;
+  final AdWithView ad;
+  @override
+  Widget build(BuildContext context) {
+    return CustomKeepAlive(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        transitionBuilder: (child, animation) {
+          return SizeTransition(
+            sizeFactor: animation,
+            child: child,
+          );
+        },
+        child: Visibility(
+          key: ValueKey(loaded),
+          visible: loaded,
+          child: SizedBox(
+            width: width ?? double.maxFinite,
+            height: height ?? customBannerAd.height.toDouble(),
+            child: AdWidget(ad: ad),
+          ),
+        ),
       ),
     );
   }

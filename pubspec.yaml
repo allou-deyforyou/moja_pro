@@ -34,6 +34,7 @@ dependencies:
   firebase_messaging:
   permission_handler:
   isar_flutter_libs:
+  google_mobile_ads:
   firebase_storage:
   extended_image:
   firebase_core:

@@ -108,18 +108,22 @@ class HomeAccountSliverGridView extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: kTabLabelPadding,
-      sliver: SliverGrid.builder(
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200.0,
-          crossAxisSpacing: 18.0,
-          childAspectRatio: 2.5,
-          mainAxisSpacing: 18.0,
-          mainAxisExtent: 80.0,
+    return SliverSafeArea(
+      top: false,
+      bottom: false,
+      sliver: SliverPadding(
+        padding: kTabLabelPadding,
+        sliver: SliverGrid.builder(
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200.0,
+            crossAxisSpacing: 18.0,
+            childAspectRatio: 2.5,
+            mainAxisSpacing: 18.0,
+            mainAxisExtent: 80.0,
+          ),
+          itemBuilder: itemBuilder,
+          itemCount: itemCount,
         ),
-        itemBuilder: itemBuilder,
-        itemCount: itemCount,
       ),
     );
   }
@@ -142,20 +146,14 @@ class HomeAccountCard extends StatelessWidget {
     final theme = context.theme;
     final localizations = context.localizations;
 
-    Color textColor = theme.colorScheme.onSurface;
-    Color tileColor = theme.colorScheme.surfaceVariant;
-    // if (cash != null && cash!) {
-    //   textColor = theme.colorScheme.onSurface;
-    //   tileColor = theme.colorScheme.surfaceVariant.withOpacity(0.4);
-    // }
     return Stack(
       children: [
         ListTile(
-          tileColor: tileColor,
+          tileColor: theme.colorScheme.surfaceVariant,
           titleTextStyle: theme.textTheme.titleMedium!.copyWith(
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.0,
-            color: textColor,
             fontSize: 18.0,
           ),
           subtitleTextStyle: theme.textTheme.titleMedium!.copyWith(
@@ -187,6 +185,24 @@ class HomeAccountCard extends StatelessWidget {
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+class HomeDisabledLocationModal extends StatelessWidget {
+  const HomeDisabledLocationModal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomModal(
+      title: Text("Definissez l'emplacement du point relais".toUpperCase()),
+      content: const Text("Pour être visible près des potentiels clients, définissez l'emplacement de votre point relais."),
+      actions: const [
+        CustomModalCancelAction(),
+        CustomModalConfirmAction(
+          text: "Definir",
+        ),
       ],
     );
   }

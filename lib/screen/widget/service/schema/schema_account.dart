@@ -114,4 +114,13 @@ class Account extends Equatable {
   String toJson() {
     return jsonEncode(toMap());
   }
+
+  static int accountSort(Account a, Account b) {
+    if (a.cash != null && a.cash!) {
+      return -1;
+    } else if (b.cash != null && b.cash!) {
+      return 1;
+    }
+    return (b.balance ?? 0).compareTo(a.balance ?? 0);
+  }
 }

@@ -35,7 +35,7 @@ class AuthSignupFullnameTextField extends StatelessWidget {
     return Padding(
       padding: kTabLabelPadding,
       child: TextFormField(
-        autofocus: false,
+        autofocus: true,
         controller: controller,
         keyboardType: TextInputType.name,
         textCapitalization: TextCapitalization.words,
