@@ -17,20 +17,40 @@ void showSnackBar({
   Color? backgroundColor,
   VoidCallback? onTry,
 }) {
-  final localizations = context.localizations;
-
+  final theme = context.theme;
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    showCloseIcon: true,
+    shape: const StadiumBorder(),
+    backgroundColor: backgroundColor,
+    behavior: SnackBarBehavior.floating,
+    closeIconColor: switch (backgroundColor) {
+      Color() => switch (ThemeData.estimateBrightnessForColor(backgroundColor)) {
+          Brightness.light => Colors.black,
+          Brightness.dark => Colors.white,
+        },
+      _ => theme.colorScheme.surface,
+    },
     action: switch (onTry) {
       VoidCallback() => SnackBarAction(
-          label: localizations.apply.capitalize(),
+          label: "Réessayer",
           onPressed: onTry,
         ),
       _ => null,
     },
-    behavior: SnackBarBehavior.floating,
-    backgroundColor: backgroundColor,
-    showCloseIcon: true,
-    content: Text(text),
+    content: DefaultTextStyle.merge(
+      style: TextStyle(
+        color: switch (backgroundColor) {
+          Color() => switch (ThemeData.estimateBrightnessForColor(backgroundColor)) {
+              Brightness.light => Colors.black,
+              Brightness.dark => Colors.white,
+            },
+          _ => theme.colorScheme.surface,
+        },
+        letterSpacing: 0.0,
+        fontSize: 16.0,
+      ),
+      child: Text(text),
+    ),
   ));
 }
 

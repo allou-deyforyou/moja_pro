@@ -85,11 +85,11 @@ class _AuthScreenState extends State<AuthScreen> {
   Country? _currentCountry;
 
   void _listenCountryState(BuildContext context, AsyncState state) {
-    if (state is InitState && _currentCountry == null) {
+    if (state is InitState) {
       _searchCountry();
     } else if (state case SuccessState<List<Country>>(:final data)) {
       _countryList = data;
-      _currentCountry = _countryList!.firstOrNull;
+      _currentCountry ??= _countryList!.firstOrNull;
     } else if (state case FailureState(:final code)) {
       showSnackBar(
         context: context,

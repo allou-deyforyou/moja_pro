@@ -85,13 +85,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
         barrierColor: Colors.black54,
         builder: (context) {
           return HomeMenuLanguageModal<Locale>(
-            onSelected: (value) {
-              if (value.languageCode == 'system') {
-                HiveLocalDB.locale = null;
-              } else {
-                HiveLocalDB.locale = value;
-              }
-            },
+            onSelected: (value) => HiveLocalDB.locale = value,
             selected: locale,
           );
         },

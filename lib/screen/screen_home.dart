@@ -29,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Assets
   late Relay _currentRelay;
 
+  DateTime? _relayAvailability;
+
   late List<Account> _relayAccounts;
 
   Timer? _interstitialAdTimer;
@@ -39,16 +41,26 @@ class _HomeScreenState extends State<HomeScreen> {
   late ValueNotifier<bool> _bannerAdLoaded;
 
   void _loadInterstitialAd() {
-    InterstitialAd.load(
-      request: const AdRequest(),
-      adUnitId: AdMobConfig.homeInterstitialAd,
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdFailedToLoad: (err) {},
-        onAdLoaded: (ad) {
-          _interstitialAd = ad;
-        },
-      ),
-    );
+    _interstitialAdTimer = Timer(_interstitialAdTimeout, () async {
+      if (_interstitialAd == null) {
+        InterstitialAd.load(
+          request: const AdRequest(),
+          adUnitId: AdMobConfig.homeInterstitialAd,
+          adLoadCallback: InterstitialAdLoadCallback(
+            onAdFailedToLoad: (err) {},
+            onAdLoaded: (ad) {
+              _interstitialAd = ad;
+            },
+          ),
+        );
+
+        if (_interstitialAdTimeout <= const Duration(minutes: 5)) {
+          _interstitialAdTimeout += const Duration(minutes: 1);
+        }
+      }
+
+      _loadInterstitialAd();
+    });
   }
 
   void _loadBannerAd() {
@@ -80,8 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
     context.pushNamed(HomeMenuScreen.name);
   }
 
-  void _openLocationScreen() async {
-    context.pushNamed<Relay>(ProfileLocationScreen.name, extra: {
+  Future<void> _openLocationScreen() {
+    return context.pushNamed(ProfileLocationScreen.name, extra: {
       ProfileLocationScreen.relayKey: _currentRelay,
     });
   }
@@ -114,14 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<Account?> _onAccountTap(Account account) async {
-    _interstitialAdTimer = Timer(_interstitialAdTimeout, () async {
-      _loadInterstitialAd();
-
-      if (_interstitialAdTimeout <= const Duration(minutes: 5)) {
-        _interstitialAdTimeout += const Duration(minutes: 1);
-      }
-    });
-
     final data = await context.pushNamed<Account>(HomeAccountScreen.name, extra: {
       HomeAccountScreen.relayKey: _currentRelay,
       HomeAccountScreen.accountKey: account,
@@ -144,15 +148,28 @@ class _HomeScreenState extends State<HomeScreen> {
     return previousState is SuccessState<Relay> && currentState is SuccessState<Relay>;
   }
 
-  void _listenRelayState(BuildContext context, AsyncState state) {
+  void _listenRelayState(BuildContext context, AsyncState state) async {
     if (state is InitState) {
-      _loadRelay();
+      final user = currentUser.value!;
+
+      _currentRelay = user.relays.first;
+      _relayAccounts = _currentRelay.accounts.toList();
+
+      if (_currentRelay.location == null) {
+        await _openLocationScreen();
+      }
+
+      WidgetsBinding.instance.endOfFrame.whenComplete(() {
+        _showAvailabilitySnackBar(_currentRelay.availability);
+      });
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
-
-      _showAvailabilitySnackBar(_currentRelay.availability);
-
       _relayAccounts = _currentRelay.accounts.toList();
+
+      if (_relayAvailability != _currentRelay.availability) {
+        _showAvailabilitySnackBar(_currentRelay.availability);
+      }
+      _relayAvailability = _currentRelay.availability?.toLocal();
     } else if (state case FailureState<GetRelayEvent>(:final code)) {
       showSnackBar(
         context: context,
@@ -170,12 +187,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadRelay() {
-    return _relayController.run(LoadRelayEvent(
-      relayId: _currentRelay.id,
-      listen: true,
-    ));
-  }
+  // Future<void> _loadRelay() {
+  //   return _relayController.run(LoadRelayEvent(
+  //     relayId: _currentRelay.id,
+  //     listen: true,
+  //   ));
+  // }
 
   Future<void> _getRelay() {
     return _relayController.run(GetRelayEvent(
@@ -195,11 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     /// Assets
-    final user = currentUser.value!;
-    _currentRelay = user.relays.first;
-    _relayAccounts = _currentRelay.accounts.toList();
-
     _interstitialAdTimeout = Duration.zero;
+    _loadInterstitialAd();
 
     _bannerAdLoaded = ValueNotifier(false);
     _loadBannerAd();
@@ -237,9 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: HomeBarsButton(
                 onPressed: _openMenu,
               ),
-              trailing: ControllerConsumer(
-                autoListen: true,
-                listener: _listenRelayState,
+              trailing: ControllerBuilder(
                 controller: _relayController,
                 canRebuild: _canRebuildRelay,
                 builder: (context, state, child) {
@@ -264,7 +276,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SliverPadding(padding: kMaterialListPadding),
-            ControllerBuilder(
+            ControllerConsumer(
+              autoListen: true,
+              listener: _listenRelayState,
               canRebuild: _canRebuildRelay,
               controller: _relayController,
               builder: (context, state, child) {

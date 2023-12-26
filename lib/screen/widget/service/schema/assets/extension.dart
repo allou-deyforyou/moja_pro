@@ -72,6 +72,11 @@ extension CustomDouble on double {
 }
 
 extension CustomLocale on Locale {
+  Locale? normalize() {
+    if (languageCode == 'system') return null;
+    return this;
+  }
+
   String format(BuildContext context) {
     final localizations = context.localizations;
     return switch (languageCode) {

@@ -45,8 +45,10 @@ class HiveLocalDB {
   }
 
   static Locale? get locale {
-    final value = HiveLocalDB.settingsBox.get(_localeKey, defaultValue: null);
-    return value != null ? Locale(value) : null;
+    return Locale(HiveLocalDB.settingsBox.get(
+      defaultValue: "system",
+      _localeKey,
+    ));
   }
 
   static set locale(Locale? locale) {

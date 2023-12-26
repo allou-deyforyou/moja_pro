@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -77,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   /// RelayService
   late final AsyncController<AsyncState> _relayController;
+  StreamSubscription? _relaySubscription;
 
   bool _canAvatarRebuild(AsyncState previousState, AsyncState currentState) {
     if (currentState is PendingState && _currentRelay.image == _currentImage) {
@@ -109,9 +112,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state is InitState) {
       _loadRelay();
-    } else if (state case SuccessState<Relay>(:var data)) {
+    } else if (state case SuccessState<Relay>(:final data)) {
       _currentRelay = data;
-
       _currentName = _currentRelay.name;
       _currentImage = _currentRelay.image;
       _currentLocation = _currentRelay.location;
@@ -169,77 +171,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
+  void dispose() {
+    /// RelayService
+    _relaySubscription?.cancel();
+    _relayController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const ProfileAppBar(),
-          const SliverPadding(padding: kMaterialListPadding),
-          SliverToBoxAdapter(
-            child: ControllerConsumer(
-              autoListen: true,
-              listener: _listenRelayState,
-              controller: _relayController,
-              canRebuild: _canAvatarRebuild,
-              builder: (context, state, child) {
-                return ProfileAvatarWrapper(
-                  onEditPressed: _openEditorModal,
-                  content: switch (state) {
-                    PendingState() => const ProfileAvatarProgressIndicator(),
-                    _ when (_currentImage != null && _currentImage!.isNotEmpty) => ProfileAvatarWidget(
-                        onTap: _openAvatarScreen,
-                        imageUrl: _currentImage,
-                      ),
-                    _ => const ProfileStoreIcon(),
-                  },
-                );
-              },
+    return ControllerListener(
+      autoListen: true,
+      listener: _listenRelayState,
+      controller: _relayController,
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            const ProfileAppBar(),
+            const SliverPadding(padding: kMaterialListPadding),
+            SliverToBoxAdapter(
+              child: ControllerBuilder(
+                controller: _relayController,
+                canRebuild: _canAvatarRebuild,
+                builder: (context, state, child) {
+                  return ProfileAvatarWrapper(
+                    onEditPressed: _openEditorModal,
+                    content: switch (state) {
+                      PendingState() => const ProfileAvatarProgressIndicator(),
+                      _ when (_currentImage != null && _currentImage!.isNotEmpty) => ProfileAvatarWidget(
+                          onTap: _openAvatarScreen,
+                          imageUrl: _currentImage,
+                        ),
+                      _ => const ProfileStoreIcon(),
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-          const SliverPadding(padding: kMaterialListPadding),
-          SliverToBoxAdapter(
-            child: ControllerBuilder(
-              canRebuild: _canNameRebuild,
-              controller: _relayController,
-              builder: (context, state, child) {
-                VoidCallback? onTap = _openNameModal;
-                if (state is PendingState) onTap = null;
-                return ProfileNameWidget(
-                  name: _currentName,
-                  onTap: onTap,
-                );
-              },
+            const SliverPadding(padding: kMaterialListPadding),
+            SliverToBoxAdapter(
+              child: ControllerBuilder(
+                canRebuild: _canNameRebuild,
+                controller: _relayController,
+                builder: (context, state, child) {
+                  VoidCallback? onTap = _openNameModal;
+                  if (state is PendingState) onTap = null;
+                  return ProfileNameWidget(
+                    name: _currentName,
+                    onTap: onTap,
+                  );
+                },
+              ),
             ),
-          ),
-          const SliverPadding(padding: kMaterialListPadding),
-          SliverToBoxAdapter(
-            child: ControllerBuilder(
-              controller: _relayController,
-              canRebuild: _canContactsRebuild,
-              builder: (context, state, child) {
-                VoidCallback? onTap = _onContactPressed;
-                if (state is PendingState) onTap = null;
-                return ProfileContactWidget(
-                  phone: _currentContact,
-                  onTap: onTap,
-                );
-              },
+            const SliverPadding(padding: kMaterialListPadding),
+            SliverToBoxAdapter(
+              child: ControllerBuilder(
+                controller: _relayController,
+                canRebuild: _canContactsRebuild,
+                builder: (context, state, child) {
+                  VoidCallback? onTap = _onContactPressed;
+                  if (state is PendingState) onTap = null;
+                  return ProfileContactWidget(
+                    phone: _currentContact,
+                    onTap: onTap,
+                  );
+                },
+              ),
             ),
-          ),
-          const SliverPadding(padding: kMaterialListPadding),
-          SliverToBoxAdapter(
-            child: ControllerBuilder(
-              controller: _relayController,
-              canRebuild: _canLocationRebuild,
-              builder: (context, state, child) {
-                return ProfileLocationWidget(
-                  location: _currentLocation?.title,
-                  onTap: _openLocationScreen,
-                );
-              },
+            const SliverPadding(padding: kMaterialListPadding),
+            SliverToBoxAdapter(
+              child: ControllerBuilder(
+                controller: _relayController,
+                canRebuild: _canLocationRebuild,
+                builder: (context, state, child) {
+                  return ProfileLocationWidget(
+                    location: _currentLocation?.title,
+                    onTap: _openLocationScreen,
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

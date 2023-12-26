@@ -126,9 +126,12 @@ class ProfileItemWidget extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onTap,
+    this.foregroundColor,
   });
   final String label;
   final String value;
+
+  final Color? foregroundColor;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
@@ -140,6 +143,7 @@ class ProfileItemWidget extends StatelessWidget {
       ),
       subtitleTextStyle: theme.textTheme.titleLarge!.copyWith(
         fontWeight: FontWeight.w500,
+        color: foregroundColor,
       ),
       title: Text(label),
       subtitle: Text(value),
@@ -203,11 +207,16 @@ class ProfileLocationWidget extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final localizations = context.localizations;
     return ProfileItemWidget(
       onTap: onTap,
       label: localizations.location.capitalize(),
       value: location ?? "Pas d'emplacement",
+      foregroundColor: switch (location) {
+        null => theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+        _ => null,
+      },
     );
   }
 }

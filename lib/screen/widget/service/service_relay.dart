@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:listenable_tools/async.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:listenable_tools/async.dart';
 
 import '_service.dart';
 
@@ -144,7 +144,7 @@ class LoadRelayEvent extends AsyncEvent<AsyncState> {
           fireImmediately: true,
           relayId.fastHash,
         );
-        await stream.forEach((data) {
+        final subscription = stream.listen((data) {
           if (data != null) {
             emit(SuccessState(data));
           } else {
@@ -154,6 +154,7 @@ class LoadRelayEvent extends AsyncEvent<AsyncState> {
             ));
           }
         });
+        emit(SuccessState(subscription));
       } else {
         final data = await IsarLocalDB.isar.relays.get(
           relayId.fastHash,

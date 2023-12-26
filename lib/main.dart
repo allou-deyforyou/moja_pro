@@ -178,10 +178,10 @@ class _MyAppState extends State<MyApp> {
             return MaterialApp.router(
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
+              locale: localeSnapshot.data?.normalize(),
               themeMode: themeModeSnapshot.data,
               color: AppThemes.primaryColor,
               darkTheme: AppThemes.darkTheme,
-              locale: localeSnapshot.data,
               theme: AppThemes.theme,
               routerConfig: _router,
             );
