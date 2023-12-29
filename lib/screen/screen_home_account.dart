@@ -47,10 +47,10 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
   void _listenAccountState(BuildContext context, AsyncState state) {
     if (state case SuccessState<Account>(:final data)) {
       context.pop(data);
-    } else if (state case FailureState<SetAccountEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -104,7 +104,7 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
           ),
           SliverFillRemaining(
             hasScrollBody: false,
-            child: ControllerConsumer(
+            child: ControllerBuilder(
               listener: _listenAccountState,
               controller: _accountController,
               builder: (context, state, child) {

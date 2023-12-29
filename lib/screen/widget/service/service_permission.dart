@@ -1,4 +1,4 @@
-import 'package:listenable_tools/async.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class GetPermissionEvent extends AsyncEvent<AsyncState> {
@@ -15,20 +15,20 @@ class GetPermissionEvent extends AsyncEvent<AsyncState> {
         case PermissionStatus.granted:
         case PermissionStatus.limited:
         case PermissionStatus.provisional:
-          emit(SuccessState(permission));
+          emit(SuccessState(permission, event: this));
           break;
         case PermissionStatus.denied:
         case PermissionStatus.restricted:
         case PermissionStatus.permanentlyDenied:
           emit(FailureState(
-            code: 'no-permission',
+            'no-permission',
             event: this,
           ));
           break;
       }
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -49,21 +49,21 @@ class RequestPermissionEvent extends AsyncEvent<AsyncState> {
         case PermissionStatus.granted:
         case PermissionStatus.limited:
         case PermissionStatus.provisional:
-          emit(SuccessState(permission));
+          emit(SuccessState(permission, event: this));
           break;
         case PermissionStatus.denied:
           return permission.request().then((status) => handle(emit));
         case PermissionStatus.restricted:
         case PermissionStatus.permanentlyDenied:
           emit(FailureState(
-            code: 'no-permission',
+            'no-permission',
             event: this,
           ));
           break;
       }
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }

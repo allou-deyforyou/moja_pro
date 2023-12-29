@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:listenable_tools/async.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 import 'package:service_tools/service_tools.dart';
 
 import '_service.dart';
@@ -11,7 +11,7 @@ import '_service.dart';
 AsyncController<User?> get currentUser {
   final uid = FirebaseConfig.firebaseAuth.currentUser?.uid;
   final user = IsarLocalDB.isar.users.getSync('${User.schema}:$uid'.fastHash);
-  user?.country.loadSync();
+  // user?.country.loadSync();
 
   return singleton(
     AsyncController<User?>(user),
@@ -53,10 +53,10 @@ class SigninUserEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
       await refreshToken(uid: uid, idToken: idToken);
-      emit(SuccessState('${User.schema}:$uid'));
+      emit(SuccessState('${User.schema}:$uid', event: this));
     } on DioException catch (error) {
       emit(FailureState(
-        code: switch (error.type) {
+        switch (error.type) {
           DioExceptionType.badResponse => 'no-record',
           _ => 'no-internet',
         },
@@ -64,7 +64,7 @@ class SigninUserEvent extends AsyncEvent<AsyncState> {
       ));
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -102,10 +102,10 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
       );
       final result = await compute(jsonDecode, response.data!);
       HiveLocalDB.token = result['token'];
-      emit(SuccessState(userId));
+      emit(SuccessState(userId, event: this));
     } on DioException catch (error) {
       emit(FailureState(
-        code: switch (error.type) {
+        switch (error.type) {
           DioExceptionType.badResponse => 'already-exists',
           _ => 'no-internet',
         },
@@ -113,7 +113,7 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
       ));
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -142,7 +142,7 @@ class SignOutUserEvent extends AsyncEvent<AsyncState> {
       emit(const InitState());
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -160,7 +160,7 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
       emit(const PendingState());
 
       const accountQuery = '(SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
-      const relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
+      const relayFilters = 'WHERE <-worked<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
       const relayQuery = 'SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters';
 
       final responses = await sql('SELECT *, country.*, ($relayQuery) AS ${Relay.schema}s FROM ONLY $id');
@@ -171,10 +171,10 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
         SaveUserEvent(users: [data]).handle(emit),
       ]);
 
-      emit(SuccessState(data));
+      emit(SuccessState(data, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -204,10 +204,10 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
         SaveUserEvent(users: [data]).handle(emit),
       ]);
 
-      emit(SuccessState(data));
+      emit(SuccessState(data, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -234,10 +234,10 @@ class LoadUserEvent extends AsyncEvent<AsyncState> {
         );
         await stream.forEach((data) {
           if (data != null) {
-            emit(SuccessState(data));
+            emit(SuccessState(data, event: this));
           } else {
             emit(FailureState(
-              code: 'no-record',
+              'no-record',
               event: this,
             ));
           }
@@ -247,17 +247,17 @@ class LoadUserEvent extends AsyncEvent<AsyncState> {
           userId.fastHash,
         );
         if (data != null) {
-          emit(SuccessState(data));
+          emit(SuccessState(data, event: this));
         } else {
           emit(FailureState(
-            code: 'no-record',
+            'no-record',
             event: this,
           ));
         }
       }
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -292,10 +292,10 @@ class SaveUserEvent extends AsyncEvent<AsyncState> {
         ]);
       });
 
-      emit(SuccessState(users));
+      emit(SuccessState(users, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }

@@ -57,10 +57,10 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
     } else if (state case SuccessState<User>(:final data)) {
       currentUser.value = data;
       context.goNamed(HomeScreen.name);
-    } else if (state case FailureState<SignupUserEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -123,7 +123,7 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
           const SliverToBoxAdapter(child: SizedBox(height: kMinInteractiveDimension)),
           SliverFillRemaining(
             hasScrollBody: false,
-            child: ControllerConsumer(
+            child: ControllerBuilder(
               listener: _listenUserState,
               controller: _userController,
               builder: (context, state, child) {

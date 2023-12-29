@@ -1,8 +1,7 @@
-import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:listenable_tools/async.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import '_service.dart';
@@ -18,7 +17,7 @@ class SelectRelayEvent extends AsyncEvent<AsyncState> {
       emit(const PendingState());
 
       const accountSelect = '(SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
-      final relayFilters = 'WHERE <-works<-(${User.schema} WHERE ${User.idKey} = $userId)';
+      final relayFilters = 'WHERE <-worked<-(${User.schema} WHERE ${User.idKey} = $userId)';
       final responses = await sql('SELECT *, $accountSelect FROM ${Relay.schema} $relayFilters');
 
       final List response = responses.first;
@@ -26,10 +25,10 @@ class SelectRelayEvent extends AsyncEvent<AsyncState> {
 
       await SaveRelayEvent(relays: data).handle(emit);
 
-      emit(SuccessState(data));
+      emit(SuccessState(data, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -51,10 +50,10 @@ class GetRelayEvent extends AsyncEvent<AsyncState> {
 
       await SaveRelayEvent(relays: [data]).handle(emit);
 
-      emit(SuccessState(data));
+      emit(SuccessState(data, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -118,10 +117,10 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
 
       await SaveRelayEvent(relays: [data]).handle(emit);
 
-      emit(SuccessState(data));
+      emit(SuccessState(data, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -146,31 +145,31 @@ class LoadRelayEvent extends AsyncEvent<AsyncState> {
         );
         final subscription = stream.listen((data) {
           if (data != null) {
-            emit(SuccessState(data));
+            emit(SuccessState(data, event: this));
           } else {
             emit(FailureState(
-              code: 'no-record',
+              'no-record',
               event: this,
             ));
           }
         });
-        emit(SuccessState(subscription));
+        emit(SuccessState(subscription, event: this));
       } else {
         final data = await IsarLocalDB.isar.relays.get(
           relayId.fastHash,
         );
         if (data != null) {
-          emit(SuccessState(data));
+          emit(SuccessState(data, event: this));
         } else {
           emit(FailureState(
-            code: 'no-record',
+            'no-record',
             event: this,
           ));
         }
       }
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -199,10 +198,10 @@ class SaveRelayEvent extends AsyncEvent<AsyncState> {
         return Future.wait(relays.map((item) => item.accounts.save()));
       });
 
-      emit(SuccessState(relays));
+      emit(SuccessState(relays, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }

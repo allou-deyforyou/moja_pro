@@ -35,10 +35,10 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
-    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -76,7 +76,7 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
           ),
         ],
       ),
-      body: ControllerConsumer(
+      body: ControllerBuilder(
         listener: _listenRelayState,
         controller: _relayController,
         builder: (context, state, child) {

@@ -42,8 +42,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void _listenPermissionState(BuildContext context, AsyncState state) {
     if (state is SuccessState<Permission>) {
       context.goNamed(HomeScreen.name);
-    } else if (state case FailureState<RequestPermissionEvent>(:final code)) {
-      switch (code) {
+    } else if (state case FailureState<String>(:final data)) {
+      switch (data) {
         case 'no-permission':
           _openPermissionModal();
           break;

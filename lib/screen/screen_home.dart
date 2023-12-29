@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:listenable_tools/listenable_tools.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '_screen.dart';
 
@@ -103,8 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (availability != null) {
         showSnackBar(
           context: context,
-          backgroundColor: CupertinoColors.activeGreen,
-          text: "Votre point relais est visible jusqu'a 22h",
+          backgroundColor: CupertinoColors.activeGreen.resolveFrom(context),
+          text: "Votre point relais est visible jusqu'a ${availability.hour.toString().padLeft(2, '0')}h",
         );
       } else {
         showSnackBar(
@@ -142,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// RelayService
   late final AsyncController<AsyncState> _relayController;
+  StreamSubscription? _relaySubscription;
 
   bool _canRebuildRelay(AsyncState previousState, AsyncState currentState) {
     if (currentState is FailureState) return true;
@@ -162,6 +163,10 @@ class _HomeScreenState extends State<HomeScreen> {
       WidgetsBinding.instance.endOfFrame.whenComplete(() {
         _showAvailabilitySnackBar(_currentRelay.availability);
       });
+
+      _loadRelay();
+    } else if (state case SuccessState<StreamSubscription>(:final data)) {
+      _relaySubscription = data;
     } else if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
       _relayAccounts = _currentRelay.accounts.toList();
@@ -170,29 +175,29 @@ class _HomeScreenState extends State<HomeScreen> {
         _showAvailabilitySnackBar(_currentRelay.availability);
       }
       _relayAvailability = _currentRelay.availability?.toLocal();
-    } else if (state case FailureState<GetRelayEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
-    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
     }
   }
 
-  // Future<void> _loadRelay() {
-  //   return _relayController.run(LoadRelayEvent(
-  //     relayId: _currentRelay.id,
-  //     listen: true,
-  //   ));
-  // }
+  Future<void> _loadRelay() {
+    return _relayController.run(LoadRelayEvent(
+      relayId: _currentRelay.id,
+      listen: true,
+    ));
+  }
 
   Future<void> _getRelay() {
     return _relayController.run(GetRelayEvent(
@@ -226,6 +231,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     /// Assets
     _interstitialAdTimer?.cancel();
+
+    /// RelayService
+    _relaySubscription?.cancel();
+    _relayController.dispose();
 
     super.dispose();
   }
@@ -276,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SliverPadding(padding: kMaterialListPadding),
-            ControllerConsumer(
+            ControllerBuilder(
               autoListen: true,
               listener: _listenRelayState,
               canRebuild: _canRebuildRelay,

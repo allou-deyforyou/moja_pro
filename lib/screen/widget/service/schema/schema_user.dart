@@ -90,8 +90,8 @@ class User extends Equatable {
     return User(
       id: data[idKey],
       phone: data[phoneKey],
-      lastSign: DateTime.tryParse(data[lastSignKey]),
-      createdAt: DateTime.tryParse(data[createdAtKey]),
+      lastSign: DateTime.tryParse(data[lastSignKey])?.toLocal(),
+      createdAt: DateTime.tryParse(data[createdAtKey])?.toLocal(),
     )
 
       /// Edges

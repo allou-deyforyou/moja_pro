@@ -14,7 +14,7 @@ enum RelayAvailability {
   @override
   String toString() {
     return switch (this) {
-      RelayAvailability.enabled => 'time::now()',
+      RelayAvailability.enabled => 'fn::get_work_datetime()',
       RelayAvailability.disabled => 'NONE',
     };
   }
@@ -121,8 +121,8 @@ class Relay extends Equatable {
       image: data[imageKey],
       location: Place.fromMap(data[locationKey]),
       contacts: data[contactsKey]?.cast<String>(),
-      createdAt: DateTime.tryParse(data[createdAtKey].toString()),
-      availability: DateTime.tryParse(data[availabilityKey].toString()),
+      createdAt: DateTime.tryParse(data[createdAtKey].toString())?.toLocal(),
+      availability: DateTime.tryParse(data[availabilityKey].toString())?.toLocal(),
     )
 
       /// Edges

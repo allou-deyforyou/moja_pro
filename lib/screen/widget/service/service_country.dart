@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:listenable_tools/async.dart';
+import 'package:flutter/foundation.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 
 import '_service.dart';
 
@@ -41,10 +41,10 @@ class SelectCountry extends AsyncEvent<AsyncState> {
         return country.copyWith(id: fetched.id);
       }));
 
-      emit(SuccessState(data));
+      emit(SuccessState(data, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -65,10 +65,10 @@ class SaveCountryEvent extends AsyncEvent<AsyncState> {
         return IsarLocalDB.isar.countrys.putAll(countries);
       });
 
-      emit(SuccessState(countries));
+      emit(SuccessState(countries, event: this));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }

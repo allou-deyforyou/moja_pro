@@ -119,10 +119,10 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
       context.pop(_currentRelay);
-    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -228,7 +228,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
           ),
         ],
       ),
-      bottomSheet: ControllerConsumer(
+      bottomSheet: ControllerBuilder(
         listener: _listenPlaceState,
         controller: _placeController,
         builder: (context, placeState, child) {
@@ -243,7 +243,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
                   _ => null,
                 },
               ),
-              ControllerConsumer(
+              ControllerBuilder(
                 listener: _listenRelayState,
                 controller: _relayController,
                 builder: (context, relayState, child) {

@@ -1,4 +1,4 @@
-import 'package:listenable_tools/async.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '_service.dart';
@@ -19,13 +19,13 @@ class AuthStateSmsCodeSent extends AsyncState {
   final Duration timeout;
   final int? resendToken;
   @override
-  Record get equality => (
+  List<Object?> get props => [
         verificationId,
         resendToken,
         phoneNumber,
         country,
         timeout,
-      );
+      ];
 }
 
 class AuthStateCodeAutoRetrievalTimeout extends AsyncState {
@@ -38,11 +38,11 @@ class AuthStateCodeAutoRetrievalTimeout extends AsyncState {
   final String phoneNumber;
   final Duration timeout;
   @override
-  Record get equality => (
+  List<Object?> get props => [
         verificationId,
         phoneNumber,
         timeout,
-      );
+      ];
 }
 
 class AuthStatePhoneNumberVerified extends AsyncState {
@@ -51,7 +51,9 @@ class AuthStatePhoneNumberVerified extends AsyncState {
   });
   final PhoneAuthCredential credential;
   @override
-  Record get equality => (credential,);
+  List<Object?> get props => [
+        credential,
+      ];
 }
 
 class AuthStateUserSigned extends AsyncState {
@@ -62,7 +64,10 @@ class AuthStateUserSigned extends AsyncState {
   final String userId;
   final String idToken;
   @override
-  Record get equality => (userId, idToken);
+  List<Object?> get props => [
+        userId,
+        idToken,
+      ];
 }
 
 class AuthStateSignedOut extends AsyncState {
@@ -109,7 +114,7 @@ class VerifyPhoneNumberEvent extends AsyncEvent<AsyncState> {
         },
         verificationFailed: (exception) {
           emit(FailureState(
-            code: exception.code,
+            exception.code,
             event: this,
           ));
         },
@@ -119,7 +124,7 @@ class VerifyPhoneNumberEvent extends AsyncEvent<AsyncState> {
       );
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -130,28 +135,34 @@ class UpdatePhoneNumber extends AsyncEvent<AsyncState> {
   const UpdatePhoneNumber({
     required this.verificationId,
     required this.smsCode,
-    this.credential,
+    this.authCredential,
   });
-  final PhoneAuthCredential? credential;
+  final PhoneAuthCredential? authCredential;
   final String verificationId;
   final String smsCode;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final credential = this.credential ?? PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
-      await FirebaseConfig.firebaseAuth.currentUser!.updatePhoneNumber(credential);
+      final credential = switch (authCredential) {
+        PhoneAuthCredential() => authCredential,
+        _ => PhoneAuthProvider.credential(
+            verificationId: verificationId,
+            smsCode: smsCode,
+          ),
+      };
+      await FirebaseConfig.firebaseAuth.currentUser!.updatePhoneNumber(credential!);
       final userId = FirebaseConfig.firebaseAuth.currentUser!.uid;
       final idToken = await FirebaseConfig.firebaseAuth.currentUser!.getIdToken();
       emit(AuthStateUserSigned(userId: userId, idToken: idToken!));
     } on FirebaseAuthException catch (error) {
       emit(FailureState(
-        code: error.code,
+        error.code,
         event: this,
       ));
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -162,28 +173,34 @@ class SignInEvent extends AsyncEvent<AsyncState> {
   SignInEvent({
     required this.verificationId,
     required this.smsCode,
-    this.credential,
+    this.authCredential,
   });
-  final AuthCredential? credential;
+  final AuthCredential? authCredential;
   final String verificationId;
   final String smsCode;
   @override
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      final credential = this.credential ?? PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
-      await FirebaseConfig.firebaseAuth.signInWithCredential(credential);
+      final credential = switch (authCredential) {
+        PhoneAuthCredential() => authCredential,
+        _ => PhoneAuthProvider.credential(
+            verificationId: verificationId,
+            smsCode: smsCode,
+          ),
+      };
+      await FirebaseConfig.firebaseAuth.signInWithCredential(credential!);
       final userId = FirebaseConfig.firebaseAuth.currentUser!.uid;
       final idToken = await FirebaseConfig.firebaseAuth.currentUser!.getIdToken();
       emit(AuthStateUserSigned(userId: userId, idToken: idToken!));
     } on FirebaseAuthException catch (error) {
       emit(FailureState(
-        code: error.code,
+        error.code,
         event: this,
       ));
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }
@@ -200,12 +217,12 @@ class SignOutEvent extends AsyncEvent<AsyncState> {
       emit(const AuthStateSignedOut());
     } on FirebaseAuthException catch (error) {
       emit(FailureState(
-        code: error.code,
+        error.code,
         event: this,
       ));
     } catch (error) {
       emit(FailureState(
-        code: 'internal-error',
+        'internal-error',
         event: this,
       ));
     }

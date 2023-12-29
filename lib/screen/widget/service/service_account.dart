@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:listenable_tools/async.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 
 import '_service.dart';
 
@@ -34,7 +34,7 @@ class SetAccountEvent extends AsyncEvent<AsyncState> {
       emit(SuccessState(data));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }
@@ -58,7 +58,7 @@ class SaveAccountEvent extends AsyncEvent<AsyncState> {
       emit(SuccessState(accounts));
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }

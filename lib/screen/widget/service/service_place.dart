@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:listenable_tools/async.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 
 import '_service.dart';
 
@@ -35,7 +35,7 @@ class SearchPlaceEvent extends AsyncEvent<AsyncState> {
       final data = await searchPlace(position: position, query: query);
       if (data.isNotEmpty) {
         if (query.isNotEmpty) {
-          emit(SuccessState(data));
+          emit(SuccessState(data, event: this));
         } else {
           final place = data.first;
           final item = place.copyWith(
@@ -44,17 +44,17 @@ class SearchPlaceEvent extends AsyncEvent<AsyncState> {
               position.latitude,
             ]),
           );
-          emit(SuccessState(item));
+          emit(SuccessState(item, event: this));
         }
       } else {
         emit(FailureState(
-          code: 'no-record',
+          'no-record',
           event: this,
         ));
       }
     } catch (error) {
       emit(FailureState(
-        code: error.toString(),
+        'internal-error',
         event: this,
       ));
     }

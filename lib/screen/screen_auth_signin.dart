@@ -54,8 +54,8 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
       _uid = state.userId;
       _idToken = state.idToken;
       _signinOrSetUser();
-    } else if (state is FailureState) {
-      switch (state.code) {}
+    } else if (state case FailureState<String>(:final data)) {
+      switch (data) {}
     }
   }
 
@@ -100,8 +100,8 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
     } else if (state case SuccessState<User>(:final data)) {
       currentUser.value = _currentUser?.copyWith(phone: data.phone) ?? data;
       context.goNamed(HomeScreen.name);
-    } else if (state case FailureState<SigninUserEvent>(:final code)) {
-      switch (code) {
+    } else if (state case FailureState<String>(:final data)) {
+      switch (data) {
         case 'no-record':
           context.pushReplacementNamed(AuthSignupScreen.name, extra: {
             AuthSignupScreen.countryKey: _currentCountry,
@@ -112,7 +112,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
         default:
           showSnackBar(
             context: context,
-            text: switch (code) {
+            text: switch (data) {
               _ => "Une erreur s'est produite",
             },
           );
@@ -194,7 +194,7 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
               child: ValueListenableBuilder(
                 valueListenable: _authController,
                 builder: (context, authState, child) {
-                  return ControllerConsumer(
+                  return ControllerBuilder(
                     autoListen: true,
                     listener: _listenUserState,
                     controller: _userController,

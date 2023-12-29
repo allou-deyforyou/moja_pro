@@ -90,10 +90,10 @@ class _AuthScreenState extends State<AuthScreen> {
     } else if (state case SuccessState<List<Country>>(:final data)) {
       _countryList = data;
       _currentCountry ??= _countryList!.firstOrNull;
-    } else if (state case FailureState(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -114,10 +114,10 @@ class _AuthScreenState extends State<AuthScreen> {
       context.pushNamed(AuthSigninScreen.name, extra: {
         AuthSigninScreen.currentUserKey: _currentUser,
       });
-    } else if (state case FailureState(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -165,7 +165,7 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           const SliverPadding(padding: kMaterialListPadding),
           SliverToBoxAdapter(
-            child: ControllerConsumer(
+            child: ControllerBuilder(
               autoListen: true,
               listener: _listenCountryState,
               controller: _countryController,
@@ -191,7 +191,7 @@ class _AuthScreenState extends State<AuthScreen> {
           const SliverToBoxAdapter(child: SizedBox(height: kMinInteractiveDimension)),
           SliverFillRemaining(
             hasScrollBody: false,
-            child: ControllerConsumer(
+            child: ControllerBuilder(
               listener: _listenAuthState,
               controller: _authController,
               builder: (context, state, child) {

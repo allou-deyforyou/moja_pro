@@ -112,13 +112,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state is InitState) {
       _loadRelay();
+    } else if (state case SuccessState<StreamSubscription>(:final data)) {
+      _relaySubscription = data;
     } else if (state case SuccessState<Relay>(:final data)) {
       _currentRelay = data;
       _currentName = _currentRelay.name;
       _currentImage = _currentRelay.image;
       _currentLocation = _currentRelay.location;
       _currentContact = _currentRelay.contacts!.first;
-    } else if (state case FailureState<SetRelayEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       _currentName = _currentRelay.name;
       _currentImage = _currentRelay.image;
       _currentLocation = _currentRelay.location;
@@ -126,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );

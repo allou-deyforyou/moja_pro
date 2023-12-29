@@ -147,10 +147,10 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
   void _listenUserState(BuildContext context, AsyncState state) {
     if (state is InitState) {
       context.goNamed(HomeScreen.name);
-    } else if (state case FailureState<SignOutUserEvent>(:final code)) {
+    } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
-        text: switch (code) {
+        text: switch (data) {
           _ => "Une erreur s'est produite",
         },
       );
@@ -253,7 +253,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               ),
               divider,
               SliverToBoxAdapter(
-                child: ControllerConsumer(
+                child: ControllerBuilder(
                   listener: _listenUserState,
                   controller: _userController,
                   builder: (context, state, child) {
