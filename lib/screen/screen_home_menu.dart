@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:listenable_tools/listenable_tools.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '_screen.dart';
 
@@ -104,14 +104,22 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
           children: [
             HomeMenuSupportEmailWidget(
               email: "support@moja.com",
-              onTap: () {
-                launchUrl(Uri.parse('uri'));
+              onTap: () async {
+                final url = Uri(scheme: "mailto", path: "support@moja.com");
+                if (await canLaunchUrl(url)) {
+                  launchUrl(url);
+                } else {
+                  
+                }
               },
             ),
             HomeMenuSupportWhatsappWidget(
               phone: "+225 0749414602",
-              onTap: () {
-                launchUrl(Uri.parse('uri'));
+              onTap: () async {
+                final url = Uri(scheme: "https", host: "wa.me", path: "+225 0749414602");
+                if (await canLaunchUrl(url)) {
+                  launchUrl(url);
+                } else {}
               },
             ),
           ],
@@ -126,6 +134,10 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
       'hello',
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     );
+  }
+
+  void _openRateScreen() {
+    HiveLocalDB.showInAppReview();
   }
 
   void _openLogoutModal() async {
@@ -249,6 +261,11 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
               SliverToBoxAdapter(
                 child: HomeMenuShare(
                   onTap: _openShareScreen,
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: HomeMenuRate(
+                  onTap: _openRateScreen,
                 ),
               ),
               divider,

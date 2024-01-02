@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobConfig {
@@ -19,7 +20,15 @@ class AdMobConfig {
   static Future<void> production() async {
     await MobileAds.instance.initialize();
 
-    _choiceAdBanner = 'ca-app-pub-3940256099942544/6300978111';
-    _homeInterstitialAd = 'ca-app-pub-3940256099942544/1033173712';
+    _choiceAdBanner = switch (defaultTargetPlatform) {
+      TargetPlatform.android => "ca-app-pub-4374451154944181/4638579973",
+      TargetPlatform.iOS => "ca-app-pub-4374451154944181/7264743313",
+      _ => throw 'Unsupported Platform',
+    };
+    _homeInterstitialAd = switch (defaultTargetPlatform) {
+      TargetPlatform.android => "ca-app-pub-4374451154944181/9427872228",
+      TargetPlatform.iOS => "ca-app-pub-4374451154944181/1564063761",
+      _ => throw 'Unsupported Platform',
+    };
   }
 }

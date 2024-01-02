@@ -118,6 +118,36 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
       await SaveRelayEvent(relays: [data]).handle(emit);
 
       emit(SuccessState(data, event: this));
+
+      if (rawImage != null) {
+        FirebaseConfig.firebaseAnalytics.logEvent(
+          name: 'set-relay-image',
+          parameters: {
+            Relay.idKey: data.id,
+            Relay.nameKey: data.name,
+          },
+        );
+      }
+      if (availability != null) {
+        FirebaseConfig.firebaseAnalytics.logEvent(
+          name: 'set-relay-availability',
+          parameters: {
+            Relay.idKey: data.id,
+            Relay.nameKey: data.name,
+            Relay.availabilityKey: data.availability.toString(),
+          },
+        );
+      }
+      if (location != null) {
+        FirebaseConfig.firebaseAnalytics.logEvent(
+          name: 'set-relay-location',
+          parameters: {
+            Relay.idKey: data.id,
+            Relay.nameKey: data.name,
+            Relay.availabilityKey: (data.location?.title).toString(),
+          },
+        );
+      }
     } catch (error) {
       emit(FailureState(
         'internal-error',
@@ -194,7 +224,7 @@ class SaveRelayEvent extends AsyncEvent<AsyncState> {
           accounts: List.of(relays.expand((item) => item.accounts)),
         ).handle(emit),
       ]);
-      await IsarLocalDB.isar.writeTxn(() async {
+      await IsarLocalDB.isar.writeTxn(() {
         return Future.wait(relays.map((item) => item.accounts.save()));
       });
 

@@ -158,6 +158,22 @@ class HomeMenuShare extends StatelessWidget {
   }
 }
 
+class HomeMenuRate extends StatelessWidget {
+  const HomeMenuRate({
+    super.key,
+    this.onTap,
+  });
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return CustomListTile(
+      onTap: onTap,
+      title: Text(localizations.rateapp.capitalize()),
+    );
+  }
+}
+
 class HomeMenuLogout extends StatelessWidget {
   const HomeMenuLogout({
     super.key,

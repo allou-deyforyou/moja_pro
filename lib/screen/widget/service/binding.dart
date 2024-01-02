@@ -28,4 +28,11 @@ class MyService extends FlutterService {
       AdMobConfig.production(),
     ]);
   }
+
+  @override
+  Future<void> afterBinding() {
+    return Future.wait([
+      HiveLocalDB.showInAppReview(),
+    ]);
+  }
 }

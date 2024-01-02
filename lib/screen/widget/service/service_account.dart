@@ -32,6 +32,15 @@ class SetAccountEvent extends AsyncEvent<AsyncState> {
       await SaveAccountEvent(accounts: [data]).handle(emit);
 
       emit(SuccessState(data));
+
+      FirebaseConfig.firebaseAnalytics.logEvent(
+        name: 'set-account-balance',
+        parameters: {
+          Account.idKey: data.id,
+          Account.nameKey: data.name,
+          Account.balanceKey: data.balance,
+        },
+      );
     } catch (error) {
       emit(FailureState(
         'internal-error',

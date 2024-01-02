@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:listenable_tools/listenable_tools.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '_screen.dart';
 
@@ -10,6 +11,14 @@ class AuthScreen extends StatefulWidget {
   static const currentUserKey = 'current_user';
   static const name = 'auth';
   static const path = '/auth';
+
+  static Future<String?> redirect(BuildContext context, GoRouterState state) async {
+    if (await Permission.locationWhenInUse.isGranted) {
+      return null;
+    }
+    return OnBoardingScreen.path;
+  }
+
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }

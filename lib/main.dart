@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:service_tools/service_tools.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'screen/_screen.dart';
@@ -40,15 +41,21 @@ class _MyAppState extends State<MyApp> {
 
     _router = GoRouter(
       refreshListenable: currentUser,
-      initialLocation: OnBoardingScreen.path,
+      observers: [
+        FirebaseAnalyticsObserver(
+          analytics: FirebaseConfig.firebaseAnalytics,
+        ),
+      ],
       routes: [
         GoRoute(
           name: HomeScreen.name,
           path: HomeScreen.path,
           redirect: HomeScreen.redirect,
           pageBuilder: (context, state) {
-            return const CupertinoPage(
-              child: HomeScreen(),
+            return CupertinoPage(
+              name: state.name,
+              key: state.pageKey,
+              child: const HomeScreen(),
             );
           },
           routes: [
@@ -56,8 +63,10 @@ class _MyAppState extends State<MyApp> {
               name: ProfileScreen.name,
               path: ProfileScreen.path,
               pageBuilder: (context, state) {
-                return const CupertinoPage(
-                  child: ProfileScreen(),
+                return CupertinoPage(
+                  name: state.name,
+                  key: state.pageKey,
+                  child: const ProfileScreen(),
                 );
               },
               routes: [
@@ -67,6 +76,8 @@ class _MyAppState extends State<MyApp> {
                   pageBuilder: (context, state) {
                     final data = state.extra as Map<String, dynamic>;
                     return CupertinoPage(
+                      name: state.name,
+                      key: state.pageKey,
                       child: ProfilePhotoScreen(
                         relay: data[ProfilePhotoScreen.relayKey],
                       ),
@@ -79,6 +90,8 @@ class _MyAppState extends State<MyApp> {
                   pageBuilder: (context, state) {
                     final data = state.extra as Map<String, dynamic>;
                     return CupertinoPage(
+                      name: state.name,
+                      key: state.pageKey,
                       child: ProfileLocationScreen(
                         relay: data[ProfileLocationScreen.relayKey],
                       ),
@@ -91,9 +104,11 @@ class _MyAppState extends State<MyApp> {
               name: HomeMenuScreen.name,
               path: HomeMenuScreen.path,
               pageBuilder: (context, state) {
-                return const CupertinoPage(
+                return CupertinoPage(
+                  name: state.name,
+                  key: state.pageKey,
                   fullscreenDialog: true,
-                  child: HomeMenuScreen(),
+                  child: const HomeMenuScreen(),
                 );
               },
             ),
@@ -103,6 +118,8 @@ class _MyAppState extends State<MyApp> {
               pageBuilder: (context, state) {
                 final data = state.extra as Map<String, dynamic>;
                 return DialogPage(
+                  name: state.name,
+                  key: state.pageKey,
                   child: HomeAccountScreen(
                     account: data[HomeAccountScreen.accountKey],
                     relay: data[HomeAccountScreen.relayKey],
@@ -115,9 +132,12 @@ class _MyAppState extends State<MyApp> {
         GoRoute(
           path: AuthScreen.path,
           name: AuthScreen.name,
+          redirect: AuthScreen.redirect,
           pageBuilder: (context, state) {
             final data = state.extra as Map<String, dynamic>?;
             return CupertinoPage(
+              name: state.name,
+              key: state.pageKey,
               child: AuthScreen(
                 currentUser: data?[AuthScreen.currentUserKey],
               ),
@@ -130,6 +150,8 @@ class _MyAppState extends State<MyApp> {
               pageBuilder: (context, state) {
                 final data = state.extra as Map<String, dynamic>?;
                 return CupertinoPage(
+                  name: state.name,
+                  key: state.pageKey,
                   child: AuthSigninScreen(
                     currentUser: data?[AuthScreen.currentUserKey],
                   ),
@@ -142,6 +164,8 @@ class _MyAppState extends State<MyApp> {
               pageBuilder: (context, state) {
                 final data = state.extra as Map<String, dynamic>;
                 return CupertinoPage(
+                  name: state.name,
+                  key: state.pageKey,
                   child: AuthSignupScreen(
                     country: data[AuthSignupScreen.countryKey],
                     phone: data[AuthSignupScreen.phoneKey],
@@ -156,8 +180,10 @@ class _MyAppState extends State<MyApp> {
           name: OnBoardingScreen.name,
           path: OnBoardingScreen.path,
           pageBuilder: (context, state) {
-            return const CupertinoPage(
-              child: OnBoardingScreen(),
+            return CupertinoPage(
+              name: state.name,
+              key: state.pageKey,
+              child: const OnBoardingScreen(),
             );
           },
         ),
@@ -167,6 +193,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    print(context.theme.colorScheme.tertiaryContainer);
+
     return StreamBuilder(
       stream: _localeStream,
       initialData: _currentLocale,

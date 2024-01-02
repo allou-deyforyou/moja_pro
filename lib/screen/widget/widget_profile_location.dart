@@ -1,13 +1,12 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:widget_tools/widget_tools.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 import '_widget.dart';
 
@@ -112,6 +111,7 @@ class ProfileLocationMap extends StatefulWidget {
 
 class _ProfileLocationMapState extends State<ProfileLocationMap> {
   late String _mapStyle;
+  late SystemUiOverlayStyle _barStyle;
 
   ValueChanged<PointerUpEvent>? _onMapIdle() {
     if (widget.onMapIdle == null) return null;
@@ -126,22 +126,24 @@ class _ProfileLocationMapState extends State<ProfileLocationMap> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _mapStyle = switch (CupertinoTheme.brightnessOf(context)) {
-      Brightness.light => 'https://api.maptiler.com/maps/streets-v2/style.json?key=ohdDnBihXL3Yk2cDRMfO',
-      Brightness.dark => 'https://api.maptiler.com/maps/streets-v2-dark/style.json?key=ohdDnBihXL3Yk2cDRMfO',
-    };
+    switch (CupertinoTheme.brightnessOf(context)) {
+      case Brightness.light:
+        _mapStyle = 'https://api.maptiler.com/maps/streets-v2/style.json?key=ohdDnBihXL3Yk2cDRMfO';
+        _barStyle = SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent);
+        break;
+      case Brightness.dark:
+        _mapStyle = 'https://api.maptiler.com/maps/streets-v2-dark/style.json?key=ohdDnBihXL3Yk2cDRMfO';
+        _barStyle = SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final style = switch (CupertinoTheme.brightnessOf(context)) {
-      Brightness.light => SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
-      Brightness.dark => SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
-    };
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      sized: false,
-      value: style,
-      child: CustomKeepAlive(
+    return CustomKeepAlive(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        sized: false,
+        value: _barStyle,
         child: Listener(
           onPointerUp: _onMapIdle(),
           onPointerDown: _onMapMoved(),
@@ -154,12 +156,19 @@ class _ProfileLocationMapState extends State<ProfileLocationMap> {
             onMapCreated: widget.onMapCreated,
             onMapLongClick: widget.onMapLongClick,
             myLocationEnabled: widget.myLocationEnabled,
+            myLocationRenderMode: switch (defaultTargetPlatform) {
+              TargetPlatform.iOS => MyLocationRenderMode.COMPASS,
+              _ => MyLocationRenderMode.GPS,
+            },
             onUserLocationUpdated: widget.onUserLocationUpdated,
             onStyleLoadedCallback: widget.onStyleLoadedCallback ?? () {},
-            gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
             initialCameraPosition: switch (widget.center) {
               null => const CameraPosition(target: LatLng(0.0, 0.0)),
-              _ => CameraPosition(target: widget.center!, zoom: 18.0),
+              _ => CameraPosition(
+                  target: widget.center!,
+                  tilt: 60.0,
+                  zoom: 18.0,
+                ),
             },
           ),
         ),
@@ -182,7 +191,7 @@ class ProfileLocationPin extends StatelessWidget {
         child: Transform.scale(
           scale: 4.0,
           child: LottieBuilder.asset(
-            Assets.images.lottiePin,
+            Assets.images.mylocation,
             controller: controller,
             fit: BoxFit.contain,
             animate: false,
@@ -281,6 +290,31 @@ class ProfileLocationSubmittedButton extends StatelessWidget {
           child: Text(localizations.define.toUpperCase()),
         ),
       ),
+    );
+  }
+}
+
+class LocationItemWidget extends StatelessWidget {
+  const LocationItemWidget({
+    super.key,
+    this.onTap,
+    this.subtitle,
+    required this.title,
+  });
+  final String title;
+  final String? subtitle;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return ListTile(
+      titleTextStyle: theme.textTheme.titleMedium!.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      onTap: onTap,
+      leading: const Icon(CupertinoIcons.location_solid),
+      subtitle: subtitle != null ? Text(subtitle!) : null,
+      title: Text(title),
     );
   }
 }

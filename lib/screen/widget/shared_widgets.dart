@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:widget_tools/widget_tools.dart';
 import 'package:image_editor/image_editor.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 
 import '_widget.dart';
@@ -20,7 +20,6 @@ void showSnackBar({
   final theme = context.theme;
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     showCloseIcon: true,
-    shape: const StadiumBorder(),
     backgroundColor: backgroundColor,
     behavior: SnackBarBehavior.floating,
     closeIconColor: switch (backgroundColor) {
@@ -55,7 +54,13 @@ void showSnackBar({
 }
 
 class DialogPage<T> extends Page<T> {
-  const DialogPage({super.key, required this.child});
+  const DialogPage({
+    super.key,
+    super.name,
+    super.arguments,
+    super.restorationId,
+    required this.child,
+  });
   final Widget child;
   @override
   Route<T> createRoute(BuildContext context) {
@@ -689,21 +694,23 @@ class CustomBannerAdWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomKeepAlive(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) {
-          return SizeTransition(
-            sizeFactor: animation,
-            child: child,
-          );
-        },
-        child: Visibility(
-          key: ValueKey(loaded),
-          visible: loaded,
-          child: SizedBox(
-            width: width ?? double.maxFinite,
-            height: height ?? customBannerAd.height.toDouble(),
-            child: AdWidget(ad: ad),
+      child: ClipPath(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            );
+          },
+          child: Visibility(
+            key: ValueKey(loaded),
+            visible: loaded,
+            child: SizedBox(
+              width: width ?? double.maxFinite,
+              height: height ?? customBannerAd.height.toDouble(),
+              child: AdWidget(ad: ad),
+            ),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '_screen.dart';
 
@@ -15,10 +16,13 @@ class HomeScreen extends StatefulWidget {
   static const path = '/';
 
   static Future<String?> redirect(BuildContext context, GoRouterState state) async {
-    if (currentUser.value != null) {
-      return null;
+    if (await Permission.locationWhenInUse.isGranted) {
+      if (currentUser.value != null) {
+        return null;
+      }
+      return AuthScreen.path;
     }
-    return AuthScreen.path;
+    return OnBoardingScreen.path;
   }
 
   @override
@@ -33,12 +37,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late List<Account> _relayAccounts;
 
+  Timer? _availabilityTimer;
+
   Timer? _interstitialAdTimer;
   late Duration _interstitialAdTimeout;
   InterstitialAd? _interstitialAd;
 
   BannerAd? _bannerAd;
   late ValueNotifier<bool> _bannerAdLoaded;
+
+  bool _enabledAvailability([DateTime? availability]) {
+    availability ??= _relayAvailability;
+    return availability != null && availability.isAfter(DateTime.now());
+  }
 
   void _loadInterstitialAd() {
     _interstitialAdTimer = Timer(_interstitialAdTimeout, () async {
@@ -70,7 +81,14 @@ class _HomeScreenState extends State<HomeScreen> {
       adUnitId: AdMobConfig.choiceAdBanner,
       listener: BannerAdListener(
         onAdFailedToLoad: (ad, err) => ad.dispose(),
-        onAdLoaded: (ad) => _bannerAdLoaded.value = true,
+        onAdLoaded: (ad) {
+          _bannerAdLoaded.value = true;
+
+          FirebaseConfig.firebaseAnalytics.logAdImpression(
+            adUnitName: ad.adUnitId,
+            adFormat: 'BannerAd',
+          );
+        },
       ),
     )..load();
   }
@@ -98,19 +116,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _showAvailabilitySnackBar(DateTime? availability) {
+  void _showAvailabilityNotification(DateTime? availability) {
     if (mounted) {
-      if (availability != null) {
-        showSnackBar(
-          context: context,
-          backgroundColor: CupertinoColors.activeGreen.resolveFrom(context),
-          text: "Votre point relais est visible jusqu'a ${availability.hour.toString().padLeft(2, '0')}h",
+      if (availability != null && _enabledAvailability(availability)) {
+        NotificationConfig.showAvailabilityNotification(
+          fixed: true,
+          title: "${_currentRelay.name} est en ligne 🤗 !",
+          body: "Votre point relais reste visible jusqu'a ${availability.hour.toString().padLeft(2, '0')}h.",
+        );
+        NotificationConfig.showAvailabilityNotification(
+          dateTime: availability,
+          title: "${_currentRelay.name} est hors ligne !",
+          body: "Votre point relais a été fermé.",
         );
       } else {
-        showSnackBar(
-          context: context,
-          backgroundColor: CupertinoColors.destructiveRed,
-          text: "Votre point relais est fermé",
+        NotificationConfig.showAvailabilityNotification(
+          title: "${_currentRelay.name} est hors ligne !",
+          body: "Votre point relais a été fermé.",
         );
       }
     }
@@ -133,6 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (data != null) {
       await _interstitialAd?.show();
+      FirebaseConfig.firebaseAnalytics.logAdImpression(
+        adUnitName: _interstitialAd?.adUnitId,
+        adFormat: 'interstitialAd',
+      );
       _interstitialAd = null;
 
       return data;
@@ -161,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       WidgetsBinding.instance.endOfFrame.whenComplete(() {
-        _showAvailabilitySnackBar(_currentRelay.availability);
+        _showAvailabilityNotification(_currentRelay.availability);
       });
 
       _loadRelay();
@@ -172,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _relayAccounts = _currentRelay.accounts.toList();
 
       if (_relayAvailability != _currentRelay.availability) {
-        _showAvailabilitySnackBar(_currentRelay.availability);
+        _showAvailabilityNotification(_currentRelay.availability);
       }
       _relayAvailability = _currentRelay.availability?.toLocal();
     } else if (state case FailureState<String>(:final data)) {
@@ -231,6 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     /// Assets
     _interstitialAdTimer?.cancel();
+    _availabilityTimer?.cancel();
 
     /// RelayService
     _relaySubscription?.cancel();
@@ -264,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: _relayController,
                 canRebuild: _canRebuildRelay,
                 builder: (context, state, child) {
-                  bool active = _currentRelay.availability != null;
+                  bool active = _enabledAvailability();
                   return StatefulBuilder(
                     builder: (context, setState) {
                       void onChanged(bool value) {

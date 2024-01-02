@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import '_assets.dart';
 
 class AppThemes {
-  static const primaryColor = CupertinoColors.systemBlue;
+  static const primaryColor = Color(0xFF32ADE6);
   static const tertialColor = Color(0xFFFF0000);
   static const _appBarTheme = AppBarTheme(
     centerTitle: false,
@@ -79,7 +79,7 @@ class AppThemes {
           tertiaryContainer: const Color(0xFFF1E4E4),
           brightness: Brightness.light,
           seedColor: primaryColor,
-          tertiary: tertialColor,
+          // tertiary: tertialColor,
           primary: primaryColor,
         ),
       );

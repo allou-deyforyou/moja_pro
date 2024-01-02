@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:maplibre_gl/mapbox_gl.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 
 import '_screen.dart';
@@ -21,13 +20,24 @@ class ProfileLocationScreen extends StatefulWidget {
 
 class _ProfileLocationScreenState extends State<ProfileLocationScreen> with TickerProviderStateMixin {
   /// Assets
-  PersistentBottomSheetController? _bottomSheetController;
-  late AnimationController _pinAnimationController;
   late ValueNotifier<bool> _myLocationController;
+  late AnimationController _pinAnimationController;
+  late ValueNotifier<double?> _pinVisibilityController;
+  PersistentBottomSheetController? _bottomSheetController;
   late Relay _currentRelay;
 
-  void _animatePin() {
-    _pinAnimationController.repeat(min: 0.15, max: 1.0);
+  Future<void> _loadPin() async {
+    _pinAnimationController.value = 0.6;
+    _pinAnimationController.repeat(min: 0.7, max: 0.8);
+  }
+
+  Future<void> _startPin() async {
+    _pinAnimationController.value = 0.1;
+    await _pinAnimationController.animateTo(0.4);
+  }
+
+  Future<void> _stopPin() async {
+    await _pinAnimationController.animateTo(0.0);
   }
 
   void _resetPin() {
@@ -45,49 +55,80 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   /// MapLibre
   MaplibreMapController? _mapController;
   UserLocation? _userLocation;
+  LatLng? _centerPosition;
+
+  late double _mapPadding;
+  double? _bearing;
 
   void _onMapCreated(MaplibreMapController controller) async {
     _mapController = controller;
+  }
 
-    double bottom = context.mediaQuery.padding.bottom;
-    await _mapController!.updateContentInsets(EdgeInsets.only(
-      bottom: bottom + kBottomNavigationBarHeight * 3,
+  Future<void> _onStyleLoadedCallback() async {
+    _pinVisibilityController.value = _mapPadding;
+
+    await Future.wait([
+      _updateContentInsets(),
+    ]);
+  }
+
+  Future<void> _updateContentInsets() {
+    return _mapController!.updateContentInsets(EdgeInsets.only(
+      bottom: _mapPadding,
       right: 16.0,
       left: 16.0,
     ));
-
-    if (_currentPlace == null) _goToMyPosition();
   }
 
-  void _onMapIdle() {
-    _myLocationController.value = false;
-    _searchPlaceByPoint();
+  void _onMapIdle() async {
+    await _stopPin();
+    _centerPosition = _mapController!.cameraPosition!.target;
+
+    _searchPlace(_centerPosition!);
   }
 
   void _onMapMoved() {
+    _startPin();
+
+    _myLocationController.value = false;
     _bottomSheetController?.close();
   }
 
   void _onUserLocationUpdated(UserLocation location) {
-    if (_currentPlace == null || _myLocationController.value) _goToPosition(location.position);
+    if (_currentPlace == null && _userLocation == null) {
+      _goToMyPosition(location);
+    } else if (_myLocationController.value) {
+      _goToPosition(location.position);
+    }
+
     _userLocation = location;
   }
 
-  void _goToPosition(LatLng position, {double zoom = 18.0}) {
-    _mapController?.animateCamera(
+  void _goToPosition(LatLng position) {
+    if (_mapController == null) return;
+
+    _mapController!.animateCamera(
       CameraUpdate.newCameraPosition(CameraPosition(
+        bearing: _bearing ?? 0.0,
         target: position,
-        zoom: zoom,
+        tilt: 60.0,
+        zoom: 18.0,
       )),
     );
   }
 
-  void _goToMyPosition() async {
-    if (_userLocation != null) {
-      _myLocationController.value = true;
-      _goToPosition(_userLocation!.position);
-      _searchPlaceByPoint(_userLocation!.position);
-    }
+  void _goToMyPosition([UserLocation? position]) async {
+    position ??= _userLocation;
+    if (position == null) return;
+
+    _myLocationController.value = true;
+
+    _bearing = position.bearing ?? 0.0;
+    _centerPosition = position.position;
+
+    _goToPosition(_centerPosition!);
+
+    _searchPlace(_centerPosition!);
   }
 
   /// PlaceService
@@ -96,19 +137,20 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
 
   void _listenPlaceState(BuildContext context, AsyncState state) {
     if (state is PendingState) {
-      return _animatePin();
-    } else if (state case SuccessState<Place>(:final data)) {
-      _currentPlace = data;
-      _goToPosition(_placeToLatLng(_currentPlace)!);
+      _loadPin();
+    } else {
+      if (state case SuccessState<Place>(:final data)) {
+        _currentPlace = data;
+      }
+
+      _resetPin();
     }
-    return _resetPin();
   }
 
-  void _searchPlaceByPoint([LatLng? center]) {
-    center ??= _mapController!.cameraPosition!.target;
+  void _searchPlace(LatLng position) {
     _placeController.run(SearchPlaceEvent(position: (
-      longitude: center.longitude,
-      latitude: center.latitude,
+      longitude: position.longitude,
+      latitude: position.latitude,
     )));
   }
 
@@ -118,6 +160,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   void _listenRelayState(BuildContext context, AsyncState state) {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
+      _currentPlace = _currentRelay.location;
       context.pop(_currentRelay);
     } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
@@ -144,6 +187,7 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
     _currentRelay = widget.relay;
     _currentPlace = _currentRelay.location;
     _myLocationController = ValueNotifier(false);
+    _pinVisibilityController = ValueNotifier(null);
     _pinAnimationController = AnimationController(
       duration: const Duration(milliseconds: 3000),
       vsync: this,
@@ -160,6 +204,16 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final mediaQuery = context.mediaQuery;
+    final bottom = mediaQuery.padding.bottom;
+    _mapPadding = bottom + kBottomNavigationBarHeight * 3.0;
+    _pinVisibilityController.value = _mapPadding;
+  }
+
+  @override
   void dispose() {
     /// Assets
     _pinAnimationController.dispose();
@@ -169,27 +223,27 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
   }
 
   Future<Iterable<Widget>> _suggestionsBuilder(BuildContext context, SearchController controller) async {
-    if (_userLocation != null) {
-      final position = _userLocation!.position;
-      final data = searchPlace(query: controller.text, position: (
-        longitude: position.longitude,
-        latitude: position.latitude,
-      ));
-      return data.then((places) {
-        return places.map((item) {
-          return ListTile(
-            onTap: () {
-              _placeController.value = SuccessState(item);
-              Navigator.pop(context);
-            },
-            leading: const Icon(CupertinoIcons.location_solid),
-            subtitle: Text(item.subtitle),
-            title: Text(item.title),
-          );
-        });
+    if (_userLocation == null || controller.text.isEmpty) return const [];
+
+    final position = _userLocation!.position;
+    final data = searchPlace(query: controller.text, position: (
+      longitude: position.longitude,
+      latitude: position.latitude,
+    ));
+    return data.then((places) {
+      return places.map((item) {
+        return LocationItemWidget(
+          onTap: () {
+            _myLocationController.value = false;
+            _placeController.value = SuccessState(item);
+            _goToPosition(_placeToLatLng(item)!);
+            Navigator.pop(context);
+          },
+          subtitle: item.subtitle,
+          title: item.title,
+        );
       });
-    }
-    return [];
+    });
   }
 
   @override
@@ -221,10 +275,27 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
             onMapMoved: _onMapMoved,
             onMapCreated: _onMapCreated,
             center: _placeToLatLng(_currentPlace),
+            onStyleLoadedCallback: _onStyleLoadedCallback,
             onUserLocationUpdated: _onUserLocationUpdated,
           ),
-          ProfileLocationPin(
-            controller: _pinAnimationController,
+          ValueListenableBuilder<double?>(
+            valueListenable: _pinVisibilityController,
+            builder: (context, padding, child) {
+              return Visibility(
+                key: ValueKey(padding),
+                visible: padding != null,
+                child: Builder(
+                  builder: (context) {
+                    return Positioned.fill(
+                      bottom: padding,
+                      child: ProfileLocationPin(
+                        controller: _pinAnimationController,
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
           ),
         ],
       ),

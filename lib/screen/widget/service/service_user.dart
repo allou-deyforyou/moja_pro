@@ -3,15 +3,15 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:listenable_tools/listenable_tools.dart';
 import 'package:service_tools/service_tools.dart';
+import 'package:listenable_tools/listenable_tools.dart';
 
 import '_service.dart';
 
 AsyncController<User?> get currentUser {
   final uid = FirebaseConfig.firebaseAuth.currentUser?.uid;
   final user = IsarLocalDB.isar.users.getSync('${User.schema}:$uid'.fastHash);
-  // user?.country.loadSync();
+  user?.country.loadSync();
 
   return singleton(
     AsyncController<User?>(user),
@@ -53,7 +53,20 @@ class SigninUserEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
       await refreshToken(uid: uid, idToken: idToken);
-      emit(SuccessState('${User.schema}:$uid', event: this));
+      final userId = '${User.schema}:$uid';
+
+      emit(SuccessState(userId, event: this));
+
+      await Future.wait([
+        FirebaseConfig.firebaseAnalytics.setUserId(id: userId),
+        FirebaseConfig.firebaseCrashlytics.setUserIdentifier(userId),
+      ]);
+
+      await Future.wait([
+        FirebaseConfig.firebaseAnalytics.logLogin(
+          loginMethod: 'auth-phone',
+        ),
+      ]);
     } on DioException catch (error) {
       emit(FailureState(
         switch (error.type) {
@@ -102,7 +115,19 @@ class SignupUserEvent extends AsyncEvent<AsyncState> {
       );
       final result = await compute(jsonDecode, response.data!);
       HiveLocalDB.token = result['token'];
+
       emit(SuccessState(userId, event: this));
+
+      await Future.wait([
+        FirebaseConfig.firebaseAnalytics.setUserId(id: userId),
+        FirebaseConfig.firebaseCrashlytics.setUserIdentifier(userId),
+      ]);
+
+      await Future.wait([
+        FirebaseConfig.firebaseAnalytics.logSignUp(
+          signUpMethod: 'auth-phone',
+        ),
+      ]);
     } on DioException catch (error) {
       emit(FailureState(
         switch (error.type) {
@@ -128,13 +153,20 @@ class SignOutUserEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
 
+      await FirebaseConfig.firebaseAnalytics.logEvent(
+        name: 'sign_out',
+      );
+
       await Future.wait([
         HiveLocalDB.settingsBox.clear(),
         IsarLocalDB.isar.close(deleteFromDisk: true),
       ]);
 
+      await FirebaseConfig.firebaseAnalytics.resetAnalyticsData();
+
       await runService(const MyService());
 
+      NotificationConfig.hideAvailabilityNotification();
       currentUser.value = null;
       currentCountry.reset();
       currentAuth.reset();
@@ -172,6 +204,21 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
       ]);
 
       emit(SuccessState(data, event: this));
+
+      FirebaseConfig.firebaseAnalytics.setUserProperty(
+        name: User.phoneKey,
+        value: data.phone,
+      );
+      FirebaseConfig.firebaseAnalytics.setUserProperty(
+        value: data.createdAt?.toString(),
+        name: User.createdAtKey,
+      );
+      for (final relay in data.relays) {
+        FirebaseConfig.firebaseAnalytics.setUserProperty(
+          value: relay.name,
+          name: 'relay',
+        );
+      }
     } catch (error) {
       emit(FailureState(
         'internal-error',

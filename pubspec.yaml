@@ -12,42 +12,61 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  intl:
+
   mask_text_input_formatter:
   pattern_formatter:
-  cupertino_icons:
+
+  flutter_timezone:
+  timezone:
+
   equatable:
+
   go_router:
-  intl:
+
   # Widgets
   cached_network_image:
   listenable_tools:
+  cupertino_icons:
   auto_size_text:
   widget_tools:
   maplibre_gl:
-    git:
-      url: https://github.com/maplibre/flutter-maplibre-gl.git
-      ref: main
   shimmer:
   lottie:
+
   # Services
-  flutter_image_compress:
-  firebase_messaging:
+  flutter_local_notifications:
+
   permission_handler:
-  isar_flutter_libs:
-  google_mobile_ads:
-  firebase_storage:
+
+  flutter_image_compress:
   extended_image:
-  firebase_core:
-  path_provider:
-  service_tools:
-  firebase_auth:
-  hive_flutter:
   image_picker:
   image_editor:
+
+  firebase_remote_config:
+  firebase_crashlytics:
+  firebase_analytics:
+  firebase_messaging:
+  firebase_storage:
+  firebase_core:
+  firebase_auth:
+
+  google_mobile_ads:
+
+  isar_flutter_libs:
+  isar:
+
+  hive_flutter:
+  hive:
+
+  in_app_review:
+  path_provider:
   url_launcher:
   share_plus:
-  isar:
-  hive:
+
+  service_tools:
+
   dio:
 
 dev_dependencies:
@@ -56,7 +75,14 @@ dev_dependencies:
   isar_generator:
   flutter_lints:
   build_runner:
-  analyzer:
+  flutter_launcher_icons:
+
+flutter_launcher_icons:
+  ios: true
+  remove_alpha_ios: true
+  android: "ic_launcher"
+  image_path: "assets/logo/moja_pro_logo.png"
+
 
 flutter_gen:
   output: lib/screen/widget/service/schema/assets/
