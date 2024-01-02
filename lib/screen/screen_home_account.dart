@@ -30,17 +30,6 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
     return double.tryParse(_balanceTextController.text.replaceAll('.', '').trimSpace()) ?? 0;
   }
 
-  void _setupData() {
-    _currentRelay = widget.relay;
-    _currentAccount = widget.account;
-    final balance = _currentAccount.balance?.formatted;
-    _balanceTextController = TextEditingController(text: balance);
-    _balanceTextController.selection = TextSelection(
-      extentOffset: balance?.length ?? 0,
-      baseOffset: 0,
-    );
-  }
-
   /// AccountService
   late final AsyncController<AsyncState> _accountController;
 
@@ -63,6 +52,17 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
       relay: _currentRelay,
       balance: _balance,
     ));
+  }
+
+  void _setupData() {
+    _currentRelay = widget.relay;
+    _currentAccount = widget.account;
+    final balance = _currentAccount.balance?.formatted;
+    _balanceTextController = TextEditingController(text: balance);
+    _balanceTextController.selection = TextSelection(
+      extentOffset: balance?.length ?? 0,
+      baseOffset: 0,
+    );
   }
 
   @override
@@ -99,6 +99,7 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
           ),
           SliverToBoxAdapter(
             child: HomeAccountBalanceTextField(
+              currency: _currentAccount.country.value?.currency,
               controller: _balanceTextController,
             ),
           ),

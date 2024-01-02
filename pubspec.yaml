@@ -31,6 +31,9 @@ dependencies:
   auto_size_text:
   widget_tools:
   maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: 0.16.0
   shimmer:
   lottie:
 
@@ -75,14 +78,25 @@ dev_dependencies:
   isar_generator:
   flutter_lints:
   build_runner:
+  flutter_native_splash:
   flutter_launcher_icons:
+
+flutter_native_splash:
+  color: "#ffffff"
+  color_dark: "#000000"
+  image: assets/logo/moja_pro_dark.png
+  image_dark: assets/logo/moja_pro.png
+  android_12:
+    color: "#ffffff"
+    color_dark: "#000000"
+    image: assets/logo/moja_pro_splash_logo.png
 
 flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   android: "ic_launcher"
-  image_path: "assets/logo/moja_pro_logo.png"
-
+  image_path_ios: assets/logo/moja_pro_ios_logo.png
+  image_path_android: assets/logo/moja_pro_logo.png
 
 flutter_gen:
   output: lib/screen/widget/service/schema/assets/
@@ -91,9 +105,11 @@ flutter_gen:
 flutter:
   uses-material-design: true
   generate: true
+  
   assets:
     - assets/files/
     - assets/images/
+  
   fonts:
     - family: Quicksand
       fonts:

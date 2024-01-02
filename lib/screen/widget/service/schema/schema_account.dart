@@ -9,7 +9,7 @@ part 'schema_account.g.dart';
 
 @Collection(inheritance: false)
 class Account extends Equatable {
-  const Account({
+  Account({
     required this.id,
     required this.name,
     required this.cash,
@@ -24,6 +24,7 @@ class Account extends Equatable {
   static const String cashKey = 'cash';
   static const String imageKey = 'image';
   static const String balanceKey = 'balance';
+  static const String countryKey = 'country';
 
   Id get isarId => id.fastHash;
 
@@ -32,6 +33,9 @@ class Account extends Equatable {
   final String name;
   final String image;
   final double? balance;
+
+  /// Edges
+  final country = IsarLink<Country>();
 
   @override
   String toString() {
@@ -47,6 +51,7 @@ class Account extends Equatable {
       image,
       cash,
       balance,
+      country,
     ];
   }
 
@@ -56,6 +61,7 @@ class Account extends Equatable {
     String? name,
     String? image,
     double? balance,
+    Country? country,
   }) {
     return Account(
       id: id ?? this.id,
@@ -63,7 +69,7 @@ class Account extends Equatable {
       cash: cash ?? this.cash,
       image: image ?? this.image,
       balance: balance ?? this.balance,
-    );
+    )..country.value = country ?? this.country.value;
   }
 
   Account clone() {
@@ -73,6 +79,7 @@ class Account extends Equatable {
       cash: cash,
       image: image,
       balance: balance,
+      country: country.value,
     );
   }
 
@@ -84,7 +91,7 @@ class Account extends Equatable {
       cash: data[cashKey],
       image: data[imageKey],
       balance: data[balanceKey],
-    );
+    )..country.value = Country.fromMap(data[countryKey]);
   }
 
   Map<String, dynamic> toMap() {
@@ -94,6 +101,7 @@ class Account extends Equatable {
       cashKey: cash,
       imageKey: image,
       balanceKey: balance,
+      countryKey: country.value,
     }..removeWhere((key, value) => value == null);
   }
 
@@ -104,6 +112,7 @@ class Account extends Equatable {
       balanceKey: balance,
       nameKey: name.json(),
       imageKey: image.json(),
+      countryKey: country.value?.toSurreal(),
     }..removeWhere((key, value) => value == null);
   }
 

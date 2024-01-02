@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:listenable_tools/listenable_tools.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
@@ -15,8 +14,9 @@ class SelectRelayEvent extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-
-      const accountSelect = '(SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      const countryField = 'array::first(->located->${Country.schema}.*) AS ${Account.countryKey}';
+      const balanceField = 'array::first(<-created.${Account.balanceKey}) AS ${Account.balanceKey}';
+      const accountSelect = '(SELECT *, $balanceField, $countryField FROM ${Account.schema}) AS ${Account.schema}s';
       final relayFilters = 'WHERE <-worked<-(${User.schema} WHERE ${User.idKey} = $userId)';
       final responses = await sql('SELECT *, $accountSelect FROM ${Relay.schema} $relayFilters');
 
@@ -44,7 +44,9 @@ class GetRelayEvent extends AsyncEvent<AsyncState> {
   Future<void> handle(AsyncEmitter<AsyncState> emit) async {
     try {
       emit(const PendingState());
-      const accountSelect = 'SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema} PARALLEL';
+      const countryField = 'array::first(->located->${Country.schema}.*) AS ${Account.countryKey}';
+      const balanceField = 'array::first(<-created.${Account.balanceKey}) AS ${Account.balanceKey}';
+      const accountSelect = 'SELECT *, $balanceField, $countryField FROM ${Account.schema} PARALLEL';
       final responses = await sql('SELECT *, ($accountSelect) AS ${Account.schema}s FROM ONLY $id');
       final data = Relay.fromMap(responses.first)!;
 
@@ -80,7 +82,7 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
   Future<Uint8List> _compressImage(Uint8List data) {
     return FlutterImageCompress.compressWithList(
       format: CompressFormat.png,
-      rawImage!,
+      data,
     );
   }
 
@@ -92,13 +94,8 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
 
       String? image;
       if (rawImage != null) {
-        final storage = FirebaseConfig.firebaseStorage.ref(
-          '${Relay.schema}/$id.png',
-        );
-        await storage.putData(
-          await _compressImage(rawImage!),
-          SettableMetadata(contentType: "image/png"),
-        );
+        final storage = FirebaseConfig.firebaseStorage.ref('${Relay.schema}/$id.png');
+        await storage.putData(await _compressImage(rawImage!));
         image = await storage.getDownloadURL();
       }
 
@@ -112,8 +109,7 @@ class SetRelayEvent extends AsyncEvent<AsyncState> {
 
       final responses = await sql('UPDATE ONLY $id MERGE $values;');
 
-      final result = Relay.fromMap(responses.first)!;
-      final data = result.copyWith(accounts: relay.accounts);
+      final data = Relay.fromMap(responses.first)!;
 
       await SaveRelayEvent(relays: [data]).handle(emit);
 

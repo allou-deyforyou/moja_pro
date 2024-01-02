@@ -487,6 +487,27 @@ class HomeMenuSupportWhatsappWidget extends StatelessWidget {
   }
 }
 
+class HomeMenuSupportPoliceWidget extends StatelessWidget {
+  const HomeMenuSupportPoliceWidget({
+    super.key,
+    required this.onTap,
+    required this.phone,
+  });
+  final VoidCallback? onTap;
+  final String phone;
+  @override
+  Widget build(BuildContext context) {
+    final localizations = context.localizations;
+    return CustomListTile(
+      onTap: onTap,
+      leading: const Icon(Icons.security),
+      title: Text(localizations.police.capitalize()),
+      trailing: Text(phone),
+    );
+  }
+}
+
+
 class HomeMenuLogoutModal extends StatelessWidget {
   const HomeMenuLogoutModal({super.key});
 

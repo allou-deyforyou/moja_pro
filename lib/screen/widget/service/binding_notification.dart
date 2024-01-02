@@ -8,6 +8,14 @@ import '_service.dart';
 class NotificationConfig {
   const NotificationConfig._();
 
+  static Future<void> development() {
+    return _initializeNotifications();
+  }
+
+  static Future<void> production() {
+    return _initializeNotifications();
+  }
+
   static String _getTopicFromLanguage(String language) {
     return 'moja_$language';
   }
@@ -54,31 +62,19 @@ class NotificationConfig {
     }
   }
 
-  static Future<void> development() {
-    return _initializeNotifications();
-  }
-
-  static Future<void> production() {
-    return _initializeNotifications();
-  }
-
   static FlutterLocalNotificationsPlugin? _localNotifications;
   static FlutterLocalNotificationsPlugin get localNotifications => _localNotifications!;
 
   static Future<void> _initializeNotifications() async {
-    const settingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const settingsDarwin = DarwinInitializationSettings();
     const initializationSettings = InitializationSettings(
-      android: settingsAndroid,
-      iOS: settingsDarwin,
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(),
     );
 
-    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-    );
+    final notificationsPlugin = FlutterLocalNotificationsPlugin();
+    await notificationsPlugin.initialize(initializationSettings);
 
-    _localNotifications = flutterLocalNotificationsPlugin;
+    _localNotifications = notificationsPlugin;
   }
 
   static Future<void> showAvailabilityNotification({

@@ -193,8 +193,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    print(context.theme.colorScheme.tertiaryContainer);
-
     return StreamBuilder(
       stream: _localeStream,
       initialData: _currentLocale,

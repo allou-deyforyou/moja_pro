@@ -13,6 +13,7 @@ class Country extends Equatable {
     this.id,
     this.code,
     this.dialCode,
+    this.currency,
     this.phoneFormat,
     this.translations,
   });
@@ -21,6 +22,8 @@ class Country extends Equatable {
 
   static const String idKey = 'id';
   static const String codeKey = 'code';
+  static const String boundaryKey = 'boundary';
+  static const String currencyKey = 'currency';
   static const String dialCodeKey = 'dial_code';
   static const String phoneFormatKey = 'phone_format';
   static const String translationsKey = 'translations';
@@ -30,6 +33,7 @@ class Country extends Equatable {
   final String? id;
   final String? code;
   final String? dialCode;
+  final String? currency;
   @ignore
   final String? phoneFormat;
   @ignore
@@ -56,6 +60,7 @@ class Country extends Equatable {
     String? id,
     String? code,
     String? dialCode,
+    String? currency,
     String? phoneFormat,
     Map<String, String>? translations,
   }) {
@@ -63,6 +68,7 @@ class Country extends Equatable {
       id: id ?? this.id,
       code: code ?? this.code,
       dialCode: dialCode ?? this.dialCode,
+      currency: currency ?? this.currency,
       phoneFormat: phoneFormat ?? this.phoneFormat,
       translations: translations ?? this.translations,
     );
@@ -73,6 +79,7 @@ class Country extends Equatable {
       id: id,
       code: code,
       dialCode: dialCode,
+      currency: currency,
       phoneFormat: phoneFormat,
       translations: translations,
     );
@@ -84,6 +91,7 @@ class Country extends Equatable {
       id: data[idKey],
       code: data[codeKey],
       dialCode: data[dialCodeKey],
+      currency: data[currencyKey],
       phoneFormat: data[phoneFormatKey],
       translations: data[translationsKey]?.cast<String, String>(),
     );
@@ -94,6 +102,7 @@ class Country extends Equatable {
       idKey: id,
       codeKey: code,
       dialCodeKey: dialCode,
+      currencyKey: currency,
       phoneFormatKey: phoneFormat,
       translationsKey: translations,
     }..removeWhere((key, value) => value == null);
@@ -104,6 +113,7 @@ class Country extends Equatable {
       idKey: id,
       codeKey: code?.json(),
       dialCodeKey: dialCode?.json(),
+      currencyKey: currency?.json(),
     }..removeWhere((key, value) => value == null);
   }
 

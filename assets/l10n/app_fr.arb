@@ -6,6 +6,7 @@
     "next": "suivant",
     "country": "pays",
     "ok": "ok",
+    "entercountryandphone": "pour continuer, renseignez votre pays et votre numero de téléphone.",
     "rightnumber": "est-ce le bon numéro ?",
     "yes": "oui",
     "confirm": "confirmer",
@@ -19,6 +20,34 @@
     "online": "en\nligne",
     "balance": "solde",
     "cash": "En Espèces",
+    "relaypointonline": "{name} est en ligne 🤗 !",
+    "@relaypointonline": {
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Ali Services"
+            }
+        }
+    },
+    "relaypointoffline": "{name} est hors ligne !",
+    "@relaypointoffline": {
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Ali Services"
+            }
+        }
+    },
+    "relaypointopen": "votre point relais est ouvert jusqu'à {time}.",
+    "@relaypointopen": {
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "17h"
+            }
+        }
+    },
+    "relaypointclose": "votre point relais est fermé.",
     "edit": "modifier",
     "menu": "menu",
     "relaypointprofile": "profil du point relais",
@@ -31,6 +60,7 @@
     "helporsuggestions": "aide ou suggestions",
     "email": "e-mail",
     "whatsapp": "whatsapp",
+    "police": "police",
     "shareapp": "partager l'app",
     "rateapp": "évaluer l'app",
     "logout": "se déconnecter",
@@ -55,5 +85,8 @@
     "opengallery": "ouvrir la galerie",
     "relaypointaddress": "adresse du point relais",
     "loading": "chargement",
-    "define": "définir"
+    "define": "définir",
+    "tryagain": "réessayer",
+    "connectionproblem": "problème de connexion, réessayez",
+    "erroroccured": "une erreur est survenue"
 }

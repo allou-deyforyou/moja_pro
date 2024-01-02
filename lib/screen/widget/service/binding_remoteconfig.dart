@@ -25,6 +25,14 @@ class RemoteConfig {
     await fetchAndActivate();
   }
 
+  static Future<void> fetchAndActivate() async {
+    try {
+      await FirebaseConfig.firebaseRemoteConfig.fetchAndActivate();
+    } catch (e) {
+      log('[FirebaseRemoteConfig] Failed to load: $e');
+    }
+  }
+
   static const whatsappSupportKey = 'whatsapp_support';
   static Uri get whatsappSupport => Uri(
         host: 'wa.me',
@@ -46,12 +54,4 @@ class RemoteConfig {
 
   static const appLinkKey = 'app_link';
   static String get appLink => FirebaseConfig.firebaseRemoteConfig.getString(appLinkKey);
-
-  static Future<void> fetchAndActivate() async {
-    try {
-      await FirebaseConfig.firebaseRemoteConfig.fetchAndActivate();
-    } catch (e) {
-      log('[FirebaseRemoteConfig] Failed to load: $e');
-    }
-  }
 }

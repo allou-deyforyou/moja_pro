@@ -118,21 +118,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showAvailabilityNotification(DateTime? availability) {
     if (mounted) {
+      final localizations = context.localizations;
       if (availability != null && _enabledAvailability(availability)) {
+        _availabilityTimer?.cancel();
+        _availabilityTimer = Timer(availability.difference(DateTime.now()), () {
+          _saveRelay(Relay(
+            id: _currentRelay.id,
+            name: _currentRelay.name,
+            image: _currentRelay.image,
+            contacts: _currentRelay.contacts,
+            location: _currentRelay.location,
+            createdAt: _currentRelay.createdAt,
+          ));
+        });
         NotificationConfig.showAvailabilityNotification(
           fixed: true,
-          title: "${_currentRelay.name} est en ligne 🤗 !",
-          body: "Votre point relais reste visible jusqu'a ${availability.hour.toString().padLeft(2, '0')}h.",
+          title: localizations.relaypointonline(_currentRelay.name),
+          body: localizations.relaypointopen(TimeOfDay.fromDateTime(availability).format(context)).capitalize(),
         );
         NotificationConfig.showAvailabilityNotification(
           dateTime: availability,
-          title: "${_currentRelay.name} est hors ligne !",
-          body: "Votre point relais a été fermé.",
+          title: localizations.relaypointoffline(_currentRelay.name),
+          body: localizations.relaypointclose.capitalize(),
         );
       } else {
         NotificationConfig.showAvailabilityNotification(
-          title: "${_currentRelay.name} est hors ligne !",
-          body: "Votre point relais a été fermé.",
+          title: localizations.relaypointoffline(_currentRelay.name),
+          body: localizations.relaypointclose.capitalize(),
         );
       }
     }
@@ -222,6 +234,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return _relayController.run(LoadRelayEvent(
       relayId: _currentRelay.id,
       listen: true,
+    ));
+  }
+
+  Future<void> _saveRelay(Relay relay) {
+    return _relayController.run(SaveRelayEvent(
+      relays: [relay],
     ));
   }
 
@@ -330,9 +348,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           if (data != null) setState(() => _relayAccounts[index] = data);
                         }
 
+                        final currency = item.country.value?.currency;
                         return HomeAccountCard(
                           onPressed: onPressed,
                           amount: item.balance,
+                          currency: currency,
                           name: item.name,
                           cash: item.cash,
                         );

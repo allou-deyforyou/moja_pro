@@ -96,30 +96,48 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     };
   }
 
+  VoidCallback _launnchApp(Uri url) {
+    return () async {
+      if (await canLaunchUrl(url)) {
+        launchUrl(url);
+      } else {}
+    };
+  }
+
   void _openSupportScreen() {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return HomeMenuSupportModal(
           children: [
-            HomeMenuSupportEmailWidget(
-              email: "support@moja.com",
-              onTap: () async {
-                final url = Uri(scheme: "mailto", path: "support@moja.com");
-                if (await canLaunchUrl(url)) {
-                  launchUrl(url);
-                } else {
-                  
-                }
+            Builder(
+              builder: (context) {
+                final url = RemoteConfig.policeSupport;
+                final value = Uri.decodeFull(url.path);
+                return HomeMenuSupportPoliceWidget(
+                  onTap: _launnchApp(url),
+                  phone: value,
+                );
               },
             ),
-            HomeMenuSupportWhatsappWidget(
-              phone: "+225 0749414602",
-              onTap: () async {
-                final url = Uri(scheme: "https", host: "wa.me", path: "+225 0749414602");
-                if (await canLaunchUrl(url)) {
-                  launchUrl(url);
-                } else {}
+            Builder(
+              builder: (context) {
+                final url = RemoteConfig.emailSupport;
+                final value = Uri.decodeFull(url.path);
+                return HomeMenuSupportEmailWidget(
+                  onTap: _launnchApp(url),
+                  email: value,
+                );
+              },
+            ),
+            Builder(
+              builder: (context) {
+                final url = RemoteConfig.whatsappSupport;
+                final value = Uri.decodeFull(url.path).replaceAll('/', '');
+                return HomeMenuSupportWhatsappWidget(
+                  onTap: _launnchApp(url),
+                  phone: value,
+                );
               },
             ),
           ],
@@ -131,7 +149,7 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
   void _openShareScreen() {
     final box = context.findRenderObject() as RenderBox?;
     Share.share(
-      'hello',
+      RemoteConfig.appLink,
       sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     );
   }

@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '_widget.dart';
@@ -163,9 +163,10 @@ class AuthCountryEmptyModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CustomModal(
-      title: Text("numero de telephone".toUpperCase()),
-      content: const Text("Pour continuer, renseignez votre pays et votre numero de telephone."),
+      title: Text(localizations.phonenumber.toUpperCase()),
+      content: Text(localizations.entercountryandphone.capitalize()),
       actions: const [
         SizedBox.shrink(),
         CustomModalConfirmAction(),

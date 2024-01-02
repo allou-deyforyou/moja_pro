@@ -18,6 +18,7 @@ void showSnackBar({
   VoidCallback? onTry,
 }) {
   final theme = context.theme;
+  final localizations = context.localizations;
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     showCloseIcon: true,
     backgroundColor: backgroundColor,
@@ -31,7 +32,7 @@ void showSnackBar({
     },
     action: switch (onTry) {
       VoidCallback() => SnackBarAction(
-          label: "Réessayer",
+          label: localizations.tryagain.toUpperCase(),
           onPressed: onTry,
         ),
       _ => null,

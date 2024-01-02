@@ -6,6 +6,7 @@
     "next": "next",
     "country": "country",
     "ok": "ok",
+    "entercountryandphone": "to continue, enter your country and phone number.",
     "rightnumber": "is this the right number?",
     "yes": "yes",
     "confirm": "confirm",
@@ -18,7 +19,35 @@
     "offline": "off\nline",
     "online": "on\nline",
     "balance": "balance",
-    "cash": "Cash",
+    "cash": "cash",
+    "relaypointonline": "{name} is online 🤗!",
+    "@relaypointonline": {
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Wave"
+            }
+        }
+    },
+    "relaypointoffline": "{name} is offline!",
+    "@relaypointoffline": {
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Ali Services"
+            }
+        }
+    },
+    "relaypointopen": "your relay point is open until {time}.",
+    "@relaypointopen": {
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "17h"
+            }
+        }
+    },
+    "relaypointclose": "your relay point is closed.",
     "edit": "edit",
     "menu": "menu",
     "relaypointprofile": "relay point profile",
@@ -31,6 +60,7 @@
     "helporsuggestions": "help or suggestions",
     "email": "email",
     "whatsapp": "whatsapp",
+    "police": "police",
     "shareapp": "share the app",
     "rateapp": "rate the app",
     "logout": "log out",
@@ -55,5 +85,8 @@
     "opengallery": "open gallery",
     "relaypointaddress": "relay point address",
     "loading": "loading",
-    "define": "define"
+    "define": "define",
+    "tryagain": "try again",
+    "connectionproblem": "connection problem, try again",
+    "erroroccured": "an error has occurred"
 }

@@ -191,11 +191,13 @@ class GetUserEvent extends AsyncEvent<AsyncState> {
     try {
       emit(const PendingState());
 
-      const accountQuery = '(SELECT *, array::first(<-created.balance) as balance FROM ${Account.schema}) AS accounts';
+      const countryField = 'array::first(->located->${Country.schema}.*) AS ${Account.countryKey}';
+      const balanceField = 'array::first(<-created.${Account.balanceKey}) AS ${Account.balanceKey}';
+      const accountQuery = '(SELECT *, $balanceField, $countryField FROM ${Account.schema}) AS ${Account.schema}s';
       const relayFilters = 'WHERE <-worked<-(${User.schema} WHERE ${User.idKey} = \$parent.id)';
       const relayQuery = 'SELECT *, $accountQuery FROM ${Relay.schema} $relayFilters';
 
-      final responses = await sql('SELECT *, country.*, ($relayQuery) AS ${Relay.schema}s FROM ONLY $id');
+      final responses = await sql('SELECT *, ${User.countryKey}.*, ($relayQuery) AS ${Relay.schema}s FROM ONLY $id');
 
       final data = User.fromMap(responses.first)!;
 
@@ -248,7 +250,7 @@ class SetUserEvent extends AsyncEvent<AsyncState> {
       final data = User.fromMap(responses.first)!;
 
       await Future.wait([
-        SaveUserEvent(users: [data]).handle(emit),
+        SaveUserEvent(users: [user.copyWith(phone: data.phone)]).handle(emit),
       ]);
 
       emit(SuccessState(data, event: this));

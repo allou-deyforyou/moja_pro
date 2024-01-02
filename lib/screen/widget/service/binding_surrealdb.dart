@@ -85,6 +85,9 @@ class _AuthInterceptor extends Interceptor {
 Future<Iterable<dynamic>> sql(dynamic query, {Map<String, dynamic>? headers}) async {
   final response = await dio.post<String>('/sql', data: query);
   final data = await compute(_Response.fromListJson, response.data!);
+  for (final item in data) {
+    if (item.error != null) throw item.error;
+  }
   return data.map((res) => res.result);
 }
 

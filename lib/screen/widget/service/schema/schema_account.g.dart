@@ -49,7 +49,14 @@ const AccountSchema = CollectionSchema(
   deserializeProp: _accountDeserializeProp,
   idName: r'isarId',
   indexes: {},
-  links: {},
+  links: {
+    r'country': LinkSchema(
+      id: 5762064434875799543,
+      name: r'country',
+      target: r'Country',
+      single: true,
+    )
+  },
   embeddedSchemas: {},
   getId: _accountGetId,
   getLinks: _accountGetLinks,
@@ -125,10 +132,12 @@ Id _accountGetId(Account object) {
 }
 
 List<IsarLinkBase<dynamic>> _accountGetLinks(Account object) {
-  return [];
+  return [object.country];
 }
 
-void _accountAttach(IsarCollection<dynamic> col, Id id, Account object) {}
+void _accountAttach(IsarCollection<dynamic> col, Id id, Account object) {
+  object.country.attach(col, col.isar.collection<Country>(), r'country', id);
+}
 
 extension AccountQueryWhereSort on QueryBuilder<Account, Account, QWhere> {
   QueryBuilder<Account, Account, QAfterWhere> anyIsarId() {
@@ -759,7 +768,20 @@ extension AccountQueryObject
     on QueryBuilder<Account, Account, QFilterCondition> {}
 
 extension AccountQueryLinks
-    on QueryBuilder<Account, Account, QFilterCondition> {}
+    on QueryBuilder<Account, Account, QFilterCondition> {
+  QueryBuilder<Account, Account, QAfterFilterCondition> country(
+      FilterQuery<Country> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'country');
+    });
+  }
+
+  QueryBuilder<Account, Account, QAfterFilterCondition> countryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'country', 0, true, 0, true);
+    });
+  }
+}
 
 extension AccountQuerySortBy on QueryBuilder<Account, Account, QSortBy> {
   QueryBuilder<Account, Account, QAfterSortBy> sortByBalance() {

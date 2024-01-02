@@ -11,6 +11,8 @@ import 'package:firebase_remote_config/firebase_remote_config.dart' show Firebas
 import 'package:firebase_core/firebase_core.dart' show Firebase, FirebaseApp, FirebaseOptions;
 import 'package:flutter/foundation.dart' show FlutterError, PlatformDispatcher, TargetPlatform, defaultTargetPlatform, kIsWeb;
 
+import 'binding_remoteconfig.dart';
+
 class FirebaseConfig {
   const FirebaseConfig._();
 
@@ -60,7 +62,8 @@ class FirebaseConfig {
       );
     }).sendPort);
 
-    return firebaseAnalytics.logAppOpen();
+    await firebaseAnalytics.logAppOpen();
+    await RemoteConfig.initializeRemoteConfig();
   }
 
   static FirebaseOptions get _currentPlatform {

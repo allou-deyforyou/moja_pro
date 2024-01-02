@@ -63,6 +63,14 @@ class SaveAccountEvent extends AsyncEvent<AsyncState> {
       await IsarLocalDB.isar.writeTxn(() async {
         return IsarLocalDB.isar.accounts.putAll(accounts);
       });
+      await Future.wait([
+        SaveCountryEvent(
+          countries: List.of(accounts.map((item) => item.country.value).nonNulls),
+        ).handle(emit),
+      ]);
+      await IsarLocalDB.isar.writeTxn(() {
+        return Future.wait(accounts.map((item) => item.country.save()));
+      });
 
       emit(SuccessState(accounts));
     } catch (error) {

@@ -105,8 +105,13 @@ class HomeAccountAvatarWidget extends StatelessWidget {
 }
 
 class HomeAccountBalanceTextField extends StatelessWidget {
-  const HomeAccountBalanceTextField({super.key, required this.controller});
+  const HomeAccountBalanceTextField({
+    super.key,
+    required this.controller,
+    required this.currency,
+  });
   final TextEditingController controller;
+  final String? currency;
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
@@ -137,7 +142,7 @@ class HomeAccountBalanceTextField extends StatelessWidget {
             border: InputBorder.none,
             hintText: localizations.balance,
             focusedBorder: InputBorder.none,
-            suffixIcon: const Text("francs"),
+            suffixIcon: Text(currency ?? 'f'),
           ),
         ),
       ),

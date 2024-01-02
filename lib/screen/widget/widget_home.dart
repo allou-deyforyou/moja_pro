@@ -135,11 +135,13 @@ class HomeAccountCard extends StatelessWidget {
     required this.cash,
     required this.name,
     required this.amount,
+    required this.currency,
     required this.onPressed,
   });
   final bool? cash;
   final String name;
   final double? amount;
+  final String? currency;
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
@@ -171,7 +173,15 @@ class HomeAccountCard extends StatelessWidget {
             replacement: Text(name, softWrap: false),
             child: Text(localizations.cash, softWrap: false),
           ),
-          subtitle: Text("${defaultNumberFormat.format(amount ?? 0)} f"),
+          subtitle: Text.rich(TextSpan(
+            children: [
+              TextSpan(text: defaultNumberFormat.format(amount ?? 0)),
+              TextSpan(
+                text: currency ?? 'f',
+                style: const TextStyle(fontSize: 10.0),
+              )
+            ],
+          )),
         ),
         if (cash != null && cash!)
           const Positioned(
