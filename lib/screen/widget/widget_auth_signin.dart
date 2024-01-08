@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:widget_tools/widget_tools.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '_widget.dart';
 

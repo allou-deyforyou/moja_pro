@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '_widget.dart';
 
@@ -212,7 +212,7 @@ class ProfileLocationWidget extends StatelessWidget {
     return ProfileItemWidget(
       onTap: onTap,
       label: localizations.location.capitalize(),
-      value: location ?? "Pas d'emplacement",
+      value: location ?? localizations.nolocation.capitalize(),
       foregroundColor: switch (location) {
         null => theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
         _ => null,

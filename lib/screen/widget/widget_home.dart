@@ -147,7 +147,6 @@ class HomeAccountCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
     final localizations = context.localizations;
-
     return Stack(
       children: [
         ListTile(
@@ -175,11 +174,14 @@ class HomeAccountCard extends StatelessWidget {
           ),
           subtitle: Text.rich(TextSpan(
             children: [
-              TextSpan(text: defaultNumberFormat.format(amount ?? 0)),
-              TextSpan(
-                text: currency ?? 'f',
-                style: const TextStyle(fontSize: 10.0),
-              )
+              TextSpan(text: defaultNumberFormat.format(amount)),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.top,
+                child: Text(
+                  currency ?? 'f',
+                  style: const TextStyle(fontSize: 10.0),
+                ),
+              ),
             ],
           )),
         ),
@@ -205,14 +207,13 @@ class HomeDisabledLocationModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = context.localizations;
     return CustomModal(
-      title: Text("Definissez l'emplacement du point relais".toUpperCase()),
-      content: const Text("Pour être visible près des potentiels clients, définissez l'emplacement de votre point relais."),
-      actions: const [
-        CustomModalCancelAction(),
-        CustomModalConfirmAction(
-          text: "Definir",
-        ),
+      title: Text(localizations.relaypointaddress.toUpperCase()),
+      content: const Text("Pour être en ligne et visible, définissez l'emplacement de votre point relais."),
+      actions: [
+        const CustomModalCancelAction(),
+        CustomModalConfirmAction(text: localizations.define.capitalize()),
       ],
     );
   }

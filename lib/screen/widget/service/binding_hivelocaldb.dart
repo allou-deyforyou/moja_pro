@@ -60,10 +60,7 @@ class HiveLocalDB {
   }
 
   static bool? get notifications {
-    return HiveLocalDB.settingsBox.get(
-      defaultValue: false,
-      _notificationsKey,
-    );
+    return HiveLocalDB.settingsBox.get(_notificationsKey);
   }
 
   static set notifications(bool? notifications) {

@@ -72,6 +72,7 @@
     "name": "nom",
     "contact": "contact",
     "location": "emplacement",
+    "nolocation": "pas d'emplacement",
     "editname": "modifier le nom",
     "editcontact": "modifier le contact",
     "relaypointcontact": "contact du point relais",
