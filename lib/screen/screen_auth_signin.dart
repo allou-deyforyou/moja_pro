@@ -110,10 +110,12 @@ class _AuthSigninScreenState extends State<AuthSigninScreen> {
           });
           break;
         default:
+          final localizations = context.localizations;
+
           showSnackBar(
             context: context,
             text: switch (data) {
-              _ => "Une erreur s'est produite",
+              _ => localizations.erroroccured.capitalize(),
             },
           );
       }

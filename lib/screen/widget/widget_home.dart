@@ -210,7 +210,7 @@ class HomeDisabledLocationModal extends StatelessWidget {
     final localizations = context.localizations;
     return CustomModal(
       title: Text(localizations.relaypointaddress.toUpperCase()),
-      content: const Text("Pour être en ligne et visible, définissez l'emplacement de votre point relais."),
+      content: Text(localizations.definielocationrelaypoint.capitalize()),
       actions: [
         const CustomModalCancelAction(),
         CustomModalConfirmAction(text: localizations.define.capitalize()),

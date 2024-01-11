@@ -126,10 +126,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _currentLocation = _currentRelay.location;
       _currentContact = _currentRelay.contacts!.first;
 
+      final localizations = context.localizations;
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

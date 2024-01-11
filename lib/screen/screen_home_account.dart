@@ -37,10 +37,11 @@ class _HomeAccountScreenState extends State<HomeAccountScreen> {
     if (state case SuccessState<Account>(:final data)) {
       context.pop(data);
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

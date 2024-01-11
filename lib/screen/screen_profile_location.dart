@@ -163,10 +163,11 @@ class _ProfileLocationScreenState extends State<ProfileLocationScreen> with Tick
       _currentPlace = _currentRelay.location;
       context.pop(_currentRelay);
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

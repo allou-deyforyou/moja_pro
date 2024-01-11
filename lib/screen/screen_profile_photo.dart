@@ -36,10 +36,11 @@ class _ProfilePhotoScreenState extends State<ProfilePhotoScreen> {
     if (state case SuccessState<Relay>(:var data)) {
       _currentRelay = data;
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

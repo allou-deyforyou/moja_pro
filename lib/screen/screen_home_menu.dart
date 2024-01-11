@@ -178,10 +178,11 @@ class _HomeMenuScreenState extends State<HomeMenuScreen> {
     if (state is InitState) {
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

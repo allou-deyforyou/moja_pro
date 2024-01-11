@@ -210,6 +210,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _listenRelayState(BuildContext context, AsyncState state) async {
+    final localizations = context.localizations;
+
     if (state is InitState) {
       final user = currentUser.value!;
 
@@ -243,14 +245,14 @@ class _HomeScreenState extends State<HomeScreen> {
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     } else if (state case FailureState<String>(:final data)) {
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

@@ -92,6 +92,7 @@ class NotificationConfig {
       importance: Importance.max,
       priority: Priority.high,
       channelShowBadge: true,
+      autoCancel: false,
       ongoing: fixed,
     );
     final notificationDetails = NotificationDetails(

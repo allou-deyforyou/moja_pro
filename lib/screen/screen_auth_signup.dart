@@ -58,10 +58,12 @@ class _AuthSignupScreenState extends State<AuthSignupScreen> {
       currentUser.value = data;
       context.goNamed(HomeScreen.name);
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
+
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }

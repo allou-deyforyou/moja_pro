@@ -48,6 +48,7 @@
         }
     },
     "relaypointclose": "votre point relais est fermé.",
+    "definielocationrelaypoint": "pour être en ligne et visible, définissez l'emplacement de votre point relais.",
     "edit": "modifier",
     "menu": "menu",
     "relaypointprofile": "profil du point relais",

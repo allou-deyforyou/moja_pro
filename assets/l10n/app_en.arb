@@ -48,6 +48,7 @@
         }
     },
     "relaypointclose": "your relay point is closed.",
+    "definielocationrelaypoint": "to be online and visible, define the location of your relay point.",
     "edit": "edit",
     "menu": "menu",
     "relaypointprofile": "relay point profile",

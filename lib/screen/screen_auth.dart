@@ -100,10 +100,11 @@ class _AuthScreenState extends State<AuthScreen> {
       _countryList = data;
       _currentCountry ??= _countryList!.firstOrNull;
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }
@@ -124,10 +125,12 @@ class _AuthScreenState extends State<AuthScreen> {
         AuthSigninScreen.currentUserKey: _currentUser,
       });
     } else if (state case FailureState<String>(:final data)) {
+      final localizations = context.localizations;
+
       showSnackBar(
         context: context,
         text: switch (data) {
-          _ => "Une erreur s'est produite",
+          _ => localizations.erroroccured.capitalize(),
         },
       );
     }
